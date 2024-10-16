@@ -123,7 +123,7 @@ const Navbar = (props: Props) => {
             data-original="#000000"
           />
         </svg>
-        <span>Home</span>
+        <span>Doanh Thu</span>
       </NavLink>
     </li>
     <li>

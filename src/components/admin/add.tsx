@@ -100,17 +100,17 @@ const Add = (props: Props) => {
         <Form form={form} initialValues={{ category: "1" }} onFinish={onFinish}>
           <div>
             <label className="mb-2 text-2xl text-black block">
-              Coffee name:
+              Name:
             </label>
             <Form.Item
               name="name"
               rules={[
-                { required: true, message: "Please input your Coffeename!" },
+                { required: true, message: "Please input your Name!" },
               ]}
             >
               <Input
                 className="pr-4 pl-14 py-3 text-sm text-black rounded bg-white border border-gray-400 w-full outline-[#333]"
-                placeholder="Enter Coffee name"
+                placeholder="Enter Name"
               />
             </Form.Item>
           </div>
