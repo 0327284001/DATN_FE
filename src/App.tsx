@@ -10,6 +10,9 @@ import Login from "./components/login";
 import Register from "./components/register";
 import Privaterouter from "./components/privaterouter";
 import Addcategory from "./components/admin/Category";
+import Updatecategory from "./components/admin/Updatecategory";
+import Listcategory from "./components/admin/Category";
+import Addcate from "./components/admin/addCategory";
 
 
 
@@ -30,7 +33,9 @@ function App() {
           <Route path="/admin" element={<Privaterouter><Admin/></Privaterouter>}>
             <Route path="dashboard" Component={Dashboard}></Route>
             <Route path="add" Component={Add}></Route>
-            <Route path="addcategory" Component={Addcategory}></Route>
+            <Route path="category" Component={Listcategory}></Route>
+            <Route path="addcategory" Component={Addcate}></Route>
+            <Route path="category/updatecategory/:id" Component={Updatecategory}></Route>
             <Route path="dashboard/update/:id" Component={Update}></Route>
             
           </Route>
