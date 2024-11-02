@@ -76,6 +76,17 @@ const Navbar = ({ handleLogout }: Props) => {
           </NavLink>
         </li>
         <li>
+          <NavLink
+            to="/admin/staff"
+            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${
+              active === '/admin/staff' ? 'bg-gray-700' : ''
+            }`}
+          >
+            <AddIcon />
+            <span>Staff</span>
+          </NavLink>
+        </li>
+        <li>
           <button
             onClick={logout}
             className="text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all"

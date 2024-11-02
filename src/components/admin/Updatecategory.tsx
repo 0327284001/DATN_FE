@@ -47,7 +47,7 @@ const Updatecategory = (props: Props) => {
         console.log("Updated Category:", updatedCategory);
         info();  
         form.resetFields();  
-        navigate("/admin/Listcategory");  
+        navigate("/admin/category");  
       } else {
         messageApi.error("Failed to update category");
       }

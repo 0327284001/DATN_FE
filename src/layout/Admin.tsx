@@ -20,7 +20,7 @@ const navigate  =  useNavigate()
 }
   return (
     <>
-    <div className='flex justify-between'>
+    <div className='flex'>
     <Navbar handleLogout={handleLogout}/>
     <Outlet/>
     </div>

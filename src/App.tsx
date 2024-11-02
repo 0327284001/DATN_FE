@@ -13,6 +13,7 @@ import Addcategory from "./components/admin/Category";
 import Updatecategory from "./components/admin/Updatecategory";
 import Listcategory from "./components/admin/Category";
 import Addcate from "./components/admin/addCategory";
+import add_nhanVien from "./components/nhanVien/add_nhanVien";
 
 
 
@@ -37,6 +38,7 @@ function App() {
             <Route path="addcategory" Component={Addcate}></Route>
             <Route path="category/updatecategory/:id" Component={Updatecategory}></Route>
             <Route path="dashboard/update/:id" Component={Update}></Route>
+            <Route path="staff" Component={add_nhanVien}></Route>
             
           </Route>
 

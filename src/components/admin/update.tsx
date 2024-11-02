@@ -1,20 +1,18 @@
 import { Form, FormProps, Input, Select, SelectProps } from "antd";
 import React, { useEffect, useState } from "react";
-import {
-  addProduct,
-  getProductByID,
-  updateProduct,
-} from "../../service/products";
-import { IProductLite, Iproduct } from "../../interface/products";
+
 import { useNavigate, useParams } from "react-router-dom";
-import { upload } from "../../service/upload";
+import { Icategory } from "../../interface/category";
+import { Iproduct } from "../../interface/products";
+import { getProductByID, updateProduct } from "../../service/products";
+import { getAllCategories } from "../../service/category";
 
 type Props = {};
 
 const Update = (props: Props) => {
   const [name, setName] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
-  const [category, setCategory] = useState<string>("");
+  const [category, setCategory] = useState<Icategory[]>([]); // Change this to array of Icategory
   const [Products, setProducts] = useState<Iproduct[]>([]);
   const navigate = useNavigate();
   const { id } = useParams();
@@ -23,19 +21,13 @@ const Update = (props: Props) => {
 
   type LabelRender = SelectProps["labelRender"];
 
-  const options = [
-    { label: "Tea", value: "Tea" },
-    { label: "Coffee", value: "Coffee" },
-    { label: "Iceblend", value: "Iceblend" },
-    { label: "Soft drink", value: "Soft drink" },
-  ];
   const labelRender: LabelRender = (props) => {
     const { label, value } = props;
 
     if (label) {
       return value;
     }
-    return <span>Please choose the type of drink: </span>;
+    return <span>Please choose the type of product: </span>;
   };
 
   useEffect(() => {
@@ -45,29 +37,37 @@ const Update = (props: Props) => {
         form.setFieldsValue({
           name: response.name,
           price: response.price,
-          // img: response.img,
           category: response.category,
         });
         console.log(response);
       } catch (error) {}
     };
-    fetchProduct();
-  }, []);
 
+    const fetchCategories = async () => {
+      try {
+        const categories = await getAllCategories();
+        setCategory(categories);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchProduct();
+    fetchCategories();
+  }, [id, form]);
 
   const onFinish = async (values: any) => {
     console.log("Success:", values);
-    
 
     const product: any = await updateProduct(id, values);
     setName(product.name);
-    
     setPrice(product.price);
     setCategory(product.category);
-    alert("success")
+    alert("success");
 
     navigate("/admin/dashboard");
   };
+
   console.log(name);
 
   return (
@@ -76,17 +76,17 @@ const Update = (props: Props) => {
         <Form form={form} onFinish={onFinish}>
           <div>
             <label className="mb-2 text-2xl text-black block">
-              Coffee name:
+              Edit name:
             </label>
             <Form.Item
               name="name"
               rules={[
-                { required: true, message: "Please input your Coffeename!" },
+                { required: true, message: "Please input your name!" },
               ]}
             >
               <Input
                 className="pr-4 pl-14 py-3 text-sm text-black rounded bg-white border border-gray-400 w-full outline-[#333]"
-                placeholder="Enter Coffee name"
+                placeholder="Enter name"
               />
             </Form.Item>
           </div>
@@ -100,7 +100,7 @@ const Update = (props: Props) => {
                 rules={[
                   {
                     required: true,
-                    message: "Please input your Coffee price!",
+                    message: "Please input your product price!",
                   },
                 ]}
               >
@@ -109,9 +109,26 @@ const Update = (props: Props) => {
                   placeholder="Enter Price $$$"
                 />
               </Form.Item>
-              <div className="absolute left-4"></div>
             </div>
-
+            <div className="pt-[20px]">
+              <Form.Item
+                name="category"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input your Category!",
+                  },
+                ]}
+              >
+                <Select labelRender={labelRender} style={{ width: "100%" }}>
+                  {category.map((categoryID: Icategory, index: number) => (
+                    <Select.Option key={categoryID._id} value={categoryID._id}>
+                      {categoryID.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
           </div>
           <button
             type="submit"
