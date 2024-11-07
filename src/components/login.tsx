@@ -31,7 +31,7 @@ const Login = (props: Props) => {
         setMessage("đăng nhập thành công");
         setUser(user); 
         setTimeout(() => {
-          alert("dang  nhap thanh cong")
+          alert("Đăng Nhập Thành Công")
         }, 1000);
         navigate('/admin');
       }

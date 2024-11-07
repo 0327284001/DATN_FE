@@ -14,10 +14,15 @@ import Updatecategory from "./components/admin/Updatecategory";
 import Listcategory from "./components/admin/Category";
 import Addcate from "./components/admin/addCategory";
 import add_nhanVien from "./components/nhanVien/add_nhanVien";
+import BarChart from "./components/chart/BarChart";
+
 
 
 
 function App() {
+  const labels = ['January', 'February', 'March', 'April', 'May', 'June'];
+  const data = [12, 19, 3, 5, 2, 3];
+
   return (
     <> 
     
@@ -39,6 +44,13 @@ function App() {
             <Route path="category/updatecategory/:id" Component={Updatecategory}></Route>
             <Route path="dashboard/update/:id" Component={Update}></Route>
             <Route path="staff" Component={add_nhanVien}></Route>
+              
+              
+              <Route
+              path="thongke"
+              element={<BarChart labels={labels} data={data} />}
+            >
+          </Route>
             
           </Route>
 

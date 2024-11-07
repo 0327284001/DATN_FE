@@ -55,6 +55,17 @@ const Navbar = ({ handleLogout }: Props) => {
         </li>
         <li>
           <NavLink
+            to="/admin/thongke"
+            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${
+              active === '/admin/thongke' ? 'bg-gray-700' : ''
+            }`}
+          >
+            <DashboardIcon />
+            <span>Thống Kê</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
             to="/admin/category"
             className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${
               active === '/admin/category' ? 'bg-gray-700' : ''
