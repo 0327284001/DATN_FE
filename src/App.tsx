@@ -1,6 +1,4 @@
 import React from "react";
-import logo from "./logo.svg";
-import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Admin from "./layout/Admin";
 import Dashboard from "./components/admin/Dashboard";
@@ -13,50 +11,42 @@ import Addcategory from "./components/admin/Category";
 import Updatecategory from "./components/admin/Updatecategory";
 import Listcategory from "./components/admin/Category";
 import Addcate from "./components/admin/addCategory";
-import add_nhanVien from "./components/nhanVien/add_nhanVien";
 import BarChart from "./components/chart/BarChart";
-
-
-
+import NhanVien from "./components/nhanVien/nhan_vien";
 
 function App() {
   const labels = ['January', 'February', 'March', 'April', 'May', 'June'];
   const data = [12, 19, 3, 5, 2, 3];
 
   return (
-    <> 
-    
+    <>
       <BrowserRouter>
         <Routes>
-          
+          {/* Login và Register */}
           <Route path="/login" Component={Login}></Route>
           <Route path="/" Component={Login}></Route>
-
           <Route path="/register" Component={Register}></Route>
 
-          
-
+          {/* Admin Layout */}
           <Route path="/admin" element={<Privaterouter><Admin/></Privaterouter>}>
+            {/* Dashboard */}
             <Route path="dashboard" Component={Dashboard}></Route>
             <Route path="add" Component={Add}></Route>
+            <Route path="dashboard/update/:id" Component={Update}></Route>
+
+            {/* Quản lý danh mục */}
             <Route path="category" Component={Listcategory}></Route>
             <Route path="addcategory" Component={Addcate}></Route>
             <Route path="category/updatecategory/:id" Component={Updatecategory}></Route>
-            <Route path="dashboard/update/:id" Component={Update}></Route>
-            <Route path="staff" Component={add_nhanVien}></Route>
-              
-              
-              <Route
-              path="thongke"
-              element={<BarChart labels={labels} data={data} />}
-            >
-          </Route>
-            
-          </Route>
 
+            {/* Quản lý nhân viên */}
+            <Route path="staff" Component={NhanVien}></Route>
+
+            {/* Thống kê */}
+            <Route path="thongke" element={<BarChart labels={labels} data={data} />} />
+          </Route>
         </Routes>
       </BrowserRouter>
-      
     </>
   );
 }
