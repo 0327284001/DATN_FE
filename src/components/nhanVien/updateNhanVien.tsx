@@ -134,7 +134,7 @@ const UpdateNhanVien: React.FC<UpdateNhanVienProps> = ({ nhanVien, onUpdate }) =
           className="bg-blue-600 text-white py-3 px-6 rounded-lg w-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 col-span-2"
           onClick={handleUpdateNhanVien}
         >
-          Cập Nhật
+          Cập Nhật Nhân Viên
         </button>
       </div>
     </div>

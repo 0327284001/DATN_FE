@@ -105,7 +105,7 @@ const NhanVien: React.FC = () => {
                             setCurrentView("update");
                           }}
                         >
-                          Sửa
+                          Edit
                         </button>
                         <DeleteNhanVien
                           onDelete={() => handleDeleteNhanVien(nv.maNhanVien)}

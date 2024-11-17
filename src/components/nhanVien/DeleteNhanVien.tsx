@@ -17,7 +17,7 @@ const DeleteNhanVien: React.FC<DeleteNhanVienProps> = ({ onDelete }) => {
       className="bg-red-600 text-white py-3 px-6 rounded-lg w-full hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
       onClick={handleDeleteNhanVien}
     >
-      Xóa
+      Delete
     </button>
   );
 };
