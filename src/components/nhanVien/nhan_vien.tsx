@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AddNhanVien from "./add_nhanVien";
 import UpdateNhanVien from "./updateNhanVien";
 import DeleteNhanVien from "./DeleteNhanVien";
@@ -16,26 +16,41 @@ const NhanVien: React.FC = () => {
   const [nhanVienList, setNhanVienList] = useState<NhanVien[]>([]);
   const [selectedNhanVien, setSelectedNhanVien] = useState<NhanVien | null>(null);
   const [currentView, setCurrentView] = useState<"list" | "add" | "update" | null>("list");
+  // Hàm tải dữ liệu từ Local Storage
+  useEffect(() => {
+    const storedNhanVienList = localStorage.getItem("nhanVienList");
+    if (storedNhanVienList) {
+      setNhanVienList(JSON.parse(storedNhanVienList));
+    }
+  }, []);
+
+   // Hàm lưu dữ liệu vào Local Storage
+   const saveToLocalStorage = (list: NhanVien[]) => {
+    localStorage.setItem("nhanVienList", JSON.stringify(list));
+  };
 
   const handleAddNhanVien = (newNhanVien: NhanVien) => {
-    setNhanVienList([...nhanVienList, newNhanVien]);
+    const updatedList = [...nhanVienList, newNhanVien];
+    setNhanVienList(updatedList);
+    saveToLocalStorage(updatedList); // Lưu vào Local Storage
     setCurrentView("list");
   };
 
   const handleUpdateNhanVien = (updatedNhanVien: NhanVien) => {
-    setNhanVienList(
-      nhanVienList.map((nv) =>
-        nv.maNhanVien === updatedNhanVien.maNhanVien ? updatedNhanVien : nv
-      )
+    const updatedList = nhanVienList.map((nv) =>
+      nv.maNhanVien === updatedNhanVien.maNhanVien ? updatedNhanVien : nv
     );
+    setNhanVienList(updatedList);
+    saveToLocalStorage(updatedList); // Lưu vào Local Storage
     setSelectedNhanVien(null);
     setCurrentView("list");
   };
 
   const handleDeleteNhanVien = (maNhanVien: string) => {
-    setNhanVienList(nhanVienList.filter((nv) => nv.maNhanVien !== maNhanVien));
+    const updatedList = nhanVienList.filter((nv) => nv.maNhanVien !== maNhanVien);
+    setNhanVienList(updatedList);
+    saveToLocalStorage(updatedList); // Lưu vào Local Storage
   };
-
   const handleGoBack = () => {
     const confirmExit = window.confirm("Bạn có chắc muốn thoát không?");
     if (confirmExit) {

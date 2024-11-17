@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { EyeIcon, EyeOffIcon } from '@heroicons/react/solid';
+import { EyeIcon, EyeOffIcon } from "@heroicons/react/solid";
 
 interface NhanVien {
   maNhanVien: string;
@@ -26,6 +26,13 @@ const AddNhanVien: React.FC<{ onAdd: (nv: NhanVien) => void }> = ({ onAdd }) => 
   const handleSubmit = () => {
     const newErrors: { [key: string]: string } = {};
 
+    // Validate Mã Nhân Viên
+    if (maNhanVien.trim() === "") {
+      newErrors.maNhanVien = "Mã nhân viên không được để trống.";
+    } else if (maNhanVien.length < 4 || maNhanVien.length > 10) {
+      newErrors.maNhanVien = "Mã nhân viên phải từ 4-10 ký tự.";
+    }
+
     // Validate Họ và Tên
     if (hoTen.length < 6) {
       newErrors.hoTen = "Họ và tên phải có ít nhất 6 ký tự.";
@@ -35,6 +42,17 @@ const AddNhanVien: React.FC<{ onAdd: (nv: NhanVien) => void }> = ({ onAdd }) => 
     const phoneRegex = /^[0-9]{10}$/;
     if (!phoneRegex.test(soDienThoai)) {
       newErrors.soDienThoai = "Số điện thoại phải là 10 chữ số và không có ký tự khác.";
+    }
+
+    // Validate Ngày Sinh
+    if (ngaySinh.trim() === "") {
+      newErrors.ngaySinh = "Ngày sinh không được để trống.";
+    } else {
+      const selectedDate = new Date(ngaySinh);
+      const today = new Date();
+      if (selectedDate > today) {
+        newErrors.ngaySinh = "Ngày sinh không thể lớn hơn ngày hiện tại.";
+      }
     }
 
     // Validate Mật Khẩu
@@ -57,8 +75,13 @@ const AddNhanVien: React.FC<{ onAdd: (nv: NhanVien) => void }> = ({ onAdd }) => 
       matKhau,
     });
 
-    // Clear errors after successful submission
+    // Clear errors and reset fields after successful submission
     setErrors({});
+    setMaNhanVien("");
+    setHoTen("");
+    setSoDienThoai("");
+    setNgaySinh("");
+    setMatKhau("");
   };
 
   return (
@@ -74,6 +97,7 @@ const AddNhanVien: React.FC<{ onAdd: (nv: NhanVien) => void }> = ({ onAdd }) => 
           value={maNhanVien}
           onChange={(e) => setMaNhanVien(e.target.value)}
         />
+        {errors.maNhanVien && <p className="text-red-500 text-sm">{errors.maNhanVien}</p>}
       </div>
 
       {/* Họ và Tên */}
@@ -115,6 +139,7 @@ const AddNhanVien: React.FC<{ onAdd: (nv: NhanVien) => void }> = ({ onAdd }) => 
           value={ngaySinh}
           onChange={(e) => setNgaySinh(e.target.value)}
         />
+        {errors.ngaySinh && <p className="text-red-500 text-sm">{errors.ngaySinh}</p>}
       </div>
 
       {/* Mật Khẩu */}
