@@ -13,6 +13,9 @@ import Listcategory from "./components/admin/Category";
 import Addcate from "./components/admin/addCategory";
 import BarChart from "./components/chart/BarChart";
 import NhanVien from "./components/nhanVien/nhan_vien";
+import TroChuyen from "./components/trochuyen/tro_chuyen";
+
+
 
 function App() {
   const labels = ['January', 'February', 'March', 'April', 'May', 'June'];
@@ -41,6 +44,8 @@ function App() {
 
             {/* Quản lý nhân viên */}
             <Route path="staff" Component={NhanVien}></Route>
+             {/* Quản lý chăm sóc khách hàng */}
+             <Route path="tro_chuyen" Component={TroChuyen}></Route>
 
             {/* Thống kê */}
             <Route path="thongke" element={<BarChart labels={labels} data={data} />} />

@@ -98,6 +98,17 @@ const Navbar = ({ handleLogout }: Props) => {
           </NavLink>
         </li>
         <li>
+          <NavLink
+            to="/admin/tro_chuyen"
+            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${
+              active === '/admin/tro_chuyen' ? 'bg-gray-700' : ''
+            }`}
+          >
+            <AddIcon />
+            <span>Chăm Sóc Khách Hàng</span>
+          </NavLink>
+        </li>
+        <li>
           <button
             onClick={logout}
             className="text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all"
