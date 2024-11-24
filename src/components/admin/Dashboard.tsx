@@ -2,104 +2,131 @@ import React, { useEffect, useState } from "react";
 import { DeleteProduct, getAllproducts } from "../../service/products";
 import { Iproduct } from "../../interface/products";
 import { Popconfirm } from "antd";
-import { useNavigate, useParams } from "react-router-dom";
-import Update from "./update";
+import { useNavigate } from "react-router-dom";
 
-type Props = {};
-
-const Dashboard = (props: Props) => {
-  const [products, setProduct] = useState([]);
-  const param = useParams();
+const Dashboard = () => {
+  const [products, setProducts] = useState<Iproduct[]>([]);
   const navigate = useNavigate();
 
-  console.log(param);
-
+  // Fetch dữ liệu sản phẩm
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await getAllproducts();
-        setProduct(data);
-        console.log(data,  "data");
+        setProducts(data);
       } catch (error) {
-        console.log(error);
+        console.error("Lỗi khi lấy danh sách sản phẩm:", error);
       }
     };
     fetchData();
-    
-    
   }, []);
 
+  // Xóa sản phẩm
   const delProduct = async (id: string) => {
-    await DeleteProduct(id);
-    const newproduct = products.filter(
-      (product: Iproduct) => product._id !== id
-    );
-    console.log(id);
-    setProduct(newproduct);
+    try {
+      await DeleteProduct(id);
+      const newProducts = products.filter((product) => product._id !== id);
+      setProducts(newProducts);
+    } catch (error) {
+      console.error("Lỗi khi xóa sản phẩm:", error);
+    }
   };
 
+  // Chuyển đến trang cập nhật sản phẩm
   const updateProduct = (id: string) => {
     navigate(`update/${id}`);
   };
 
+  // Hàm toggle mô tả chi tiết
+  const [expandedDescription, setExpandedDescription] = useState<string | null>(null);
+
+  const toggleDescription = (id: string) => {
+    setExpandedDescription(expandedDescription === id ? null : id);
+  };
+
   return (
-    <>
-      <div className="flex-1 overflow-x-auto shadow-md sm:rounded-lg">
-        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+    <div className="flex-1 p-4">
+      <div className="overflow-x-auto shadow-md sm:rounded-lg">
+        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
-              <th scope="col" className="px-6 py-3">
-                Product name
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Category
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Price
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Action
-              </th>
+              <th className="px-6 py-3">Tên sản phẩm</th>
+              <th className="px-6 py-3">Chủ sở hữu</th>
+              <th className="px-6 py-3">Trạng thái</th>
+              <th className="px-6 py-3">Giá</th>
+              <th className="px-6 py-3">Mô tả</th>
+              <th className="px-6 py-3">Ngày tạo</th>
+              <th className="px-6 py-3">Số lượng</th>
+              <th className="px-6 py-3">Danh mục</th>
+              <th className="px-6 py-3">Hình ảnh</th>
+              <th className="px-6 py-3">Thương hiệu</th>
+              <th className="px-6 py-3">Hành động</th>
             </tr>
           </thead>
           <tbody>
-            {products.map((product: Iproduct, index: number) => (
+            {products.map((product) => (
               <tr
-                key={index}
-                className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700"
+                key={product._id}
+                className="odd:bg-white even:bg-gray-50 border-b dark:bg-gray-900 dark:border-gray-700"
               >
-                <th
-                  scope="row"
-                  className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                >
-                  {product.name}
-                </th>
-                <td className="px-6 py-4">{product?.category?.name}</td>
+                <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                  {product.namePro}
+                </td>
+                <td className="px-6 py-4">{product.owerId}</td>
+                <td className="px-6 py-4">{product.statusPro ? "Còn hàng" : "Hết hàng"}</td>
                 <td className="px-6 py-4">${product.price}</td>
+                <td className="px-6 py-4">
+                  {/* Hiển thị mô tả ngắn gọn và có thể mở rộng */}
+                  {product.desPro && product.desPro.length > 100 ? (
+                    <>
+                      {expandedDescription === product._id
+                        ? product.desPro
+                        : `${product.desPro.slice(0, 100)}...`}
+                      <button
+                        onClick={() => toggleDescription(product._id)}
+                        className="text-blue-600 ml-2 underline"
+                      >
+                        {expandedDescription === product._id ? "Thu gọn" : "Xem thêm"}
+                      </button>
+                    </>
+                  ) : (
+                    product.desPro || "Không có mô tả"
+                  )}
+                </td>
+                <td className="px-6 py-4">{product.creatDatePro || "Chưa cập nhật"}</td>
+                <td className="px-6 py-4">{product.quantity}</td>
+                <td className="px-6 py-4">{product.listPro || "Chưa phân loại"}</td>
+                <td className="px-6 py-4">
+                  {product.imgPro?.length ? (
+                    product.imgPro.map((img: string, index: number) => (
+                      <img
+                        key={index}
+                        src={img}
+                        alt={`Product ${product.namePro}`}
+                        className="w-16 h-16 object-cover rounded-lg"
+                      />
+                    ))
+                  ) : (
+                    "Không có hình ảnh"
+                  )}
+                </td>
+                <td className="px-6 py-4">{product.brand || "Không có thương hiệu"}</td>
                 <td className="px-6 py-4">
                   <div className="flex">
                     <button
                       onClick={() => updateProduct(product._id)}
-                      type="button"
-                      className="focus:outline-none text-white bg-sky-600 hover:bg-sky-900 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 "
+                      className="text-white bg-blue-600 hover:bg-blue-800 font-medium rounded-lg px-4 py-2 me-2"
                     >
                       Edit
                     </button>
                     <Popconfirm
-                      title="Delete the task"
-                      description="Are you sure to delete this task?"
-                      onConfirm={() => {
-                        delProduct(product._id);
-                      }}
-                      // onCancel={cancel}
-                      okText="Yes"
-                      cancelText="No"
+                      title="Xóa sản phẩm"
+                      description="Bạn có chắc chắn muốn xóa sản phẩm này không?"
+                      onConfirm={() => delProduct(product._id)}
+                      okText="Có"
+                      cancelText="Không"
                     >
-                      <button
-                        // onClick={() => delProduct(product._id)}
-                        type="button"
-                        className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
-                      >
+                      <button className="text-white bg-red-600 hover:bg-red-800 font-medium rounded-lg px-4 py-2">
                         Delete
                       </button>
                     </Popconfirm>
@@ -110,7 +137,7 @@ const Dashboard = (props: Props) => {
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   );
 };
 
