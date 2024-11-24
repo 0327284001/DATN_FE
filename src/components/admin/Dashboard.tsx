@@ -72,8 +72,13 @@ const Dashboard = () => {
                 <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
                   {product.namePro}
                 </td>
-                <td className="px-6 py-4">{product.owerId}</td>
-                <td className="px-6 py-4">{product.statusPro ? "Còn hàng" : "Hết hàng"}</td>
+                <td className="px-6 py-4">
+                  {/* Kiểm tra owerId có tồn tại trước khi gọi toString */}
+                  {product.ownerId ? product.ownerId.toString() : "Không có chủ sở hữu"}
+                </td>
+                <td className="px-6 py-4">
+                  {product.statusPro ? "Còn hàng" : "Hết hàng"}
+                </td>
                 <td className="px-6 py-4">${product.price}</td>
                 <td className="px-6 py-4">
                   {/* Hiển thị mô tả ngắn gọn và có thể mở rộng */}
@@ -93,11 +98,13 @@ const Dashboard = () => {
                     product.desPro || "Không có mô tả"
                   )}
                 </td>
-                <td className="px-6 py-4">{product.creatDatePro || "Chưa cập nhật"}</td>
+                <td className="px-6 py-4">
+                  {product.creatDatePro || "Chưa cập nhật"}
+                </td>
                 <td className="px-6 py-4">{product.quantity}</td>
                 <td className="px-6 py-4">{product.listPro || "Chưa phân loại"}</td>
                 <td className="px-6 py-4">
-                  {product.imgPro?.length ? (
+                  {product.imgPro && product.imgPro.length ? (
                     product.imgPro.map((img: string, index: number) => (
                       <img
                         key={index}
@@ -110,6 +117,7 @@ const Dashboard = () => {
                     "Không có hình ảnh"
                   )}
                 </td>
+
                 <td className="px-6 py-4">{product.brand || "Không có thương hiệu"}</td>
                 <td className="px-6 py-4">
                   <div className="flex">

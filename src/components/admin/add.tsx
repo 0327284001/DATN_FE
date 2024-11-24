@@ -1,192 +1,215 @@
-import { Form, FormProps, Input, Select, SelectProps } from "antd";
-import React, { useEffect, useState } from "react";
-import { addProduct } from "../../service/products";
-import { Iproduct } from "../../interface/products";
-import { useNavigate } from "react-router-dom";
-import { Button, message } from "antd";
-import { upload } from "../../service/upload";
-import { url } from "inspector";
-import { getAllCategories } from "../../service/category";
-import { Icategory } from "../../interface/category";
-type Props = {};
-type LabelRender = SelectProps["labelRender"];
-const Add = (props: Props) => {
-  const [name, setName] = useState<string>("");
-  const [price, setPrice] = useState<number>(0);
-  const [img, setImg] = useState<string>("");
-  const [category, setCategory] = useState<Icategory[]>([]);
-  const [products, setProducts] = useState<Iproduct[]>([]);
-  const [messageApi, contextHolder] = message.useMessage();
-  const [tailen, setTailen] = useState<any>(null)
-  const navigate = useNavigate();
-  const [form] = Form.useForm();
+import { Form, Input, Button, message, Select, Upload, Row, Col, Card, Switch } from "antd";
+import { useState, useEffect } from "react";
+import { addProduct } from "../../service/products";  // Service để thêm sản phẩm
+import { upload } from "../../service/upload";        // Service upload hình ảnh
+import { getAllCategories } from "../../service/category";  // Service lấy danh mục sản phẩm
+import { Icategory } from "../../interface/category";  // Interface cho danh mục
 
+const AddProduct = () => {
+  const [form] = Form.useForm();
+  const [messageApi, contextHolder] = message.useMessage();
+  const [categories, setCategories] = useState<Icategory[]>([]);  // Danh sách các danh mục
+  const [imageFiles, setImageFiles] = useState<any[]>([]);        // Lưu các tệp hình ảnh
+  const [ownerId, setOwnerId] = useState<string>(""); // Trường ownerId, có thể lấy từ session hoặc user context
+
+  // Hàm thông báo thành công
   const info = () => {
     messageApi.open({
       type: "success",
-      content: "Product added successfully",
+      content: "Sản phẩm đã được thêm thành công!",
     });
   };
 
-    useEffect(() => {
-      const fetchCategories = async () => {
-        try {
-          const data = await getAllCategories();
-          setCategory(data);
-        } catch (error) {
-          console.log(error);
-        }
-      };
-      fetchCategories();
-    }, []);
-  
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getAllCategories();  // Lấy danh mục từ server
+        setCategories(data);
+      } catch (error) {
+        console.log("Lỗi khi lấy danh mục:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
-  // const options = [
-  //   { label: "Computer", value: "Computer" },
-  //   { label: "TV", value: "TV" },
-  //   { label: "Headphones", value: "Headphones" },
-  //   { label: "Mouse", value: "Mouse" },
-  //   { label: "Keyboard", value: "Keyboard" },
-  //   { label: "Accessory", value: "Accessory" },
-  // ];
-  const labelRender: LabelRender = (props) => {
-    const { label, value } = props;
-
-    if (label) {
-      return value;
+  // Hàm upload hình ảnh lên server
+  const uploadImages = async (files: any) => {
+    const formData = new FormData();
+    files.forEach((file: any) => {
+      formData.append("images", file);  // Thêm từng tệp hình vào FormData
+    });
+    try {
+      const res = await upload(formData);  // Gửi yêu cầu upload
+      return res.payload.map((item: any) => item.url);  // Lấy danh sách URL của các hình ảnh
+    } catch (error) {
+      console.log("Lỗi khi upload hình ảnh:", error);
+      return [];  // Nếu có lỗi, trả về mảng rỗng
     }
-    return <span>Please choose the category: </span>;
   };
 
-  const uploadImage = async (files:any) => {
-    const formdata = new FormData()
-    formdata.append('images', files)
-    const upImage = await upload (formdata)
-    console.log(upImage.payload[0].url);
-    return upImage.payload[0].url
-    
-  }
-
-
-
+  // Hàm khi submit form
   const onFinish = async (values: any) => {
-    console.log("Success:", values);
-     const fileResult = await uploadImage(tailen)
-    const payload =  {
-      ...values,
-      img : fileResult,
-      categoryID : values.category
-    }
-    console.log(values);
+    const { namePro, price, quantity, desPro, cateId, brand, statusPro, listPro, creatDatePro } = values;
+
+    // Upload hình ảnh và lấy URL
+    const imageUrls = await uploadImages(imageFiles);
     
-    const product = await addProduct(payload);
-    console.log(product);
+    const productData = {
+      ...values,
+      imgPro: imageUrls,  // Thêm các hình ảnh đã upload vào dữ liệu sản phẩm
+      creatDatePro: creatDatePro || new Date(),  // Nếu không có ngày tạo thì dùng ngày hiện tại
+      ownerId: ownerId || "defaultOwnerId",  // Thêm trường ownerId vào dữ liệu sản phẩm (lấy từ user context hoặc session)
+    };
 
-    const newproducts = [product];
-    setProducts(newproducts);
-    setName("");
-    setImg("");
-    setPrice(0);
-    setCategory([]);
-    info();
-
-    form.resetFields();
-
+    try {
+      const newProduct = await addProduct(productData);  // Thêm sản phẩm lên server
+      console.log("Sản phẩm đã được thêm:", newProduct);
+      info();  // Hiển thị thông báo thành công
+      form.resetFields();  // Reset form sau khi thành công
+    } catch (error) {
+      console.log("Lỗi khi thêm sản phẩm:", error);
+      messageApi.open({
+        type: "error",
+        content: "Thêm sản phẩm thất bại!",
+      });
+    }
   };
+
   return (
     <>
       {contextHolder}
-      <div className="space-y-6 font-[sans-serif] max-w-md mx-auto">
-        <Form form={form} initialValues={{ category: "1" }} onFinish={onFinish}>
-          <div>
-            <label className="mb-2 text-2xl text-black block">
-              Name:
-            </label>
-            <Form.Item
-              name="name"
-              rules={[
-                { required: true, message: "Please input your Name!" },
-              ]}
-            >
-              <Input
-                className="pr-4 pl-14 py-3 text-sm text-black rounded bg-white border border-gray-400 w-full outline-[#333]"
-                placeholder="Enter Name"
-              />
-            </Form.Item>
-          </div>
-          <div>
-            <label className="mb-2 text-sm text-black block">
-              Your price ($):
-            </label>
-            <div className="relative flex items-center">
+      <Card title="Thêm Sản Phẩm" bordered={true} style={{ width: '80%', margin: '0 auto', padding: '20px' }}>
+        <Form form={form} onFinish={onFinish} layout="vertical">
+          <Row gutter={16}>
+            <Col span={12}>
+              {/* Tên sản phẩm */}
+              <Form.Item
+                name="namePro"
+                label="Tên sản phẩm"
+                rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm!" }]}>
+                <Input placeholder="Nhập tên sản phẩm" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              {/* Chủ sở hữu */}
+              <Form.Item
+                name="ownerId"
+                label="Chủ sở hữu"
+                rules={[{ required: true, message: "Vui lòng nhập chủ sở hữu!" }]}>
+                <Input placeholder="Nhập chủ sở hữu sản phẩm" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              {/* Giá sản phẩm */}
               <Form.Item
                 name="price"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please input your Coffee price!",
-                  },
-                ]}
-              >
-                <Input
-                  className="pr-4 pl-14 py-3 text-sm text-black rounded bg-white border border-gray-400 w-full outline-[#333]"
-                  placeholder="Enter Price $$$"
-                />
+                label="Giá sản phẩm"
+                rules={[{ required: true, message: "Vui lòng nhập giá sản phẩm!" }]}>
+                <Input type="number" placeholder="Nhập giá sản phẩm" />
               </Form.Item>
-              <div className="absolute left-4"></div>
-            </div>
-
-            <label className="mb-2 text-sm text-black block">Your Image:</label>
-            <div className="relative flex items-center">
+            </Col>
+            <Col span={12}>
+              {/* Số lượng sản phẩm */}
               <Form.Item
-                name="img"
-                rules={[
-                  {
-                    required: false,
-                    message: "Please input your Coffee image!",
-                  },
-                ]}
-              >
-                <Input
-                type="file"
-                onChange={(e:any)=>{setTailen(e.target.files[0])}}
-                  className="pr-4 pl-14 py-3 text-sm text-black rounded bg-white border border-gray-400 w-full outline-[#333]"
-                  placeholder="Enter Coffee image"
-                />
+                name="quantity"
+                label="Số lượng"
+                rules={[{ required: true, message: "Vui lòng nhập số lượng sản phẩm!" }]}>
+                <Input type="number" placeholder="Nhập số lượng" />
               </Form.Item>
-              <div className="absolute left-4"></div>
-            </div>
+            </Col>
+          </Row>
 
-            <div className="pt-[20px]">
+          <Row gutter={16}>
+            <Col span={12}>
+              {/* Mô tả sản phẩm */}
               <Form.Item
-                name="category"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please input your Category!",
-                  },
-                ]}
-              >
-                <Select labelRender={labelRender} style={{ width: "100%" }}>
-                  {category.map((categoryID:Icategory, index:number) => (
-                    <Select.Option key={categoryID._id} value={categoryID._id}>
-                      {categoryID.name}
+                name="desPro"
+                label="Mô tả sản phẩm"
+                rules={[{ required: false }]}>
+                <Input.TextArea placeholder="Nhập mô tả sản phẩm" maxLength={255} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              {/* Trạng thái còn hàng hay hết hàng */}
+              <Form.Item
+                name="statusPro"
+                label="Trạng thái"
+                valuePropName="checked">
+                <Switch checkedChildren="Còn hàng" unCheckedChildren="Hết hàng" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              {/* Danh mục sản phẩm */}
+              <Form.Item
+                name="cateId"
+                label="Danh mục"
+                rules={[{ required: true, message: "Vui lòng chọn danh mục sản phẩm!" }]}>
+                <Select placeholder="Chọn danh mục sản phẩm">
+                  {categories.map((category) => (
+                    <Select.Option key={category._id} value={category._id}>
+                      {category.name}
                     </Select.Option>
                   ))}
                 </Select>
               </Form.Item>
-            </div>
-          </div>
-          <button
-            type="submit"
-            className="!mt-8 w-full px-4 py-2.5 mx-auto block text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Thêm mới sản phẩm
-          </button>
+            </Col>
+            <Col span={12}>
+              {/* Thương hiệu sản phẩm */}
+              <Form.Item
+                name="brand"
+                label="Thương hiệu"
+                rules={[{ required: false }]}>
+                <Input placeholder="Nhập thương hiệu sản phẩm" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              {/* Phân loại các mô hình sản phẩm */}
+              <Form.Item
+                name="listPro"
+                label="Mô hình sản phẩm"
+                rules={[{ required: false }]}>
+                <Input placeholder="Nhập mô hình sản phẩm" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              {/* Hình ảnh sản phẩm */}
+              <Form.Item
+                name="imgPro"
+                label="Hình ảnh sản phẩm"
+                rules={[{ required: false }]}>
+                <Upload
+                  beforeUpload={(file) => {
+                    setImageFiles((prev) => [...prev, file]);  // Thêm tệp vào danh sách hình ảnh
+                    return false;  // Ngừng tự động upload
+                  }}
+                  listType="picture-card"
+                  fileList={imageFiles}
+                  accept="image/*">
+                  <Button>Chọn hình ảnh</Button>
+                </Upload>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* Nút submit */}
+          <Form.Item>
+            <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
+              Thêm sản phẩm
+            </Button>
+          </Form.Item>
         </Form>
-      </div>
+      </Card>
     </>
   );
 };
 
-export default Add;
+export default AddProduct;
