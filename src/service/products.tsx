@@ -10,6 +10,15 @@ export const getAllProducts = async () => {
     console.log(error);
   }
 }
+export const getProductDetails = async (id?:string) => {
+  try {
+    const { data } = await axiosservice.get(`/product/details/${id}`);
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const getProductByID = async(id?:string) =>{
   try {
     const {data} = await axiosservice.get(`/product/${id}`)

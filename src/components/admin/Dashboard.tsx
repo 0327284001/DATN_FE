@@ -8,7 +8,6 @@ const Dashboard = () => {
   const [products, setProducts] = useState<Iproduct[]>([]);
   const navigate = useNavigate();
 
-  // Fetch dữ liệu sản phẩm
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -21,7 +20,6 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  // Xóa sản phẩm
   const delProduct = async (id: string) => {
     try {
       await DeleteProduct(id);
@@ -32,16 +30,12 @@ const Dashboard = () => {
     }
   };
 
-  // Chuyển đến trang cập nhật sản phẩm
   const updateProduct = (id: string) => {
-    navigate(`update/${id}`);
+    navigate(`/update/${id}`);
   };
 
-  // Hàm toggle mô tả chi tiết
-  const [expandedDescription, setExpandedDescription] = useState<string | null>(null);
-
-  const toggleDescription = (id: string) => {
-    setExpandedDescription(expandedDescription === id ? null : id);
+  const viewProductDetail = (id: string) => {
+    navigate(`/product/details/${id}`);
   };
 
   return (
@@ -68,35 +62,20 @@ const Dashboard = () => {
               <tr
                 key={product._id}
                 className="odd:bg-white even:bg-gray-50 border-b dark:bg-gray-900 dark:border-gray-700"
+                onClick={() => viewProductDetail(product._id)}
               >
                 <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
                   {product.namePro}
                 </td>
                 <td className="px-6 py-4">
-                  {/* Kiểm tra owerId có tồn tại trước khi gọi toString */}
-                  {product.ownerId ? product.ownerId.toString() : "Không có chủ sở hữu"}
+                  {product.owerId ? product.owerId.toString() : "Không có chủ sở hữu"}
                 </td>
                 <td className="px-6 py-4">
                   {product.statusPro ? "Còn hàng" : "Hết hàng"}
                 </td>
                 <td className="px-6 py-4">${product.price}</td>
                 <td className="px-6 py-4">
-                  {/* Hiển thị mô tả ngắn gọn và có thể mở rộng */}
-                  {product.desPro && product.desPro.length > 100 ? (
-                    <>
-                      {expandedDescription === product._id
-                        ? product.desPro
-                        : `${product.desPro.slice(0, 100)}...`}
-                      <button
-                        onClick={() => toggleDescription(product._id)}
-                        className="text-blue-600 ml-2 underline"
-                      >
-                        {expandedDescription === product._id ? "Thu gọn" : "Xem thêm"}
-                      </button>
-                    </>
-                  ) : (
-                    product.desPro || "Không có mô tả"
-                  )}
+                  <p className="line-clamp-3">{product.desPro || "Không có mô tả"}</p>
                 </td>
                 <td className="px-6 py-4">
                   {product.creatDatePro || "Chưa cập nhật"}
@@ -104,25 +83,37 @@ const Dashboard = () => {
                 <td className="px-6 py-4">{product.quantity}</td>
                 <td className="px-6 py-4">{product.listPro || "Chưa phân loại"}</td>
                 <td className="px-6 py-4">
-                  {product.imgPro && product.imgPro.length ? (
-                    product.imgPro.map((img: string, index: number) => (
+                  {/* Xử lý hiển thị hình ảnh */}
+                  {product.imgPro ? (
+                    Array.isArray(product.imgPro) && product.imgPro.length > 0 ? (
                       <img
-                        key={index}
-                        src={img}
+                        src={product.imgPro[0]}
                         alt={`Product ${product.namePro}`}
                         className="w-16 h-16 object-cover rounded-lg"
                       />
-                    ))
+                    ) : (
+                      typeof product.imgPro === "string" && product.imgPro.trim() !== "" ? (
+                        <img
+                          src={product.imgPro}
+                          alt={`Product ${product.namePro}`}
+                          className="w-16 h-16 object-cover rounded-lg"
+                        />
+                      ) : (
+                        <span>Không có hình ảnh</span>
+                      )
+                    )
                   ) : (
-                    "Không có hình ảnh"
+                    <span>Không có hình ảnh</span>
                   )}
                 </td>
-
                 <td className="px-6 py-4">{product.brand || "Không có thương hiệu"}</td>
                 <td className="px-6 py-4">
                   <div className="flex">
                     <button
-                      onClick={() => updateProduct(product._id)}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Ngừng sự kiện "onClick" lan tỏa
+                        updateProduct(product._id);
+                      }}
                       className="text-white bg-blue-600 hover:bg-blue-800 font-medium rounded-lg px-4 py-2 me-2"
                     >
                       Edit
@@ -134,12 +125,16 @@ const Dashboard = () => {
                       okText="Có"
                       cancelText="Không"
                     >
-                      <button className="text-white bg-red-600 hover:bg-red-800 font-medium rounded-lg px-4 py-2">
+                      <button
+                        onClick={(e) => e.stopPropagation()}  // Ngừng sự kiện "onClick" lan tỏa khi nhấn nút Delete
+                        className="text-white bg-red-600 hover:bg-red-800 font-medium rounded-lg px-4 py-2"
+                      >
                         Delete
                       </button>
                     </Popconfirm>
                   </div>
                 </td>
+
               </tr>
             ))}
           </tbody>

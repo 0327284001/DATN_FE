@@ -14,7 +14,7 @@ import Addcate from "./components/admin/addCategory";
 import BarChart from "./components/chart/BarChart";
 import NhanVien from "./components/nhanVien/nhan_vien";
 import TroChuyen from "./components/trochuyen/tro_chuyen";
-
+import ProductDetail from "./components/admin/ProductDetail";
 
 
 function App() {
@@ -26,26 +26,31 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Login và Register */}
-          <Route path="/login" Component={Login}></Route>
-          <Route path="/" Component={Login}></Route>
-          <Route path="/register" Component={Register}></Route>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
           {/* Admin Layout */}
-          <Route path="/admin" element={<Privaterouter><Admin/></Privaterouter>}>
+          <Route path="/admin" element={<Privaterouter><Admin /></Privaterouter>}>
             {/* Dashboard */}
-            <Route path="dashboard" Component={Dashboard}></Route>
-            <Route path="add" Component={Add}></Route>
-            <Route path="dashboard/update/:id" Component={Update}></Route>
+            <Route path="dashboard" element={<Dashboard />} />
+
+            {/* Chi tiết sản phẩm */}
+            <Route path="admin/dashboard/product/details/:id" element={<ProductDetail />} />
+
+            <Route path="add" element={<Add />} />
+            <Route path="dashboard/update/:id" element={<Update />} />
 
             {/* Quản lý danh mục */}
-            <Route path="category" Component={Listcategory}></Route>
-            <Route path="addcategory" Component={Addcate}></Route>
-            <Route path="category/updatecategory/:id" Component={Updatecategory}></Route>
+            <Route path="category" element={<Listcategory />} />
+            <Route path="addcategory" element={<Addcate />} />
+            <Route path="category/updatecategory/:id" element={<Updatecategory />} />
 
             {/* Quản lý nhân viên */}
-            <Route path="staff" Component={NhanVien}></Route>
-             {/* Quản lý chăm sóc khách hàng */}
-             <Route path="tro_chuyen" Component={TroChuyen}></Route>
+            <Route path="staff" element={<NhanVien />} />
+
+            {/* Quản lý chăm sóc khách hàng */}
+            <Route path="tro_chuyen" element={<TroChuyen />} />
 
             {/* Thống kê */}
             <Route path="thongke" element={<BarChart labels={labels} data={data} />} />

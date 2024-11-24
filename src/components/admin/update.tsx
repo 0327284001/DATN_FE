@@ -11,7 +11,7 @@ const UpdateProduct = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [categories, setCategories] = useState<Icategory[]>([]);  // Danh sách các danh mục
   const [imageFiles, setImageFiles] = useState<any[]>([]);        // Lưu các tệp hình ảnh
-  const [ownerId, setOwnerId] = useState<string>(""); // Trường ownerId, có thể lấy từ session hoặc user context
+  const [owerId, setOwerId] = useState<string>(""); // Trường ownerId, có thể lấy từ session hoặc user context
 
   // Hàm thông báo thành công
   const info = () => {
@@ -96,7 +96,7 @@ const UpdateProduct = () => {
             <Col span={12}>
               {/* Chủ sở hữu */}
               <Form.Item
-                name="ownerId"
+                name="owerId"
                 label="Chủ sở hữu"
                 rules={[{ required: true, message: "Vui lòng nhập chủ sở hữu!" }]}>
                 <Input placeholder="Nhập chủ sở hữu sản phẩm" />

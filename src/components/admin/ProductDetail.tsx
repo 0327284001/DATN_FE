@@ -1,18 +1,17 @@
-import { Form, Input, Button, message, Select, Row, Col, Card, Switch } from "antd";
+import { Form, Input, Button, message, Select, Row, Col, Card, Switch, Upload } from "antd";  // Thêm Upload vào đây
 import { useState, useEffect } from "react";
 import { addProduct } from "../../service/products";  // Service để thêm sản phẩm
 import { upload } from "../../service/upload";        // Service upload hình ảnh
 import { getAllCategories } from "../../service/category";  // Service lấy danh mục sản phẩm
 import { Icategory } from "../../interface/category";  // Interface cho danh mục
-import { Upload } from "antd";  // Thêm dòng này vào
-
 
 const AddProduct = () => {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const [categories, setCategories] = useState<Icategory[]>([]);  // Danh sách các danh mục
   const [imageFiles, setImageFiles] = useState<any[]>([]);        // Lưu các tệp hình ảnh
-  const [owerId, setOwerId] = useState<string>("");  // Sử dụng trường nhập liệu cho owerId
+  const [priceIn, setPriceIn] = useState<string>("");  // Giá nhập
+  const [priceOut, setPriceOut] = useState<string>(""); // Giá bán
 
   // Hàm thông báo thành công
   const info = () => {
@@ -43,15 +42,7 @@ const AddProduct = () => {
     });
     try {
       const res = await upload(formData);  // Gửi yêu cầu upload
-      const imageUrls = res.payload.map((item: any) => item.url);  // Lấy danh sách URL của các hình ảnh
-      const newFileList = imageUrls.map((url: string, index: number) => ({
-        uid: `-${index}`,
-        name: `image-${index}`,
-        status: 'done',
-        url: url,  // Sử dụng URL ảnh đã upload
-      }));
-      setImageFiles([...imageFiles, ...newFileList]);  // Cập nhật danh sách file
-      return imageUrls;  // Trả về danh sách URL của các ảnh
+      return res.payload.map((item: any) => item.url);  // Lấy danh sách URL của các hình ảnh
     } catch (error) {
       console.log("Lỗi khi upload hình ảnh:", error);
       return [];  // Nếu có lỗi, trả về mảng rỗng
@@ -60,7 +51,7 @@ const AddProduct = () => {
 
   // Hàm khi submit form
   const onFinish = async (values: any) => {
-    const { namePro, price, quantity, desPro, cateId, brand, statusPro, listPro, creatDatePro } = values;
+    const { namePro, quantity, desPro, cateId, brand, statusPro, listPro, creatDatePro } = values;
 
     // Upload hình ảnh và lấy URL
     const imageUrls = await uploadImages(imageFiles);
@@ -70,7 +61,8 @@ const AddProduct = () => {
       ...values,
       imgPro: imageUrls,  // Thêm các hình ảnh đã upload vào dữ liệu sản phẩm
       creatDatePro: creatDatePro || new Date(),  // Nếu không có ngày tạo thì dùng ngày hiện tại
-      owerId: owerId,  // Lấy giá trị owerId người dùng nhập
+      priceIn: priceIn,  // Lấy giá nhập từ trường nhập liệu priceIn
+      priceOut: priceOut,  // Lấy giá bán từ trường nhập liệu priceOut
     };
 
     try {
@@ -109,13 +101,15 @@ const AddProduct = () => {
             </Col>
             <Col span={12}>
               <Form.Item
-                name="owerId"
-                label="Chủ sở hữu"
-                rules={[{ required: true, message: "Vui lòng nhập owerId!" }]}>
+                name="priceIn"
+                label="Giá nhập"
+                rules={[{ required: true, message: "Vui lòng nhập giá nhập sản phẩm!" }]}>
                 <Input
-                  value={owerId}
-                  onChange={(e) => setOwerId(e.target.value)}  // Cập nhật giá trị owerId khi người dùng nhập
-                  placeholder="Nhập owerId" />
+                  value={priceIn}
+                  onChange={(e) => setPriceIn(e.target.value)}  // Cập nhật giá nhập khi người dùng nhập
+                  placeholder="Nhập giá nhập"
+                  type="number"
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -123,12 +117,20 @@ const AddProduct = () => {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                name="price"
-                label="Giá sản phẩm"
-                rules={[{ required: true, message: "Vui lòng nhập giá sản phẩm!" }]}>
-                <Input type="number" placeholder="Nhập giá sản phẩm" />
+                name="priceOut"
+                label="Giá bán"
+                rules={[{ required: true, message: "Vui lòng nhập giá bán sản phẩm!" }]}>
+                <Input
+                  value={priceOut}
+                  onChange={(e) => setPriceOut(e.target.value)}  // Cập nhật giá bán khi người dùng nhập
+                  placeholder="Nhập giá bán"
+                  type="number"
+                />
               </Form.Item>
             </Col>
+          </Row>
+
+          <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="quantity"
@@ -137,9 +139,6 @@ const AddProduct = () => {
                 <Input type="number" placeholder="Nhập số lượng" />
               </Form.Item>
             </Col>
-          </Row>
-
-          <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="desPro"
@@ -147,6 +146,9 @@ const AddProduct = () => {
                 <Input.TextArea placeholder="Nhập mô tả sản phẩm" maxLength={255} />
               </Form.Item>
             </Col>
+          </Row>
+
+          <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="statusPro"
@@ -223,7 +225,7 @@ const AddProduct = () => {
           </Row>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+            <Button type="primary" htmlType="submit">
               Thêm sản phẩm
             </Button>
           </Form.Item>
