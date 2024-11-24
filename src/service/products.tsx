@@ -2,7 +2,7 @@ import React from 'react'
 import { axiosservice } from '../config/API'
 import { IProductLite } from '../interface/products';
 
-export const getAllproducts = async () => {
+export const getAllProducts = async () => {
   try{
     const {data} = await axiosservice.get('product')
     return data    

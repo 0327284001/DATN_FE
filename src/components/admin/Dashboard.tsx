@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { DeleteProduct, getAllproducts } from "../../service/products";
+import { DeleteProduct, getAllProducts } from "../../service/products";
 import { Iproduct } from "../../interface/products";
 import { Popconfirm } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +12,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getAllproducts();
+        const data = await getAllProducts();
         setProducts(data);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách sản phẩm:", error);

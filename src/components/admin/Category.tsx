@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate, useParams } from 'react-router-dom';
-import { DeleteProduct, getAllproducts } from '../../service/products';
+import { DeleteProduct, getAllProducts } from '../../service/products';
 import { Iproduct } from '../../interface/products';
 import { Icategory, IcategoryLite } from '../../interface/category';
 import { Popconfirm } from 'antd';
