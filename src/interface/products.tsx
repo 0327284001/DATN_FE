@@ -11,7 +11,7 @@ export interface Iproduct extends Document {
     creatDatePro?: string;                   // Ngày tạo
     quantity: number;                        // Số lượng
     listPro?: string;                        // Danh mục phân loại (có thể là tên hoặc ID của danh mục)
-    imgPro?: string | string[] | null;       // imgPro có thể là chuỗi, mảng chuỗi hoặc null                      // Hình ảnh sản phẩm (danh sách URL)
+    imgPro?: string[];       // imgPro có thể là chuỗi, mảng chuỗi hoặc null                      // Hình ảnh sản phẩm (danh sách URL)
     namePro: string;                         // Tên sản phẩm
     cateId: mongoose.Schema.Types.ObjectId;  // ID danh mục
     brand?: string;                          // Thương hiệu

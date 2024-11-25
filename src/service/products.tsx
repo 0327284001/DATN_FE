@@ -12,7 +12,7 @@ export const getAllProducts = async () => {
 }
 export const getProductDetails = async (id?:string) => {
   try {
-    const { data } = await axiosservice.get(`/product/details/${id}`);
+    const { data } = await axiosservice.get(`/product/${id}`);
     return data;
   } catch (error) {
     console.log(error);

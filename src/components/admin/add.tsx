@@ -1,10 +1,11 @@
 import { Form, Input, Button, message, Select, Row, Col, Card, Switch } from "antd";
 import { useState, useEffect } from "react";
 import { addProduct } from "../../service/products";  // Service để thêm sản phẩm
-import { upload } from "../../service/upload";        // Service upload hình ảnh
+     // Service upload hình ảnh
 import { getAllCategories } from "../../service/category";  // Service lấy danh mục sản phẩm
 import { Icategory } from "../../interface/category";  // Interface cho danh mục
 import { Upload } from "antd";  // Thêm dòng này vào
+import { upload } from "../../service/upload";
 
 
 const AddProduct = () => {
@@ -199,24 +200,22 @@ const AddProduct = () => {
             </Col>
           </Row>
 
-          <Row gutter={16}>
+           <Row gutter={16}>
             <Col span={12}>
+              {/* Hình ảnh sản phẩm */}
               <Form.Item
-                label="Ảnh sản phẩm"
-                valuePropName="fileList"
-                extra="Chọn các ảnh sản phẩm"
-              >
+                name="imgPro"
+                label="Hình ảnh sản phẩm"
+                rules={[{ required: false }]}>
                 <Upload
-                  accept="image/*"
+                  beforeUpload={(file) => {
+                    setImageFiles((prev) => [...prev, file]);
+                    return false;
+                  }}
                   listType="picture-card"
                   fileList={imageFiles}
-                  onChange={handleChange}  // Đảm bảo cập nhật fileList khi thay đổi
-                  onRemove={(file) => {
-                    setImageFiles(imageFiles.filter(item => item.uid !== file.uid));
-                  }}
-                  multiple // Cho phép chọn nhiều ảnh
-                >
-                  <div>+ Thêm ảnh</div>
+                  accept="image/*">
+                  <Button>Chọn hình ảnh</Button>
                 </Upload>
               </Form.Item>
             </Col>

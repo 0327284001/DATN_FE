@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { DeleteProduct, getAllProducts } from "../../service/products";
 import { Iproduct } from "../../interface/products";
-import { Popconfirm } from "antd";
+import { Popconfirm, Pagination } from "antd"; // Sử dụng Pagination của Ant Design
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const [products, setProducts] = useState<Iproduct[]>([]);
+  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+  const productsPerPage = 7; // Số sản phẩm mỗi trang
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,7 +23,11 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  const delProduct = async (id: string) => {
+  const delProduct = async (id: string, e?: React.MouseEvent<HTMLElement>) => {
+    // Kiểm tra nếu e có tồn tại và là MouseEvent
+    if (e) {
+      e.stopPropagation(); // Ngừng sự kiện chuyển hướng khi xóa
+    }
     try {
       await DeleteProduct(id);
       const newProducts = products.filter((product) => product._id !== id);
@@ -30,12 +37,23 @@ const Dashboard = () => {
     }
   };
 
-  const updateProduct = (id: string) => {
-    navigate(`/update/${id}`);
+  const updateProduct = (id: string, e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation(); // Ngừng sự kiện chuyển hướng khi nhấn nút Edit
+    navigate(`/admin/dashboard/${id}`);
   };
 
   const viewProductDetail = (id: string) => {
-    navigate(`/product/details/${id}`);
+    navigate(`/admin/dashboard/product/details/${id}`);
+  };
+
+  // Tính toán các sản phẩm hiển thị trên trang hiện tại
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+
+  // Hàm thay đổi trang
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -58,7 +76,7 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => (
+            {currentProducts.map((product) => (
               <tr
                 key={product._id}
                 className="odd:bg-white even:bg-gray-50 border-b dark:bg-gray-900 dark:border-gray-700"
@@ -86,36 +104,22 @@ const Dashboard = () => {
                   {product.imgPro ? (
                     Array.isArray(product.imgPro) && product.imgPro.length > 0 ? (
                       <img
-                        src={product.imgPro[0]} // Lấy hình đầu tiên từ mảng
+                        src={product.imgPro[0]}
                         alt={`Product ${product.namePro}`}
                         className="w-16 h-16 object-cover rounded-lg"
-                        onError={(e) => (e.currentTarget.src = "/default-image.jpg")} // Xử lý khi URL ảnh không tồn tại
                       />
                     ) : (
-                      typeof product.imgPro === "string" && product.imgPro.trim() !== "" ? (
-                        <img
-                          src={product.imgPro} // Hiển thị URL nếu imgPro là chuỗi
-                          alt={`Product ${product.namePro}`}
-                          className="w-16 h-16 object-cover rounded-lg"
-                          onError={(e) => (e.currentTarget.src = "/default-image.jpg")} // Xử lý fallback
-                        />
-                      ) : (
-                        <span>Không có hình ảnh</span>
-                      )
+                      <span>Không có hình ảnh</span>
                     )
                   ) : (
                     <span>Không có hình ảnh</span>
                   )}
                 </td>
-
                 <td className="px-6 py-4">{product.brand || "Không có thương hiệu"}</td>
                 <td className="px-6 py-4">
                   <div className="flex">
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // Ngừng sự kiện "onClick" lan tỏa
-                        updateProduct(product._id);
-                      }}
+                      onClick={(e) => updateProduct(product._id, e)} // Truyền e vào hàm updateProduct
                       className="text-white bg-blue-600 hover:bg-blue-800 font-medium rounded-lg px-4 py-2 me-2"
                     >
                       Edit
@@ -123,12 +127,12 @@ const Dashboard = () => {
                     <Popconfirm
                       title="Xóa sản phẩm"
                       description="Bạn có chắc chắn muốn xóa sản phẩm này không?"
-                      onConfirm={() => delProduct(product._id)}
+                      onConfirm={(e) => delProduct(product._id, e)} // Gọi hàm delProduct và ngừng sự kiện
                       okText="Có"
                       cancelText="Không"
                     >
                       <button
-                        onClick={(e) => e.stopPropagation()}  // Ngừng sự kiện "onClick" lan tỏa khi nhấn nút Delete
+                        onClick={(e) => e.stopPropagation()} // Ngừng sự kiện khi nhấn Delete
                         className="text-white bg-red-600 hover:bg-red-800 font-medium rounded-lg px-4 py-2"
                       >
                         Delete
@@ -136,11 +140,19 @@ const Dashboard = () => {
                     </Popconfirm>
                   </div>
                 </td>
-
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+      {/* Thêm phân trang */}
+      <div className="mt-4 flex justify-center">
+        <Pagination
+          current={currentPage}
+          pageSize={productsPerPage}
+          total={products.length}
+          onChange={handlePageChange}
+        />
       </div>
     </div>
   );

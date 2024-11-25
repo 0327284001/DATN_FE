@@ -15,49 +15,48 @@ import BarChart from "./components/chart/BarChart";
 import NhanVien from "./components/nhanVien/nhan_vien";
 import TroChuyen from "./components/trochuyen/tro_chuyen";
 import ProductDetail from "./components/admin/ProductDetail";
-
+import UpdateProduct from "./components/admin/update";
+import ProductDetails from "./components/admin/ProductDetail";
 
 function App() {
   const labels = ['January', 'February', 'March', 'April', 'May', 'June'];
   const data = [12, 19, 3, 5, 2, 3];
 
   return (
-    <>
-      <BrowserRouter>
-        <Routes>
-          {/* Login và Register */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+    <BrowserRouter>
+      <Routes>
+        {/* Login và Register */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-          {/* Admin Layout */}
-          <Route path="/admin" element={<Privaterouter><Admin /></Privaterouter>}>
-            {/* Dashboard */}
-            <Route path="dashboard" element={<Dashboard />} />
+        {/* Admin Layout */}
+        <Route path="/admin" element={<Privaterouter><Admin /></Privaterouter>}>
+          {/* Dashboard */}
+          <Route path="dashboard" element={<Dashboard />} />
 
-            {/* Chi tiết sản phẩm */}
-            <Route path="admin/dashboard/product/details/:id" element={<ProductDetail />} />
+          {/* Chi tiết sản phẩm */}
+          <Route path="/admin/dashboard/product/details/:id" element={<ProductDetails />} />
 
-            <Route path="add" element={<Add />} />
-            <Route path="dashboard/update/:id" element={<Update />} />
+          <Route path="add" element={<Add />} />
+          <Route path="/admin/dashboard/:id" element={<Update />} />
 
-            {/* Quản lý danh mục */}
-            <Route path="category" element={<Listcategory />} />
-            <Route path="addcategory" element={<Addcate />} />
-            <Route path="category/updatecategory/:id" element={<Updatecategory />} />
+          {/* Quản lý danh mục */}
+          <Route path="category" element={<Listcategory />} />
+          <Route path="addcategory" element={<Addcate />} />
+          <Route path="category/updatecategory/:id" element={<Updatecategory />} />
 
-            {/* Quản lý nhân viên */}
-            <Route path="staff" element={<NhanVien />} />
+          {/* Quản lý nhân viên */}
+          <Route path="staff" element={<NhanVien />} />
 
-            {/* Quản lý chăm sóc khách hàng */}
-            <Route path="tro_chuyen" element={<TroChuyen />} />
+          {/* Quản lý chăm sóc khách hàng */}
+          <Route path="tro_chuyen" element={<TroChuyen />} />
 
-            {/* Thống kê */}
-            <Route path="thongke" element={<BarChart labels={labels} data={data} />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </>
+          {/* Thống kê */}
+          <Route path="thongke" element={<BarChart labels={labels} data={data} />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
