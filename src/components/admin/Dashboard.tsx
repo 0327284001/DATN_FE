@@ -83,20 +83,21 @@ const Dashboard = () => {
                 <td className="px-6 py-4">{product.quantity}</td>
                 <td className="px-6 py-4">{product.listPro || "Chưa phân loại"}</td>
                 <td className="px-6 py-4">
-                  {/* Xử lý hiển thị hình ảnh */}
                   {product.imgPro ? (
                     Array.isArray(product.imgPro) && product.imgPro.length > 0 ? (
                       <img
-                        src={product.imgPro[0]}
+                        src={product.imgPro[0]} // Lấy hình đầu tiên từ mảng
                         alt={`Product ${product.namePro}`}
                         className="w-16 h-16 object-cover rounded-lg"
+                        onError={(e) => (e.currentTarget.src = "/default-image.jpg")} // Xử lý khi URL ảnh không tồn tại
                       />
                     ) : (
                       typeof product.imgPro === "string" && product.imgPro.trim() !== "" ? (
                         <img
-                          src={product.imgPro}
+                          src={product.imgPro} // Hiển thị URL nếu imgPro là chuỗi
                           alt={`Product ${product.namePro}`}
                           className="w-16 h-16 object-cover rounded-lg"
+                          onError={(e) => (e.currentTarget.src = "/default-image.jpg")} // Xử lý fallback
                         />
                       ) : (
                         <span>Không có hình ảnh</span>
@@ -106,6 +107,7 @@ const Dashboard = () => {
                     <span>Không có hình ảnh</span>
                   )}
                 </td>
+
                 <td className="px-6 py-4">{product.brand || "Không có thương hiệu"}</td>
                 <td className="px-6 py-4">
                   <div className="flex">
