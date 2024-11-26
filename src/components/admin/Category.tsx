@@ -1,31 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { NavLink, useNavigate, useParams } from 'react-router-dom';
-import { DeleteProduct, getAllProducts } from '../../service/products';
-import { Iproduct } from '../../interface/products';
-import { Icategory, IcategoryLite } from '../../interface/category';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Icategory } from '../../interface/category';
 import { Popconfirm } from 'antd';
 import { delCategory, getAllCategories } from '../../service/category';
-import LoadingComponent from'../Loading';
+import LoadingComponent from '../Loading';
+import { Pagination } from 'antd'; // Import Pagination component
 
-type Props = {}
+type Props = {};
 
 const Listcategory = (props: Props) => {
   const [categories, setCategory] = useState<Icategory[]>([]);
-  const param = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1); // Trang hiện tại
+  const [itemsPerPage] = useState<number>(7); // Số lượng sản phẩm mỗi trang
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true)
+        setLoading(true);
         const data = await getAllCategories();
         setCategory(data);
-        console.log(data, "data");
+        console.log(data, 'data');
       } catch (error) {
         console.log(error);
-      } finally{
-        setLoading(false)
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -33,14 +33,12 @@ const Listcategory = (props: Props) => {
 
   const handleDeleteCategory = async (id: string) => {
     try {
-    
       await delCategory(id);
-    
       const updatedCategories = categories.filter((category) => category._id !== id);
       setCategory(updatedCategories);
       console.log(`Category with id ${id} deleted successfully`);
     } catch (error) {
-      console.log("Error deleting category:", error);
+      console.log('Error deleting category:', error);
     }
   };
 
@@ -48,68 +46,80 @@ const Listcategory = (props: Props) => {
     navigate(`updatecategory/${id}`);
   };
 
+  // Tính toán các sản phẩm trong trang hiện tại
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = categories.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Thêm nút phân trang
+  const pageNumbers = [];
+  for (let i = 1; i <= Math.ceil(categories.length / itemsPerPage); i++) {
+    pageNumbers.push(i);
+  }
+
+  // Hàm xử lý thay đổi trang
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
     <>
-    {loading && <LoadingComponent />}
-    <NavLink to={'/admin/addcategory'}><button className=' focus:outline-none text-white bg-sky-600 hover:bg-sky-900 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 '>thêm mới</button></NavLink>
+      {loading && <LoadingComponent />}
+      <div className="flex justify-between mb-6">
+        <NavLink to={'/admin/addcategory'}>
+          <button className="text-white bg-indigo-600 hover:bg-indigo-700 font-semibold rounded-lg text-base px-4 py-2 shadow-lg transition duration-300 ease-in-out">
+            Thêm mới danh mục
+          </button>
+        </NavLink>
+      </div>
 
-      <div className="flex flex-col w-full">
-        <div className="overflow-x-auto">
-          <div className="py-2 inline-block w-full px-0">
-            <div className="overflow-hidden">
-              <table className="min-w-full table-auto">
-                <thead className="bg-white border-b">
-                  <tr>
-                    <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                      Stt
-                    </th>
-                    <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                      Tên danh mục
-                    </th>
-                    <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                      Handle
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {categories.map((category: Icategory, index: number) => (
-                    <tr className="bg-gray-100 border-b" key={category._id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {index + 1}
-                      </td>
-                      <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                        {category.name}
-                      </td>
-                      <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                        <button
-                          type="button"
-                          className="focus:outline-none text-white bg-sky-600 hover:bg-sky-900 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2"
-                          onClick={() => updateCategory(category._id)}
-                        >
-                          Edit
-                        </button>
-                        <Popconfirm
-                          title="Delete the task"
-                          description="Are you sure to delete this task?"
-                          onConfirm={() => handleDeleteCategory(category._id)}
-                          okText="Yes"
-                          cancelText="No"
-                        >
-                          <button
-                            type="button"
-                            className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
-                          >
-                            Delete
-                          </button>
-                        </Popconfirm>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+      <div className="overflow-x-auto w-full">
+        <table className="min-w-full table-auto text-center">
+          <thead className="bg-gray-200 text-gray-800">
+            <tr>
+              <th className="px-6 py-4 text-sm font-semibold">Stt</th>
+              <th className="px-6 py-4 text-sm font-semibold">Tên danh mục</th>
+              <th className="px-6 py-4 text-sm font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentItems.map((category: Icategory, index: number) => (
+              <tr className="bg-gray-50 hover:bg-gray-100 transition duration-300 ease-in-out" key={category._id}>
+                <td className="px-6 py-4">{indexOfFirstItem + index + 1}</td>
+                <td className="px-6 py-4 text-gray-700">{category.name}</td>
+                <td className="px-6 py-4 flex justify-center items-center gap-4">
+                  <button
+                    onClick={() => updateCategory(category._id)}
+                    className="text-white bg-blue-600 hover:bg-blue-700 font-semibold rounded-lg px-4 py-2 transition duration-200 ease-in-out"
+                  >
+                    Edit
+                  </button>
+                  <Popconfirm
+                    title="Xóa danh mục"
+                    description="Bạn có chắc chắn muốn xóa danh mục này?"
+                    onConfirm={() => handleDeleteCategory(category._id)}
+                    okText="Có"
+                    cancelText="Không"
+                  >
+                    <button className="text-white bg-red-600 hover:bg-red-700 font-semibold rounded-lg px-4 py-2 transition duration-200 ease-in-out">
+                      Delete
+                    </button>
+                  </Popconfirm>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Phân trang đặt dưới cùng */}
+      <div className="fixed bottom-4 w-full flex justify-center">
+        <Pagination
+          current={currentPage}
+          pageSize={itemsPerPage}
+          total={categories.length}
+          onChange={handlePageChange}
+        />
       </div>
     </>
   );

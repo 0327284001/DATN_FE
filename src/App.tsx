@@ -53,7 +53,7 @@ function App() {
           <Route path="tro_chuyen" element={<TroChuyen />} />
 
           {/* Thống kê */}
-          <Route path="thongke" element={<BarChart labels={labels} data={data} />} />
+          <Route path="thongke" element={<BarChart />} />
         </Route>
       </Routes>
     </BrowserRouter>

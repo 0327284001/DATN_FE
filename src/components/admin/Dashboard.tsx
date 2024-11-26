@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const Dashboard = () => {
   const [products, setProducts] = useState<Iproduct[]>([]);
   const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-  const productsPerPage = 7; // Số sản phẩm mỗi trang
+  const productsPerPage = 4; // Số sản phẩm mỗi trang
 
   const navigate = useNavigate();
 
