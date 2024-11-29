@@ -113,7 +113,7 @@ const Listcategory = (props: Props) => {
       </div>
 
       {/* Phân trang đặt dưới cùng */}
-      <div className="fixed bottom-4 w-full flex justify-center">
+      <div className=" mt-[40px] w-full flex justify-center">
         <Pagination
           current={currentPage}
           pageSize={itemsPerPage}

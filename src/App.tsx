@@ -36,7 +36,7 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
 
           {/* Chi tiết sản phẩm */}
-          <Route path="/admin/dashboard/product/details/:id" element={<ProductDetails />} />
+          <Route path="dashboard/product/details/:id" element={<ProductDetails />} />
 
           <Route path="add" element={<Add />} />
           <Route path="/admin/dashboard/:id" element={<Update />} />
