@@ -49,7 +49,8 @@ const ProductDetails = () => {
         <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.namePro}</h1>
         <p className="text-gray-700 text-base mb-4">{product.desPro}</p>
         <div className="space-y-2">
-          <p className="text-lg font-medium text-gray-800">Giá: {product.price} VND</p>
+          <p className="text-lg font-medium text-gray-800">Giá: {product.price} $</p>
+          <p className="text-lg font-medium text-red-600 font-bold">Giá nhập: {product.import_price} $</p> {/* Màu đỏ và đậm cho giá nhập */}
           <p className="text-lg font-medium text-gray-800">Số lượng: {product.quantity}</p>
           <p
             className={`text-lg font-medium ${
@@ -75,6 +76,3 @@ const ProductDetails = () => {
 };
 
 export default ProductDetails;
-
-
-//npm install react-slick slick-carousel

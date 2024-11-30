@@ -1,21 +1,17 @@
-import { Form, Input, Button, message, Select, Row, Col, Card, Switch } from "antd";
+import { Form, Input, Button, message, Select, Row, Col, Card, Switch, Upload } from "antd";
 import { useState, useEffect } from "react";
-import { addProduct } from "../../service/products";  // Service để thêm sản phẩm
-     // Service upload hình ảnh
-import { getAllCategories } from "../../service/category";  // Service lấy danh mục sản phẩm
-import { Icategory } from "../../interface/category";  // Interface cho danh mục
-import { Upload } from "antd";  // Thêm dòng này vào
-import { upload } from "../../service/upload";
-
+import { addProduct } from "../../service/products"; // Service để thêm sản phẩm
+import { getAllCategories } from "../../service/category"; // Service lấy danh mục sản phẩm
+import { Icategory } from "../../interface/category"; // Interface cho danh mục
+import { upload } from "../../service/upload"; // Service upload hình ảnh
 
 const AddProduct = () => {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
-  const [categories, setCategories] = useState<Icategory[]>([]);  // Danh sách các danh mục
-  const [imageFiles, setImageFiles] = useState<any[]>([]);        // Lưu các tệp hình ảnh
-  const [owerId, setOwerId] = useState<string>("");  // Sử dụng trường nhập liệu cho owerId
+  const [categories, setCategories] = useState<Icategory[]>([]); // Danh sách các danh mục
+  const [imageFiles, setImageFiles] = useState<any[]>([]); // Lưu các tệp hình ảnh
+  const [owerId, setOwerId] = useState<string>(""); // Sử dụng trường nhập liệu cho owerId
 
-  // Hàm thông báo thành công
   const info = () => {
     messageApi.open({
       type: "success",
@@ -23,11 +19,10 @@ const AddProduct = () => {
     });
   };
 
-  // Lấy danh mục sản phẩm từ server
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await getAllCategories();  // Lấy danh mục từ server
+        const data = await getAllCategories();
         setCategories(data);
       } catch (error) {
         console.log("Lỗi khi lấy danh mục:", error);
@@ -36,48 +31,44 @@ const AddProduct = () => {
     fetchCategories();
   }, []);
 
-  // Hàm upload hình ảnh lên server
   const uploadImages = async (files: any) => {
     const formData = new FormData();
     files.forEach((file: any) => {
-      formData.append("images", file);  // Thêm từng tệp hình vào FormData
+      formData.append("images", file);
     });
     try {
-      const res = await upload(formData);  // Gửi yêu cầu upload
-      const imageUrls = res.payload.map((item: any) => item.url);  // Lấy danh sách URL của các hình ảnh
+      const res = await upload(formData);
+      const imageUrls = res.payload.map((item: any) => item.url);
       const newFileList = imageUrls.map((url: string, index: number) => ({
         uid: `-${index}`,
         name: `image-${index}`,
-        status: 'done',
-        url: url,  // Sử dụng URL ảnh đã upload
+        status: "done",
+        url: url,
       }));
-      setImageFiles([...imageFiles, ...newFileList]);  // Cập nhật danh sách file
-      return imageUrls;  // Trả về danh sách URL của các ảnh
+      setImageFiles([...imageFiles, ...newFileList]);
+      return imageUrls;
     } catch (error) {
       console.log("Lỗi khi upload hình ảnh:", error);
-      return [];  // Nếu có lỗi, trả về mảng rỗng
+      return [];
     }
   };
 
-  // Hàm khi submit form
   const onFinish = async (values: any) => {
-    const { namePro, price, quantity, desPro, cateId, brand, statusPro, listPro, creatDatePro } = values;
+    const { namePro, price, quantity, desPro, cateId, brand, statusPro, listPro, creatDatePro, import_price } = values;
 
-    // Upload hình ảnh và lấy URL
     const imageUrls = await uploadImages(imageFiles);
 
-    // Dữ liệu sản phẩm
     const productData = {
       ...values,
-      imgPro: imageUrls,  // Thêm các hình ảnh đã upload vào dữ liệu sản phẩm
-      creatDatePro: creatDatePro || new Date(),  // Nếu không có ngày tạo thì dùng ngày hiện tại
-      owerId: owerId,  // Lấy giá trị owerId người dùng nhập
+      imgPro: imageUrls,
+      creatDatePro: creatDatePro || new Date(),
+      owerId: owerId,
     };
 
     try {
-      const newProduct = await addProduct(productData);  // Thêm sản phẩm lên server
-      info();  // Hiển thị thông báo thành công
-      form.resetFields();  // Reset form sau khi thành công
+      const newProduct = await addProduct(productData);
+      info();
+      form.resetFields();
     } catch (error) {
       messageApi.open({
         type: "error",
@@ -86,10 +77,8 @@ const AddProduct = () => {
     }
   };
 
-  // Hàm xử lý thay đổi file chọn
   const handleChange = (info: any) => {
     if (info.fileList) {
-      // Cập nhật danh sách file ảnh đã chọn
       setImageFiles(info.fileList);
     }
   };
@@ -97,10 +86,10 @@ const AddProduct = () => {
   return (
     <>
       {contextHolder}
-      <Card title="Thêm Sản Phẩm" bordered={true} style={{ width: '80%', margin: '0 auto', padding: '20px' }}>
+      <Card title="Thêm Sản Phẩm" bordered={true} style={{ width: "80%", margin: "0 auto", padding: "20px" }}>
         <Form form={form} onFinish={onFinish} layout="vertical">
-          <Row gutter={16}>
-            <Col span={12}>
+          <Row gutter={24}>
+            <Col xs={24} sm={12}>
               <Form.Item
                 name="namePro"
                 label="Tên sản phẩm"
@@ -108,21 +97,22 @@ const AddProduct = () => {
                 <Input placeholder="Nhập tên sản phẩm" />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Form.Item
                 name="owerId"
                 label="Chủ sở hữu"
                 rules={[{ required: true, message: "Vui lòng nhập owerId!" }]}>
                 <Input
                   value={owerId}
-                  onChange={(e) => setOwerId(e.target.value)}  // Cập nhật giá trị owerId khi người dùng nhập
-                  placeholder="Nhập owerId" />
+                  onChange={(e) => setOwerId(e.target.value)}
+                  placeholder="Nhập owerId"
+                />
               </Form.Item>
             </Col>
           </Row>
 
-          <Row gutter={16}>
-            <Col span={12}>
+          <Row gutter={24}>
+            <Col xs={24} sm={12}>
               <Form.Item
                 name="price"
                 label="Giá sản phẩm"
@@ -130,7 +120,7 @@ const AddProduct = () => {
                 <Input type="number" placeholder="Nhập giá sản phẩm" />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Form.Item
                 name="quantity"
                 label="Số lượng"
@@ -140,26 +130,48 @@ const AddProduct = () => {
             </Col>
           </Row>
 
-          <Row gutter={16}>
-            <Col span={12}>
+          {/* Đặt Giá Nhập xuống dưới Số Lượng */}
+          <Row gutter={24}>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="import_price"
+                label="Giá Nhập"
+                rules={[
+                  { required: true, message: "Vui lòng nhập giá nhập sản phẩm!" },
+                  {
+                    validator: (_, value) => {
+                      if (value === undefined || value === "") {
+                        return Promise.reject("Vui lòng nhập giá nhập!");
+                      }
+                      if (Number(value) < 0) {
+                        return Promise.reject("Giá nhập phải lớn hơn hoặc bằng 0!");
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}>
+                <Input type="number" placeholder="Vui lòng nhập giá nhập" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={24}>
+            <Col xs={24} sm={12}>
               <Form.Item
                 name="desPro"
                 label="Mô tả sản phẩm">
                 <Input.TextArea placeholder="Nhập mô tả sản phẩm" maxLength={255} />
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item
-                name="statusPro"
-                label="Trạng thái"
-                valuePropName="checked">
+            <Col xs={24} sm={12}>
+              <Form.Item name="statusPro" label="Trạng thái" valuePropName="checked">
                 <Switch checkedChildren="Còn hàng" unCheckedChildren="Hết hàng" />
               </Form.Item>
             </Col>
           </Row>
 
-          <Row gutter={16}>
-            <Col span={12}>
+          <Row gutter={24}>
+            <Col xs={24} sm={12}>
               <Form.Item
                 name="cateId"
                 label="Danh mục"
@@ -173,24 +185,22 @@ const AddProduct = () => {
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item
-                name="brand"
-                label="Thương hiệu">
+            <Col xs={24} sm={12}>
+              <Form.Item name="brand" label="Thương hiệu">
                 <Input placeholder="Nhập thương hiệu sản phẩm" />
               </Form.Item>
             </Col>
           </Row>
 
-          <Row gutter={16}>
-            <Col span={12}>
+          <Row gutter={24}>
+            <Col xs={24} sm={12}>
               <Form.Item
                 name="listPro"
                 label="Mô hình sản phẩm">
                 <Input placeholder="Nhập mô hình sản phẩm" />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Form.Item
                 name="creatDatePro"
                 label="Ngày tạo sản phẩm"
@@ -200,13 +210,11 @@ const AddProduct = () => {
             </Col>
           </Row>
 
-           <Row gutter={16}>
-            <Col span={12}>
-              {/* Hình ảnh sản phẩm */}
+          <Row gutter={24}>
+            <Col xs={24} sm={12}>
               <Form.Item
                 name="imgPro"
-                label="Hình ảnh sản phẩm"
-                rules={[{ required: false }]}>
+                label="Hình ảnh sản phẩm">
                 <Upload
                   beforeUpload={(file) => {
                     setImageFiles((prev) => [...prev, file]);
@@ -222,7 +230,7 @@ const AddProduct = () => {
           </Row>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+            <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
               Thêm sản phẩm
             </Button>
           </Form.Item>

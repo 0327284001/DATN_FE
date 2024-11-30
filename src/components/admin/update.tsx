@@ -1,6 +1,6 @@
 import { Form, Input, Button, message, Select, Switch, Row, Col, Card, Upload } from "antd";
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";  // Import useNavigate
+import { useParams, useNavigate } from "react-router-dom";
 import { getProductByID, updateProduct } from "../../service/products";
 import { getAllCategories } from "../../service/category";
 import { Icategory } from "../../interface/category";
@@ -12,7 +12,7 @@ const UpdateProduct = () => {
   const [categories, setCategories] = useState<Icategory[]>([]);
   const [imageFiles, setImageFiles] = useState<any[]>([]);
   const [owerId, setOwerId] = useState<string>("");
-  const navigate = useNavigate();  // Khởi tạo navigate
+  const navigate = useNavigate();
 
   const info = () => {
     messageApi.open({
@@ -43,6 +43,7 @@ const UpdateProduct = () => {
             cateId: product.cateId,
             statusPro: product.statusPro ? "Còn hàng" : "Hết hàng",
             brand: product.brand,
+            import_price: product.import_price,
           });
         } catch (error) {
           console.error("Lỗi khi lấy dữ liệu sản phẩm:", error);
@@ -55,7 +56,7 @@ const UpdateProduct = () => {
   }, [form, id]);
 
   const onFinish = async (values: any) => {
-    const { namePro, price, quantity, desPro, cateId, brand, statusPro } = values;
+    const { namePro, price, quantity, desPro, cateId, brand, statusPro, import_price } = values;
 
     const updatedProduct = {
       ...values,
@@ -87,7 +88,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="namePro"
                 label="Tên sản phẩm"
-                rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm!" }]} >
+                rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm!" }]}>
                 <Input placeholder="Nhập tên sản phẩm" />
               </Form.Item>
             </Col>
@@ -95,7 +96,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="owerId"
                 label="Chủ sở hữu"
-                rules={[{ required: true, message: "Vui lòng nhập chủ sở hữu!" }]} >
+                rules={[{ required: true, message: "Vui lòng nhập chủ sở hữu!" }]}>
                 <Input placeholder="Nhập chủ sở hữu sản phẩm" />
               </Form.Item>
             </Col>
@@ -106,7 +107,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="price"
                 label="Giá sản phẩm"
-                rules={[{ required: true, message: "Vui lòng nhập giá sản phẩm!" }]} >
+                rules={[{ required: true, message: "Vui lòng nhập giá sản phẩm!" }]}>
                 <Input type="number" placeholder="Nhập giá sản phẩm" />
               </Form.Item>
             </Col>
@@ -114,8 +115,16 @@ const UpdateProduct = () => {
               <Form.Item
                 name="quantity"
                 label="Số lượng"
-                rules={[{ required: true, message: "Vui lòng nhập số lượng sản phẩm!" }]} >
+                rules={[{ required: true, message: "Vui lòng nhập số lượng sản phẩm!" }]}>
                 <Input type="number" placeholder="Nhập số lượng" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="import_price"
+                label="Giá Nhập"
+                rules={[{ required: true, message: "Vui lòng nhập giá nhập sản phẩm!" }]}>
+                <Input type="number" placeholder="Vui lòng nhập giá nhập" />
               </Form.Item>
             </Col>
           </Row>
@@ -125,7 +134,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="desPro"
                 label="Mô tả sản phẩm"
-                rules={[{ required: false }]} >
+                rules={[{ required: false }]}>
                 <Input.TextArea placeholder="Nhập mô tả sản phẩm" maxLength={255} />
               </Form.Item>
             </Col>
@@ -144,7 +153,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="cateId"
                 label="Danh mục"
-                rules={[{ required: true, message: "Vui lòng chọn danh mục sản phẩm!" }]} >
+                rules={[{ required: true, message: "Vui lòng chọn danh mục sản phẩm!" }]}>
                 <Select placeholder="Chọn danh mục sản phẩm">
                   {categories.map((category) => (
                     <Select.Option key={category._id} value={category._id}>
@@ -158,7 +167,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="brand"
                 label="Thương hiệu"
-                rules={[{ required: false }]} >
+                rules={[{ required: false }]}>
                 <Input placeholder="Nhập thương hiệu sản phẩm" />
               </Form.Item>
             </Col>
@@ -169,7 +178,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="imgPro"
                 label="Hình ảnh sản phẩm"
-                rules={[{ required: false }]} >
+                rules={[{ required: false }]}>
                 <Upload
                   beforeUpload={(file) => {
                     setImageFiles((prev) => [...prev, file]);

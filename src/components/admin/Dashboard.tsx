@@ -69,6 +69,7 @@ const Dashboard = () => {
               <th className="px-6 py-3">Mô tả</th>
               <th className="px-6 py-3">Ngày tạo</th>
               <th className="px-6 py-3">Số lượng</th>
+              <th className="px-6 py-3">Giá Nhập</th> {/* Cột Giá Nhập */}
               <th className="px-6 py-3">Danh mục</th>
               <th className="px-6 py-3">Hình ảnh</th>
               <th className="px-6 py-3">Thương hiệu</th>
@@ -91,7 +92,7 @@ const Dashboard = () => {
                 <td className="px-6 py-4">
                   {product.statusPro ? "Còn hàng" : "Hết hàng"}
                 </td>
-                <td className="px-6 py-4">${product.price}</td>
+                <td className="px-6 py-4">{product.price}$</td>
                 <td className="px-6 py-4">
                   <p className="line-clamp-3">{product.desPro || "Không có mô tả"}</p>
                 </td>
@@ -99,6 +100,7 @@ const Dashboard = () => {
                   {product.creatDatePro || "Chưa cập nhật"}
                 </td>
                 <td className="px-6 py-4">{product.quantity}</td>
+                <td className="px-6 py-4">{product. import_price || "Chưa cập nhật"}$</td> {/* Hiển thị Giá Nhập */}
                 <td className="px-6 py-4">{product.listPro || "Chưa phân loại"}</td>
                 <td className="px-6 py-4">
                   {product.imgPro ? (
