@@ -1,166 +1,174 @@
-import React, { useState } from 'react';
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import React, { useEffect, useState } from "react";
+import { Bar } from "react-chartjs-2";
+import axios from "axios";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Button, ButtonGroup } from "@mui/material"; // Thêm thư viện UI Material-UI cho nút
+import { styled } from "@mui/system"; // Thư viện để tùy chỉnh styles
 
+// Đăng ký các thành phần của Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-interface BarChartProps {
-  backgroundColor?: string;
-  borderColor?: string;
+// Định nghĩa kiểu dữ liệu của từng item trong mảng trả về từ API
+interface StatItem {
+  totalRevenue: number;   // Tổng doanh thu
+  totalCost: number;      // Tổng chi phí
+  totalQuantity: number;  // Tổng số lượng
+  totalProfit: number;    // Tổng lợi nhuận
 }
 
-const BarChart: React.FC<BarChartProps> = ({ backgroundColor = '#4CAF50', borderColor = '#388E3C' }) => {
-  const [filter, setFilter] = useState<string>('month'); // Thời gian mặc định là 'month'
+// Định nghĩa kiểu cho dữ liệu của biểu đồ
+interface ChartData {
+  labels: string[]; // Mảng chứa tên các danh mục
+  datasets: {
+    label: string;
+    data: number[];  // Mảng chứa dữ liệu tương ứng
+    backgroundColor: string;
+    borderColor: string;
+    borderWidth: number;
+  }[]; 
+}
 
-  // Dữ liệu cứng
-  const dataByDay = [1200, 1300, 1100, 1500, 1600, 1400, 1800]; // Doanh thu cho từng ngày
-  const dataByWeek = [7000, 7500, 8000, 7200]; // Doanh thu cho từng tuần
-  const dataByMonth = [32000, 34000, 30000, 35000, 33000]; // Doanh thu cho từng tháng
-  const dataByYear = [400000, 420000, 430000]; // Doanh thu cho từng năm
+// Tùy chỉnh cho nút
+const StyledButtonGroup = styled(ButtonGroup)`
+  margin-bottom: 20px;
+`;
 
-  // Nhãn tương ứng với từng dữ liệu
-  const labelsByDay = ['Ngày 1', 'Ngày 2', 'Ngày 3', 'Ngày 4', 'Ngày 5', 'Ngày 6', 'Ngày 7'];
-  const labelsByWeek = ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'];
-  const labelsByMonth = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5'];
-  const labelsByYear = ['Năm 2022', 'Năm 2023', 'Năm 2024'];
-
-  // Lựa chọn dữ liệu và nhãn dựa trên filter
-  let data: number[] = [];
-  let labels: string[] = [];
-
-  switch (filter) {
-    case 'day':
-      data = dataByDay;
-      labels = labelsByDay;
-      break;
-    case 'week':
-      data = dataByWeek;
-      labels = labelsByWeek;
-      break;
-    case 'month':
-      data = dataByMonth;
-      labels = labelsByMonth;
-      break;
-    case 'year':
-      data = dataByYear;
-      labels = labelsByYear;
-      break;
-    default:
-      data = dataByMonth;
-      labels = labelsByMonth;
-      break;
+const StyledButton = styled(Button)`
+  font-weight: bold;
+  text-transform: none;
+  background-color: #3f51b5;
+  color: white;
+  &:hover {
+    background-color: #303f9f;
   }
+`;
 
-  const chartData = {
-    labels,
+const BarChart = () => {
+  const [chartData, setChartData] = useState<ChartData>({
+    labels: [], // Mảng chứa các danh mục
     datasets: [
       {
-        label: 'Doanh thu',
-        data,
-        backgroundColor,
-        borderColor,
+        label: "Thống kê", // Tên cho bộ dữ liệu trong biểu đồ
+        data: [], // Mảng dữ liệu ban đầu
+        backgroundColor: "rgba(75, 192, 192, 0.2)", // Màu sắc cho các cột
+        borderColor: "rgba(75, 192, 192, 1)", // Màu viền cho các cột
         borderWidth: 1,
       },
     ],
+  });
+
+  const [selectedPeriod, setSelectedPeriod] = useState<string>("today");
+
+  // Hàm gọi API để lấy dữ liệu thống kê
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`/api/statistics/${selectedPeriod}`);
+      const data: StatItem[] = response.data;
+
+      const labels = ["Doanh thu", "Chi phí", "Số lượng", "Lợi nhuận"];
+      const values = [
+        data[0].totalRevenue,
+        data[0].totalCost,
+        data[0].totalQuantity,
+        data[0].totalProfit,
+      ];
+
+      // Cập nhật lại chartData với dữ liệu mới
+      setChartData({
+        labels,
+        datasets: [
+          {
+            label: "Thống kê",
+            data: values,
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
+            borderColor: "rgba(75, 192, 192, 1)",
+            borderWidth: 1,
+          },
+        ],
+      });
+    } catch (error) {
+      console.error("Có lỗi khi lấy dữ liệu thống kê", error);
+    }
   };
 
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: 'Doanh thu',
-      },
-    },
-    scales: {
-      x: {
-        title: {
-          display: true,
-          text: filter === 'day' ? 'Ngày' : filter === 'week' ? 'Tuần' : filter === 'month' ? 'Tháng' : 'Năm',
-        },
-      },
-      y: {
-        title: {
-          display: true,
-          text: 'Doanh thu (VND)',
-        },
-        beginAtZero: true,
-      },
-    },
-  };
-
-  // Hàm thay đổi phạm vi lọc
-  const handleFilterChange = (newFilter: string) => {
-    setFilter(newFilter);
-  };
-
-  // Dữ liệu cho top sản phẩm bán chạy nhất
-  const topProducts = [
-    { name: 'Sản phẩm GunDam', quantitySold: 500 },
-    { name: 'Sản phẩm POPMART', quantitySold: 450 },
-    { name: 'Sản phẩm Lego', quantitySold: 400 },
-    { name: 'Sản phẩm OTHER PRODUCTS', quantitySold: 350 },
-    { name: 'Sản phẩm FINDING UNICORN', quantitySold: 300 },
-  ];
+  // Gọi hàm fetchData mỗi khi khoảng thời gian được thay đổi
+  useEffect(() => {
+    fetchData();
+  }, [selectedPeriod]);
 
   return (
-    <div className="w-full max-w-lg mx-auto p-4 bg-white rounded-lg shadow-md">
-      {/* Phần lọc dữ liệu */}
-      <div className="mb-4 flex justify-between">
-        <button
-          className={`px-4 py-2 rounded ${filter === 'day' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-          onClick={() => handleFilterChange('day')}
-        >
-          Ngày
-        </button>
-        <button
-          className={`px-4 py-2 rounded ${filter === 'week' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-          onClick={() => handleFilterChange('week')}
-        >
-          Tuần
-        </button>
-        <button
-          className={`px-4 py-2 rounded ${filter === 'month' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-          onClick={() => handleFilterChange('month')}
-        >
-          Tháng
-        </button>
-        <button
-          className={`px-4 py-2 rounded ${filter === 'year' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-          onClick={() => handleFilterChange('year')}
-        >
-          Năm
-        </button>
-      </div>
+    <div style={{ padding: "20px", textAlign: "center" }}>
+      <h2 style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "20px" }}>
+        Biểu đồ Thống kê
+      </h2>
 
-      {/* Biểu đồ doanh thu */}
-      <Bar data={chartData} options={options} />
+      {/* Các nút chọn khoảng thời gian */}
+      <StyledButtonGroup variant="contained" aria-label="time period selection">
+        <StyledButton onClick={() => setSelectedPeriod("today")}>Hôm nay</StyledButton>
+        <StyledButton onClick={() => setSelectedPeriod("yesterday")}>Hôm qua</StyledButton>
+        <StyledButton onClick={() => setSelectedPeriod("last-week")}>1 tuần trước</StyledButton>
+        <StyledButton onClick={() => setSelectedPeriod("last-three-months")}>3 tháng trước</StyledButton>
+      </StyledButtonGroup>
 
-      {/* Top sản phẩm bán chạy nhất */}
-      <div className="mt-8 p-4 bg-white rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Top Sản Phẩm Bán Chạy Nhất</h2>
-        <table className="w-full table-auto border-collapse">
-          <thead>
-            <tr>
-              <th className="border p-2 text-left">Tên sản phẩm</th>
-              <th className="border p-2 text-left">Số lượng bán</th>
-            </tr>
-          </thead>
-          <tbody>
-            {topProducts.map((product, index) => (
-              <tr key={index}>
-                <td className="border p-2">{product.name}</td>
-                <td className="border p-2">{product.quantitySold}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Biểu đồ Bar */}
+      <div style={{ width: "80%", margin: "0 auto" }}>
+        <Bar
+          data={chartData}
+          options={{
+            responsive: true,
+            plugins: {
+              title: {
+                display: true,
+                text: "Thống kê theo khoảng thời gian",
+                font: { size: 18 },
+                padding: 20,
+              },
+              tooltip: {
+                backgroundColor: "#333",
+                titleColor: "#fff",
+                bodyColor: "#fff",
+                borderColor: "#fff",
+                borderWidth: 1,
+              },
+            },
+            scales: {
+              x: {
+                beginAtZero: true,
+                grid: {
+                  display: false,
+                },
+                ticks: {
+                  font: {
+                    size: 14,
+                    weight: "bold",
+                  },
+                },
+              },
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  font: {
+                    size: 14,
+                    weight: "bold",
+                  },
+                },
+              },
+            },
+          }}
+        />
       </div>
     </div>
   );
 };
+//npm install @mui/material @mui/system
+//npm install @emotion/react @emotion/styled
 
 export default BarChart;

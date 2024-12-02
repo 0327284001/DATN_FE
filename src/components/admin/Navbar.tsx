@@ -61,7 +61,7 @@ const Navbar = ({ handleLogout }: Props) => {
             }`}
           >
             <DashboardIcon />
-            <span>Thống Kê</span>
+            <span>Statistical</span>
           </NavLink>
         </li>
         <li>
@@ -94,7 +94,7 @@ const Navbar = ({ handleLogout }: Props) => {
             }`}
           >
             <AddIcon />
-            <span>Đơn Hàng</span>
+            <span> Order</span>
           </NavLink>
         </li>
 
@@ -109,7 +109,7 @@ const Navbar = ({ handleLogout }: Props) => {
             <span>Staff</span>
           </NavLink>
         </li> */}
-        <li>
+        {/* <li>
           <NavLink
             to="/admin/tro_chuyen"
             className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${
@@ -119,7 +119,7 @@ const Navbar = ({ handleLogout }: Props) => {
             <AddIcon />
             <span>Chăm Sóc Khách Hàng</span>
           </NavLink>
-        </li>
+        </li> */}
         <li>
           <button
             onClick={logout}
