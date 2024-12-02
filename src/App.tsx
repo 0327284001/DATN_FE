@@ -17,6 +17,7 @@ import TroChuyen from "./components/trochuyen/tro_chuyen";
 import ProductDetail from "./components/admin/ProductDetail";
 import UpdateProduct from "./components/admin/update";
 import ProductDetails from "./components/admin/ProductDetail";
+import DonHang from "./components/donHang/donhang";
 
 function App() {
   const labels = ['January', 'February', 'March', 'April', 'May', 'June'];
@@ -48,7 +49,8 @@ function App() {
 
           {/* Quản lý nhân viên */}
           <Route path="staff" element={<NhanVien />} />
-
+           {/* Quản lý đơn hàng */}
+           <Route path="donhang" element={<DonHang />} />
           {/* Quản lý chăm sóc khách hàng */}
           <Route path="tro_chuyen" element={<TroChuyen />} />
 

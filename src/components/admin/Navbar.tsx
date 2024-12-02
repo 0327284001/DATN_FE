@@ -88,6 +88,18 @@ const Navbar = ({ handleLogout }: Props) => {
         </li>
         <li>
           <NavLink
+            to="/admin/donhang"
+            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${
+              active === '/admin/donhang' ? 'bg-gray-700' : ''
+            }`}
+          >
+            <AddIcon />
+            <span>Đơn Hàng</span>
+          </NavLink>
+        </li>
+
+        {/* <li>
+          <NavLink
             to="/admin/staff"
             className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${
               active === '/admin/staff' ? 'bg-gray-700' : ''
@@ -96,7 +108,7 @@ const Navbar = ({ handleLogout }: Props) => {
             <AddIcon />
             <span>Staff</span>
           </NavLink>
-        </li>
+        </li> */}
         <li>
           <NavLink
             to="/admin/tro_chuyen"
