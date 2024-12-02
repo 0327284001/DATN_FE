@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "./DonHang.css";
 
 // Định nghĩa kiểu dữ liệu cho đơn hàng
 interface Order {
@@ -21,53 +22,61 @@ const DonHang: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    // Gọi API để lấy danh sách đơn hàng
-    axios.get('/api/orders') // Đường dẫn API cần sửa theo server của bạn
-      .then(response => {
+    axios
+      .get("http://localhost:28017/orders")
+      .then((response) => {
         setOrders(response.data);
       })
-      .catch(error => {
-        console.error('Lỗi khi lấy danh sách đơn hàng:', error);
+      .catch((error) => {
+        console.error("Lỗi khi lấy danh sách đơn hàng:", error);
       });
   }, []);
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1 style={{ textAlign: 'center' }}>Danh sách đơn hàng</h1>
+    <div className="don-hang-container">
+      <h1 className="title">Danh sách đơn hàng</h1>
       {orders.length === 0 ? (
-        <p>Không có đơn hàng nào.</p>
+        <p className="no-orders">Không có đơn hàng nào.</p>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table className="orders-table">
           <thead>
             <tr>
-              <th style={{ border: '1px solid #ccc', padding: '8px' }}>Mã đơn hàng</th>
-              <th style={{ border: '1px solid #ccc', padding: '8px' }}>Mã khách hàng</th>
-              <th style={{ border: '1px solid #ccc', padding: '8px' }}>Tổng doanh thu</th>
-              <th style={{ border: '1px solid #ccc', padding: '8px' }}>Chi tiết sản phẩm</th>
-              <th style={{ border: '1px solid #ccc', padding: '8px' }}>Trạng thái</th>
-              <th style={{ border: '1px solid #ccc', padding: '8px' }}>Ngày đặt hàng</th>
+              <th>Mã đơn hàng</th>
+              <th>Mã khách hàng</th>
+              <th>Tổng doanh thu</th>
+              <th>Chi tiết sản phẩm</th>
+              <th>Trạng thái</th>
+              <th>Ngày đặt hàng</th>
             </tr>
           </thead>
           <tbody>
-            {orders.map(order => (
+            {orders.map((order) => (
               <tr key={order._id}>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>{order._id}</td>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>{order.cusId}</td>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>{order.revenue_all.toLocaleString()}</td>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                <td style={{ border: '1px solid #ccc', padding: '8px' }}>{order._id.slice(0, 10)}...</td>
+                <td style={{ border: '1px solid #ccc', padding: '8px' }}>{order.cusId.slice(0, 10)}...</td>
+                <td>{order.revenue_all.toLocaleString()} VND</td>
+                <td>
                   {order.prodDetails.map((prod, index) => (
-                    <div key={index} style={{ marginBottom: '10px' }}>
-                      <p>Mã SP: {prod.prodId}</p>
-                      <p>Doanh thu: {prod.revenue.toLocaleString()}</p>
-                      <p>Số lượng: {prod.quantity}</p>
-                      <p>Thông số kỹ thuật: {prod.prodSpecification}</p>
+                    <div key={index} className="product-details">
+                      <p><strong>Mã SP:</strong> {prod.prodId}</p>
+                      <p><strong>Doanh thu:</strong> {prod.revenue.toLocaleString()} VND</p>
+                      <p><strong>Số lượng:</strong> {prod.quantity}</p>
+                      <p><strong>Thông số:</strong> {prod.prodSpecification}</p>
                     </div>
                   ))}
                 </td>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>{order.orderStatus}</td>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                  {new Date(order.orderDate).toLocaleDateString()}
+                <td className="status-column">
+                  <div className="status-spinner">
+                    <div className={`spinner ${order.orderStatus === 'Chờ xác nhận' ? 'pending' :
+                      order.orderStatus === 'Đã xác nhận' ? 'confirmed' :
+                        order.orderStatus === 'Chờ giao hàng' ? 'shipping' : 'delivered'}`}>
+                      <div className="spinner-icon"></div>
+                    </div>
+                    <p>{order.orderStatus}</p>
+                  </div>
                 </td>
+
+                <td>{new Date(order.orderDate).toLocaleDateString()}</td>
               </tr>
             ))}
           </tbody>
