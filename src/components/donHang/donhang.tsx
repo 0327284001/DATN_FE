@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./DonHang.css";
 
-// Định nghĩa kiểu dữ liệu cho đơn hàng
 interface Order {
   _id: string;
   cusId: string;
@@ -32,22 +31,36 @@ const DonHang: React.FC = () => {
       });
   }, []);
 
-  const handleStatusChange = (orderId: string, newStatus: string) => {
+  const handleStatusChange = (id: string, newStatus: string) => {
     setOrders((prevOrders) =>
       prevOrders.map((order) =>
-        order._id === orderId ? { ...order, orderStatus: newStatus } : order
+        order._id === id ? { ...order, orderStatus: newStatus } : order
       )
     );
 
-    // Gửi yêu cầu cập nhật trạng thái lên server
     axios
-      .put(`http://localhost:28017/orders/${orderId}`, { orderStatus: newStatus })
+      .put(`http://localhost:28017/orders/${id}`, { orderStatus: newStatus })
       .then(() => {
-        console.log("Trạng thái đã được cập nhật!");
+        console.log("Cập nhật trạng thái thành công!");
       })
       .catch((error) => {
         console.error("Lỗi khi cập nhật trạng thái:", error);
       });
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Chờ xác nhận":
+        return "red";
+      case "Đã xác nhận":
+        return "orange";
+      case "Chờ giao hàng":
+        return "blue";
+      case "Đã giao":
+        return "green";
+      default:
+        return "black";
+    }
   };
 
   return (
@@ -94,15 +107,29 @@ const DonHang: React.FC = () => {
                 <td>
                   <select
                     value={order.orderStatus}
-                    onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                    onChange={(e) =>
+                      handleStatusChange(order._id, e.target.value)
+                    }
+                    style={{
+                      color: getStatusColor(order.orderStatus),
+                      fontWeight: "bold",
+                    }}
                   >
-                    <option value="Chờ xác nhận">Chờ xác nhận</option>
-                    <option value="Đã xác nhận">Đã xác nhận</option>
-                    <option value="Chờ giao hàng">Chờ giao hàng</option>
-                    <option value="Đã giao">Đã giao</option>
+                    <option value="Chờ xác nhận" style={{ color: "red" }}>
+                      Chờ xác nhận
+                    </option>
+                    <option value="Đã xác nhận" style={{ color: "orange" }}>
+                      Đã xác nhận
+                    </option>
+                    <option value="Chờ giao hàng" style={{ color: "blue" }}>
+                      Chờ giao hàng
+                    </option>
+                    <option value="Đã giao" style={{ color: "green" }}>
+                      Đã giao
+                    </option>
                   </select>
                 </td>
-                <td>{new Date(order.orderDate).toLocaleDateString()}</td>
+                <td>{new Date(order.orderDate).toLocaleDateString("vi-VN", { year: 'numeric', month: '2-digit', day: '2-digit' })}</td>
               </tr>
             ))}
           </tbody>
