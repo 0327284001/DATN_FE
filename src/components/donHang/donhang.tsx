@@ -32,6 +32,24 @@ const DonHang: React.FC = () => {
       });
   }, []);
 
+  const handleStatusChange = (orderId: string, newStatus: string) => {
+    setOrders((prevOrders) =>
+      prevOrders.map((order) =>
+        order._id === orderId ? { ...order, orderStatus: newStatus } : order
+      )
+    );
+
+    // Gửi yêu cầu cập nhật trạng thái lên server
+    axios
+      .put(`http://localhost:28017/orders/${orderId}`, { orderStatus: newStatus })
+      .then(() => {
+        console.log("Trạng thái đã được cập nhật!");
+      })
+      .catch((error) => {
+        console.error("Lỗi khi cập nhật trạng thái:", error);
+      });
+  };
+
   return (
     <div className="don-hang-container">
       <h1 className="title">Danh sách đơn hàng</h1>
@@ -52,30 +70,38 @@ const DonHang: React.FC = () => {
           <tbody>
             {orders.map((order) => (
               <tr key={order._id}>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>{order._id.slice(0, 10)}...</td>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>{order.cusId.slice(0, 10)}...</td>
+                <td>{order._id.slice(0, 10)}...</td>
+                <td>{order.cusId.slice(0, 10)}...</td>
                 <td>{order.revenue_all.toLocaleString()} VND</td>
                 <td>
                   {order.prodDetails.map((prod, index) => (
                     <div key={index} className="product-details">
-                      <p><strong>Mã SP:</strong> {prod.prodId}</p>
-                      <p><strong>Doanh thu:</strong> {prod.revenue.toLocaleString()} VND</p>
-                      <p><strong>Số lượng:</strong> {prod.quantity}</p>
-                      <p><strong>Thông số:</strong> {prod.prodSpecification}</p>
+                      <p>
+                        <strong>Mã SP:</strong> {prod.prodId}
+                      </p>
+                      <p>
+                        <strong>Doanh thu:</strong> {prod.revenue.toLocaleString()} VND
+                      </p>
+                      <p>
+                        <strong>Số lượng:</strong> {prod.quantity}
+                      </p>
+                      <p>
+                        <strong>Thông số:</strong> {prod.prodSpecification}
+                      </p>
                     </div>
                   ))}
                 </td>
-                <td className="status-column">
-                  <div className="status-spinner">
-                    <div className={`spinner ${order.orderStatus === 'Chờ xác nhận' ? 'pending' :
-                      order.orderStatus === 'Đã xác nhận' ? 'confirmed' :
-                        order.orderStatus === 'Chờ giao hàng' ? 'shipping' : 'delivered'}`}>
-                      <div className="spinner-icon"></div>
-                    </div>
-                    <p>{order.orderStatus}</p>
-                  </div>
+                <td>
+                  <select
+                    value={order.orderStatus}
+                    onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                  >
+                    <option value="Chờ xác nhận">Chờ xác nhận</option>
+                    <option value="Đã xác nhận">Đã xác nhận</option>
+                    <option value="Chờ giao hàng">Chờ giao hàng</option>
+                    <option value="Đã giao">Đã giao</option>
+                  </select>
                 </td>
-
                 <td>{new Date(order.orderDate).toLocaleDateString()}</td>
               </tr>
             ))}
