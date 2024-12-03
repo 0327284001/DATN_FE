@@ -2,12 +2,20 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./DonHang.css";
 
+// Định nghĩa kiểu dữ liệu cho đơn hàng
 interface Order {
   _id: string;
   cusId: string;
   revenue_all: number;
+  name_order: string;
+  phone_order: string;
+  address_order: string;
+  payment_method: string;
   prodDetails: {
-    prodId: string;
+    prodId: {
+      _id: string;
+      namePro: string;  
+    };
     revenue: number;
     quantity: number;
     prodSpecification: string;
@@ -15,7 +23,9 @@ interface Order {
   content: string;
   orderStatus: string;
   orderDate: string;
+  __v: number;
 }
+
 
 const DonHang: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -24,6 +34,7 @@ const DonHang: React.FC = () => {
     axios
       .get("http://localhost:28017/orders")
       .then((response) => {
+        console.log(response.data);
         setOrders(response.data);
       })
       .catch((error) => {
@@ -73,7 +84,7 @@ const DonHang: React.FC = () => {
           <thead>
             <tr>
               <th>Mã đơn hàng</th>
-              <th>Mã khách hàng</th>
+              <th>Tên khách hàng</th>
               <th>Tổng doanh thu</th>
               <th>Chi tiết sản phẩm</th>
               <th>Trạng thái</th>
@@ -84,22 +95,22 @@ const DonHang: React.FC = () => {
             {orders.map((order) => (
               <tr key={order._id}>
                 <td>{order._id.slice(0, 10)}...</td>
-                <td>{order.cusId.slice(0, 10)}...</td>
+                <td>{order.name_order}</td>
                 <td>{order.revenue_all.toLocaleString()} VND</td>
                 <td>
                   {order.prodDetails.map((prod, index) => (
                     <div key={index} className="product-details">
                       <p>
-                        <strong>Mã SP:</strong> {prod.prodId}
+                      <strong>Tên SP:</strong> {prod.prodId?.namePro || "Tên sản phẩm không có"}
                       </p>
                       <p>
-                        <strong>Doanh thu:</strong> {prod.revenue.toLocaleString()} VND
+                        <strong>Giá bán 1 sản phẩm:</strong> {prod.revenue.toLocaleString()} VND
                       </p>
                       <p>
                         <strong>Số lượng:</strong> {prod.quantity}
                       </p>
                       <p>
-                        <strong>Thông số:</strong> {prod.prodSpecification}
+                        <strong>Phân loại:</strong> {prod.prodSpecification}
                       </p>
                     </div>
                   ))}

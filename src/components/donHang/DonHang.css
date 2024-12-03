@@ -9,7 +9,9 @@
     color: #333;
     margin-bottom: 20px;
   }
-  
+  h1{
+    font-size: 30px;
+  }
   .orders-table {
     width: 100%;
     border-collapse: collapse;
@@ -127,7 +129,7 @@
     border-top-color: #4caf50;
   }
   
-  /* Thêm kiểu chữ cho các trạng thái */
+  
   .status-column p {
     margin-top: 10px;
     font-weight: bold;
@@ -158,22 +160,22 @@
   }
   
   .status-dropdown.status-pending {
-    color: #ff9800; /* Màu cam */
+    color: #ff9800; 
     font-weight: bold;
   }
   
   .status-dropdown.status-confirmed {
-    color: #2196f3; /* Màu xanh dương */
+    color: #2196f3; 
     font-weight: bold;
   }
   
   .status-dropdown.status-shipping {
-    color: #ffeb3b; /* Màu vàng */
+    color: #ffeb3b;
     font-weight: bold;
   }
   
   .status-dropdown.status-delivered {
-    color: #4caf50; /* Màu xanh lá */
+    color: #4caf50; 
     font-weight: bold;
   }
   
