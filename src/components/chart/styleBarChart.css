@@ -1,0 +1,31 @@
+.chart-container {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .chart-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .button-group {
+    margin-bottom: 20px;
+  }
+  
+  .custom-button {
+    font-weight: bold;
+    text-transform: none;
+    background-color: #3f51b5;
+    color: white;
+  }
+  
+  .custom-button:hover {
+    background-color: #303f9f;
+  }
+  
+  .chart-wrapper {
+    width: 80%;
+    margin: 0 auto;
+  }
+  
