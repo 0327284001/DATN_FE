@@ -150,3 +150,30 @@
     color: #4caf50;
   }
   
+  .status-dropdown {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+  }
+  
+  .status-dropdown.status-pending {
+    color: #ff9800; /* Màu cam */
+    font-weight: bold;
+  }
+  
+  .status-dropdown.status-confirmed {
+    color: #2196f3; /* Màu xanh dương */
+    font-weight: bold;
+  }
+  
+  .status-dropdown.status-shipping {
+    color: #ffeb3b; /* Màu vàng */
+    font-weight: bold;
+  }
+  
+  .status-dropdown.status-delivered {
+    color: #4caf50; /* Màu xanh lá */
+    font-weight: bold;
+  }
+  
