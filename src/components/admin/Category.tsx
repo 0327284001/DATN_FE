@@ -13,7 +13,7 @@ const Listcategory = (props: Props) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1); // Trang hiện tại
-  const [itemsPerPage] = useState<number>(7); // Số lượng sản phẩm mỗi trang
+  const [itemsPerPage] = useState<number>(9); // Số lượng sản phẩm mỗi trang
 
   useEffect(() => {
     const fetchData = async () => {
