@@ -14,7 +14,7 @@ interface Order {
   prodDetails: {
     prodId: {
       _id: string;
-      namePro: string;  
+      namePro: string;
     };
     revenue: number;
     quantity: number;
@@ -29,7 +29,9 @@ interface Order {
 
 const DonHang: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
-
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentTab, setCurrentTab] = useState<string>("Tất cả");
   useEffect(() => {
     axios
       .get("http://localhost:28017/orders")
@@ -58,6 +60,12 @@ const DonHang: React.FC = () => {
         console.error("Lỗi khi cập nhật trạng thái:", error);
       });
   };
+  const tabs = ["Tất cả", "Chờ xác nhận", "Đã xác nhận", "Chờ giao hàng", "Đã giao", "Đã hủy"];
+  const filteredOrders =
+    currentTab === "Tất cả"
+      ? orders.filter((order) => order.orderStatus !== "Đã hủy")
+      : orders.filter((order) => order.orderStatus === currentTab);
+
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -73,11 +81,31 @@ const DonHang: React.FC = () => {
         return "black";
     }
   };
+  const handleNameClick = (order: Order) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
+  };
 
+  const closeModal = () => {
+    setSelectedOrder(null);
+    setIsModalOpen(false);
+  };
   return (
     <div className="don-hang-container">
       <h1 className="title">Danh sách đơn hàng</h1>
-      {orders.length === 0 ? (
+      {/* Tab Buttons */}
+      <div className="tabs">
+        {tabs.map((tab) => (
+          <button
+            key={tab}
+            className={`tab-button ${currentTab === tab ? "active" : ""}`}
+            onClick={() => setCurrentTab(tab)}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+      {filteredOrders.length === 0 ? (
         <p className="no-orders">Không có đơn hàng nào.</p>
       ) : (
         <table className="orders-table">
@@ -92,16 +120,23 @@ const DonHang: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {orders.map((order) => (
+            {filteredOrders.map((order) => (
               <tr key={order._id}>
                 <td>{order._id.slice(0, 10)}...</td>
-                <td>{order.name_order}</td>
+                <td>
+                  <button
+                    onClick={() => handleNameClick(order)}
+                    className="name-button"
+                  >
+                    {order.name_order}
+                  </button>
+                </td>
                 <td>{order.revenue_all.toLocaleString()} VND</td>
                 <td>
                   {order.prodDetails.map((prod, index) => (
                     <div key={index} className="product-details">
                       <p>
-                      <strong>Tên SP:</strong> {prod.prodId?.namePro || "Tên sản phẩm không có"}
+                        <strong>Tên SP:</strong> {prod.prodId?.namePro || "Tên sản phẩm không có"}
                       </p>
                       <p>
                         <strong>Giá bán 1 sản phẩm:</strong> {prod.revenue.toLocaleString()} VND
@@ -116,37 +151,86 @@ const DonHang: React.FC = () => {
                   ))}
                 </td>
                 <td>
-                  <select
-                    value={order.orderStatus}
-                    onChange={(e) =>
-                      handleStatusChange(order._id, e.target.value)
-                    }
-                    style={{
-                      color: getStatusColor(order.orderStatus),
-                      fontWeight: "bold",
-                    }}
-                  >
-                    <option value="Chờ xác nhận" style={{ color: "red" }}>
-                      Chờ xác nhận
-                    </option>
-                    <option value="Đã xác nhận" style={{ color: "orange" }}>
-                      Đã xác nhận
-                    </option>
-                    <option value="Chờ giao hàng" style={{ color: "blue" }}>
-                      Chờ giao hàng
-                    </option>
-                    <option value="Đã giao" style={{ color: "green" }}>
-                      Đã giao
-                    </option>
-                  </select>
+                  {currentTab === "Đã hủy" ? (
+                    <span style={{ color: "red", fontWeight: "bold" }}>Đã hủy</span>
+                  ) : (
+                    <select
+                      value={order.orderStatus} // Đảm bảo giá trị này luôn đồng bộ với trạng thái đơn hàng
+                      onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                    >
+                      <option value="Chờ xác nhận" style={{ color: "red" }}>
+                        Chờ xác nhận
+                      </option>
+                      <option value="Đã xác nhận" style={{ color: "orange" }}>
+                        Đã xác nhận
+                      </option>
+                      <option value="Chờ giao hàng" style={{ color: "blue" }}>
+                        Chờ giao hàng
+                      </option>
+                      <option value="Đã giao" style={{ color: "green" }}>
+                        Đã giao
+                      </option>
+                      {/* <option value="Đã hủy" style={{ color: "gray" }}>
+                        Đã hủy
+                      </option> */}
+                    </select>
+
+                  )}
                 </td>
+
                 <td>{new Date(order.orderDate).toLocaleDateString("vi-VN", { year: 'numeric', month: '2-digit', day: '2-digit' })}</td>
               </tr>
             ))}
           </tbody>
         </table>
+
       )}
+
+      {isModalOpen && selectedOrder && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Thông tin chi tiết đơn hàng</h2>
+            <p>
+              <strong>Tên khách hàng:</strong> {selectedOrder.name_order}
+            </p>
+            <p>
+              <strong>Số điện thoại:</strong> {selectedOrder.phone_order}
+            </p>
+            <p>
+              <strong>Địa chỉ:</strong> {selectedOrder.address_order}
+            </p>
+            <p>
+              <strong>Phương thức thanh toán:</strong>{" "}
+              {selectedOrder.payment_method}
+            </p>
+            <p>
+              <strong>Tổng doanh thu:</strong>{" "}
+              {selectedOrder.revenue_all.toLocaleString()} VND
+            </p>
+            <p>
+              <strong>Chi tiết sản phẩm:</strong>
+            </p>
+            {selectedOrder.prodDetails.map((prod, index) => (
+              <div key={index}>
+                <p>
+                  <strong>Tên SP:</strong>{" "}
+                  {prod.prodId?.namePro || "Tên sản phẩm không có"}
+                </p>
+                <p>
+                  <strong>Số lượng:</strong> {prod.quantity}
+                </p>
+                <p>
+                  <strong>Phân loại:</strong> {prod.prodSpecification}
+                </p>
+              </div>
+            ))}
+            <button onClick={closeModal}>Đóng</button>
+          </div>
+        </div>
+      )}
+
     </div>
+
   );
 };
 
