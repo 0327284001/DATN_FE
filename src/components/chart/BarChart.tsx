@@ -9,7 +9,17 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Button, ButtonGroup } from "@mui/material";
+import {
+  Button,
+  ButtonGroup,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Paper,
+  Collapse,
+} from "@mui/material";
 import "./styleBarChart.css";
 
 // Đăng ký các thành phần của Chart.js
@@ -17,8 +27,9 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const BarChart = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<string>("today");
+  const [showTopProducts, setShowTopProducts] = useState<boolean>(false);
 
-  // Dữ liệu cứng theo từng khoảng thời gian
+  // Dữ liệu cứng cho biểu đồ
   const staticData: Record<string, { labels: string[]; values: number[] }> = {
     today: {
       labels: ["Doanh thu", "Chi phí", "Số lượng", "Lợi nhuận"],
@@ -41,6 +52,15 @@ const BarChart = () => {
       values: [72000, 30000, 4800, 42000],
     },
   };
+
+  // Dữ liệu cứng cho sản phẩm bán chạy
+  const topProducts = [
+    { name: "Mô Hình MEGA SPACE MOLLY", quantity: 150, revenue: 800000 },
+    { name: "Đồ Chơi SpongeBob SquarePants Daily Quirks", quantity: 120, revenue: 750000 },
+    { name: "Búp Bê Jujutsu Kaisen King Of Artist", quantity: 90, revenue: 700000 },
+    { name: "Đồ Chơi SpongeBob Daily Quirks", quantity: 80, revenue: 650000 },
+    { name: "Mô Hình SpongeBob ESSSS", quantity: 70, revenue: 600000 },
+  ];
 
   const chartData = {
     labels: staticData[selectedPeriod].labels,
@@ -147,6 +167,38 @@ const BarChart = () => {
           }}
         />
       </div>
+
+      <Paper className="product-table">
+        <Button
+          className="toggle-button"
+          variant="contained"
+          color={showTopProducts ? "secondary" : "primary"}
+          onClick={() => setShowTopProducts(!showTopProducts)}
+        >
+          {showTopProducts ? "Ẩn danh sách" : "Hiển thị top sản phẩm"}
+        </Button>
+        <Collapse in={showTopProducts}>
+          <h3 className="table-title">Top 5 sản phẩm bán chạy</h3>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Tên sản phẩm</TableCell>
+                <TableCell>Số lượng</TableCell>
+                <TableCell>Doanh thu</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {topProducts.map((product, index) => (
+                <TableRow key={index}>
+                  <TableCell>{product.name}</TableCell>
+                  <TableCell>{product.quantity}</TableCell>
+                  <TableCell>{product.revenue.toLocaleString()} VNĐ</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Collapse>
+      </Paper>
     </div>
   );
 };
