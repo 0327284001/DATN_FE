@@ -32,6 +32,7 @@ const DonHang: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentTab, setCurrentTab] = useState<string>("Tất cả");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   useEffect(() => {
     axios
       .get("http://localhost:28017/orders")
@@ -45,6 +46,9 @@ const DonHang: React.FC = () => {
   }, []);
 
   const handleStatusChange = (id: string, newStatus: string) => {
+    const order = orders.find((order) => order._id === id);
+    const customerName = order?.name_order || "Khách hàng";
+
     setOrders((prevOrders) =>
       prevOrders.map((order) =>
         order._id === id ? { ...order, orderStatus: newStatus } : order
@@ -54,33 +58,37 @@ const DonHang: React.FC = () => {
     axios
       .put(`http://localhost:28017/orders/${id}`, { orderStatus: newStatus })
       .then(() => {
-        console.log("Cập nhật trạng thái thành công!");
+        alert(`Đơn hàng của khách hàng ${customerName} đã được chuyển sang trạng thái ${newStatus}`);
       })
       .catch((error) => {
         console.error("Lỗi khi cập nhật trạng thái:", error);
+        alert("Đã xảy ra lỗi khi cập nhật trạng thái đơn hàng.");
       });
   };
-  const tabs = ["Tất cả", "Chờ xác nhận", "Đã xác nhận", "Chờ giao hàng", "Đã giao", "Đã hủy"];
+
+  const tabs = ["Tất cả", "Chờ xác nhận", "Chờ lấy hàng", "Chờ giao hàng", "Đã giao", "Đã hủy"];
   const filteredOrders =
     currentTab === "Tất cả"
       ? orders.filter((order) => order.orderStatus !== "Đã hủy")
       : orders.filter((order) => order.orderStatus === currentTab);
 
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Chờ xác nhận":
-        return "red";
-      case "Đã xác nhận":
-        return "orange";
-      case "Chờ giao hàng":
-        return "blue";
-      case "Đã giao":
-        return "green";
-      default:
-        return "black";
-    }
-  };
+  const searchedOrders = filteredOrders.filter((order) =>
+    order.phone_order.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  // const getStatusColor = (status: string) => {
+  //   switch (status) {
+  //     case "Chờ xác nhận":
+  //       return "red";
+  //     case "Chờ lấy hàng":
+  //       return "orange";
+  //     case "Chờ giao hàng":
+  //       return "blue";
+  //     case "Đã giao":
+  //       return "green";
+  //     default:
+  //       return "black";
+  //   }
+  // };
   const handleNameClick = (order: Order) => {
     setSelectedOrder(order);
     setIsModalOpen(true);
@@ -105,64 +113,72 @@ const DonHang: React.FC = () => {
           </button>
         ))}
       </div>
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder="Tìm theo số điện thoại..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+      </div>
       {filteredOrders.length === 0 ? (
         <p className="no-orders">Không có đơn hàng nào.</p>
       ) : (
         <table className="orders-table">
           <thead>
             <tr>
-              <th>Mã đơn hàng</th>
               <th>Tên khách hàng</th>
-              <th>Tổng doanh thu</th>
-              <th>Chi tiết sản phẩm</th>
+              <th>Điện thoại</th>
+              <th>Ngày tạo đơn</th>
+              <th>Địa chỉ</th>
+              <th>Tổng tiền</th>
+              <th>Phương thức thanh toán</th>
               <th>Trạng thái</th>
-              <th>Ngày đặt hàng</th>
+              <th>Xem chi tiết</th>
             </tr>
           </thead>
           <tbody>
-            {filteredOrders.map((order) => (
+            {searchedOrders.map((order) => (
               <tr key={order._id}>
-                <td>{order._id.slice(0, 10)}...</td>
+
+                <td>{order.name_order}</td>
+
+
+                <td>{order.phone_order}</td>
+
+
                 <td>
-                  <button
-                    onClick={() => handleNameClick(order)}
-                    className="name-button"
-                  >
-                    {order.name_order}
-                  </button>
+                  {new Date(order.orderDate).toLocaleDateString("vi-VN", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                  })}
                 </td>
+
+
+                <td>{order.address_order}</td>
+
+
                 <td>{order.revenue_all.toLocaleString()} VND</td>
-                <td>
-                  {order.prodDetails.map((prod, index) => (
-                    <div key={index} className="product-details">
-                      <p>
-                        <strong>Tên SP:</strong> {prod.prodId?.namePro || "Tên sản phẩm không có"}
-                      </p>
-                      <p>
-                        <strong>Giá bán 1 sản phẩm:</strong> {prod.revenue.toLocaleString()} VND
-                      </p>
-                      <p>
-                        <strong>Số lượng:</strong> {prod.quantity}
-                      </p>
-                      <p>
-                        <strong>Phân loại:</strong> {prod.prodSpecification}
-                      </p>
-                    </div>
-                  ))}
-                </td>
+
+
+                <td>{order.payment_method}</td>
+
+
                 <td>
                   {currentTab === "Đã hủy" ? (
                     <span style={{ color: "red", fontWeight: "bold" }}>Đã hủy</span>
                   ) : (
                     <select
-                      value={order.orderStatus} // Đảm bảo giá trị này luôn đồng bộ với trạng thái đơn hàng
+                      value={order.orderStatus}
                       onChange={(e) => handleStatusChange(order._id, e.target.value)}
                     >
                       <option value="Chờ xác nhận" style={{ color: "red" }}>
                         Chờ xác nhận
                       </option>
-                      <option value="Đã xác nhận" style={{ color: "orange" }}>
-                        Đã xác nhận
+                      <option value="Chờ lấy hàng" style={{ color: "orange" }}>
+                        Chờ lấy hàng
                       </option>
                       <option value="Chờ giao hàng" style={{ color: "blue" }}>
                         Chờ giao hàng
@@ -170,62 +186,59 @@ const DonHang: React.FC = () => {
                       <option value="Đã giao" style={{ color: "green" }}>
                         Đã giao
                       </option>
-                      {/* <option value="Đã hủy" style={{ color: "gray" }}>
-                        Đã hủy
-                      </option> */}
                     </select>
-
                   )}
                 </td>
 
-                <td>{new Date(order.orderDate).toLocaleDateString("vi-VN", { year: 'numeric', month: '2-digit', day: '2-digit' })}</td>
+
+                <td>
+                  <button
+                    onClick={() => handleNameClick(order)}
+                    className="details-button"
+                  >
+                    Chi tiết
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+
 
       )}
 
       {isModalOpen && selectedOrder && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>Thông tin chi tiết đơn hàng</h2>
-            <p>
-              <strong>Tên khách hàng:</strong> {selectedOrder.name_order}
-            </p>
-            <p>
-              <strong>Số điện thoại:</strong> {selectedOrder.phone_order}
-            </p>
-            <p>
-              <strong>Địa chỉ:</strong> {selectedOrder.address_order}
-            </p>
-            <p>
-              <strong>Phương thức thanh toán:</strong>{" "}
-              {selectedOrder.payment_method}
-            </p>
-            <p>
-              <strong>Tổng doanh thu:</strong>{" "}
-              {selectedOrder.revenue_all.toLocaleString()} VND
-            </p>
-            <p>
-              <strong>Chi tiết sản phẩm:</strong>
-            </p>
-            {selectedOrder.prodDetails.map((prod, index) => (
-              <div key={index}>
-                <p>
-                  <strong>Tên SP:</strong>{" "}
-                  {prod.prodId?.namePro || "Tên sản phẩm không có"}
-                </p>
-                <p>
-                  <strong>Số lượng:</strong> {prod.quantity}
-                </p>
-                <p>
-                  <strong>Phân loại:</strong> {prod.prodSpecification}
-                </p>
-              </div>
-            ))}
+            <h2>Thông tin đơn hàng</h2>
+            <div className="order-summary">
+              <p><strong>Tên khách hàng:</strong> {selectedOrder.name_order}</p>
+              <p><strong>Số điện thoại:</strong> {selectedOrder.phone_order}</p>
+              <p><strong>Địa chỉ:</strong> {selectedOrder.address_order}</p>
+              <p><strong>Ngày đặt hàng:</strong>
+                {new Date(selectedOrder.orderDate).toLocaleDateString("vi-VN", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                })}
+              </p>
+              <p><strong>Phương thức thanh toán:</strong> {selectedOrder.payment_method}</p>
+              <p><strong>Tổng tiền:</strong> {selectedOrder.revenue_all.toLocaleString()} VND</p>
+            </div>
+            <h3>Danh sách sản phẩm</h3>
+            <div className="product-list">
+              {selectedOrder.prodDetails.map((prod, index) => (
+                <div key={index} className="product-item">
+                  <p><strong>Tên sản phẩm:</strong> {prod.prodId?.namePro || "Không xác định"}</p>
+                  <p><strong>Số lượng:</strong> {prod.quantity}</p>
+                  <p><strong>Phân loại:</strong> {prod.prodSpecification || "Không có phân loại"}</p>
+                  <p><strong>Doanh thu:</strong> {prod.revenue.toLocaleString()} VND</p>
+                </div>
+              ))}
+            </div>
             <button onClick={closeModal}>Đóng</button>
           </div>
+
         </div>
       )}
 
