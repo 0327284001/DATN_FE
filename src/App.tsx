@@ -11,13 +11,14 @@ import Addcategory from "./components/admin/Category";
 import Updatecategory from "./components/admin/Updatecategory";
 import Listcategory from "./components/admin/Category";
 import Addcate from "./components/admin/addCategory";
-import BarChart from "./components/chart/BarChart";
+import BarChart from "./components/chart/BarChartComponent";
 import NhanVien from "./components/nhanVien/nhan_vien";
 import TroChuyen from "./components/trochuyen/tro_chuyen";
 import ProductDetail from "./components/admin/ProductDetail";
 import UpdateProduct from "./components/admin/update";
 import ProductDetails from "./components/admin/ProductDetail";
 import DonHang from "./components/donHang/donhang";
+import BarChartComponent from "./components/chart/BarChartComponent";
 
 function App() {
   const labels = ['January', 'February', 'March', 'April', 'May', 'June'];
@@ -55,7 +56,7 @@ function App() {
           <Route path="tro_chuyen" element={<TroChuyen />} />
 
           {/* Thống kê */}
-          <Route path="thongke" element={<BarChart />} />
+          <Route path="thongke" element={<BarChartComponent />} />
         </Route>
       </Routes>
     </BrowserRouter>
