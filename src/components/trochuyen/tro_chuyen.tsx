@@ -1,146 +1,153 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, TextInput } from 'react-native';
-import { EyeIcon } from '@heroicons/react/solid';
-import AddMessage from './AddMessage';
-import { styles } from './styles';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const TroChuyen = () => {
-  // Tạo dữ liệu khách hàng và tin nhắn fix cứng tạm thời
-  const [search, setSearch] = useState('');
-  const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
-  const [messages, setMessages] = useState([
-    { id: 1, customerName: 'Khách hàng 1', text: 'Sản phẩm ABC này có gì đặc biệt?', isUser: false, isRead: false },
-    { id: 2, customerName: 'Khách hàng 2', text: 'Mình muốn hỏi về sản phẩm XYZ.', isUser: false, isRead: false },
-  ]);
-  const [messageInput, setMessageInput] = useState('');
-  const [lastSentMessageId, setLastSentMessageId] = useState<number | null>(null);
+interface Chat {
+  senderId: string;
+  receiverId: string;
+  message: string;
+  chatType: 'Văn bản' | 'Hình ảnh' | 'Video';
+  timestamp: string;
+  chatStatus: 'Đã gửi' | 'Đã nhận' | 'Đã đọc';
+}
 
-  // Danh sách tin nhắn chưa đọc
-  const unreadMessages = messages.filter((message) => !message.isUser && !message.isRead);
+const TroChuyen: React.FC = () => {
+  const [messages, setMessages] = useState<Chat[]>([]);
+  const [newMessage, setNewMessage] = useState<string>('');
+  const [senderId] = useState<string>('user1');  // ID của người gửi (giả định)
+  const [receiverId] = useState<string>('user2');  // ID người nhận (giả định)
 
-  // Lọc tin nhắn theo tên khách hàng
-  const filteredMessages = messages.filter((message) =>
-    message.customerName.toLowerCase().includes(search.toLowerCase())
-  );
+  // Lấy danh sách tin nhắn khi component load
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await axios.get('/chats'); // Đảm bảo API đúng
+        setMessages(response.data);
+      } catch (error) {
+        console.error("Lỗi khi tải tin nhắn:", error);
+      }
+    };
 
-  // Xử lý khi chọn khách hàng
-  function handleCustomerSelect(customerName: string): void {
-    console.log(`Khách hàng được chọn: ${customerName}`);
-    setSelectedCustomer(customerName);
+    fetchMessages();
+  }, []);
 
-    // Đánh dấu tất cả tin nhắn chưa đọc của khách hàng đã chọn là đã đọc
-    setMessages((prevMessages) =>
-      prevMessages.map((message) => {
-        if (message.customerName === customerName && !message.isUser) {
-          console.log(`Đánh dấu tin nhắn của khách hàng ${customerName} là đã đọc.`);
-          return { ...message, isRead: true };
-        }
-        return message;
-      })
-    );
-  }
+  // Gửi tin nhắn
+  const sendMessage = async () => {
+    if (!newMessage) return;
 
-  // Gửi tin nhắn từ admin
-  function handleSendMessage(message: string) {
-    if (message && selectedCustomer) {
-      console.log(`Gửi tin nhắn: "${message}" cho khách hàng: ${selectedCustomer}`);
-
-      // Thêm tin nhắn từ admin
-      const newMessage = {
-        id: messages.length + 1,
-        customerName: selectedCustomer,
-        text: message,
-        isUser: true,
-        isRead: false,
+    try {
+      const messageData = {
+        senderId,
+        receiverId,
+        message: newMessage,
+        chatType: 'Văn bản',  // Loại tin nhắn có thể thay đổi
+        chatStatus: 'Đã gửi',
       };
 
-      console.log('Tin nhắn từ admin:', newMessage);
-
-      // Thêm tin nhắn của admin vào mảng
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-
-      // Cập nhật ID tin nhắn cuối cùng đã gửi
-      setLastSentMessageId(newMessage.id);
-
-      // Phản hồi tự động từ khách hàng nếu chưa có phản hồi
-      if (lastSentMessageId !== newMessage.id) {
-        const customerReply = {
-          id: messages.length + 2,
-          customerName: selectedCustomer,
-          text: `Cho tôi xin giá sản phẩm ${message} này.`,
-          isUser: false,
-          isRead: false,
-        };
-
-        console.log('Phản hồi từ khách hàng:', customerReply);
-
-        // Thêm phản hồi từ khách hàng vào mảng
-        setMessages((prevMessages) => [...prevMessages, customerReply]);
-      }
-
-      setMessageInput('');
+      const response = await axios.post('/chats', messageData); // API gửi tin nhắn
+      setMessages([...messages, response.data]);  // Thêm tin nhắn vào danh sách
+      setNewMessage('');  // Xóa trường nhập sau khi gửi
+    } catch (error) {
+      console.error("Lỗi khi gửi tin nhắn:", error);
     }
-  }
+  };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.leftPanel}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Tìm kiếm khách hàng..."
-          value={search}
-          onChangeText={setSearch}
-        />
+    <div style={styles.chatContainer}>
+      <div style={styles.messages}>
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            style={{
+              ...styles.message,
+              ...(msg.senderId === senderId ? styles.sent : styles.received),
+            }}
+          >
+            <p>{msg.message}</p>
+            <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
+          </div>
+        ))}
+      </div>
 
-        {/* Icon thông báo tin nhắn chờ */}
-        <View style={styles.messageIconContainer}>
-          <TouchableOpacity style={styles.messageIcon}>
-            <EyeIcon width={20} height={20} color="#fff" />
-          </TouchableOpacity>
-          {unreadMessages.length > 0 && (
-            <View style={styles.unreadMessageContainer}>
-              <Text style={styles.unreadMessageText}>{unreadMessages.length} tin nhắn chờ</Text>
-            </View>
-          )}
-        </View>
-
-        {/* Danh sách khách hàng */}
-        <FlatList
-          data={filteredMessages}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.customerItem}
-              onPress={() => handleCustomerSelect(item.customerName)}
-            >
-              <Text style={styles.customerName}>{item.customerName}</Text>
-            </TouchableOpacity>
-          )}
-        />
-      </View>
-
-      {/* Khu vực trò chuyện bên phải */}
-      {selectedCustomer && (
-        <View style={styles.rightPanel}>
-          <Text style={styles.chatHeader}>Trò chuyện với {selectedCustomer}</Text>
-          <FlatList
-            data={messages.filter((message) => message.customerName === selectedCustomer)}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <View style={[styles.messageBubble, item.isUser ? styles.userMessage : styles.systemMessage]}>
-                <Text style={styles.messageText}>{item.text}</Text>
-              </View>
-            )}
-          />
-          <AddMessage
-            messageInput={messageInput}
-            setMessageInput={setMessageInput}
-            handleSendMessage={handleSendMessage}
-          />
-        </View>
-      )}
-    </View>
+      <div style={styles.inputContainer}>
+        <textarea
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          placeholder="Nhập tin nhắn"
+          style={styles.textarea as React.CSSProperties} // Ép kiểu đây
+        ></textarea>
+        <button onClick={sendMessage} style={styles.button}>
+          Gửi
+        </button>
+      </div>
+    </div>
   );
+};
+
+// CSS-in-JS styles
+const styles: { [key: string]: React.CSSProperties } = {
+  chatContainer: {
+    width: '100%',
+    maxWidth: '600px',
+    margin: '0 auto',
+    padding: '20px',
+    backgroundColor: '#f8f9fa',
+    borderRadius: '10px',
+    boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+    height: '80vh',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
+  messages: {
+    flexGrow: 1,
+    overflowY: 'auto',
+    marginBottom: '15px',
+  },
+  message: {
+    margin: '10px 0',
+    padding: '10px',
+    borderRadius: '15px',
+    maxWidth: '80%',
+    position: 'relative',
+  },
+  sent: {
+    backgroundColor: '#d1f7d1',
+    alignSelf: 'flex-end',
+    textAlign: 'right',
+  },
+  received: {
+    backgroundColor: '#f1f1f1',
+    alignSelf: 'flex-start',
+    textAlign: 'left',
+  },
+  textarea: {
+    width: '100%',
+    maxWidth: '100%',
+    height: '50px',
+    padding: '10px',
+    fontSize: '14px',
+    border: '1px solid #ccc',
+    borderRadius: '10px',
+    resize: 'none',
+    boxSizing: 'border-box', // Đây là nguyên nhân gây lỗi ban đầu
+    marginBottom: '10px',
+  },
+  inputContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: '10px',
+  },
+  button: {
+    padding: '10px 15px',
+    backgroundColor: '#007bff',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    transition: 'background-color 0.3s',
+  },
 };
 
 export default TroChuyen;

@@ -11,19 +11,16 @@ import Addcategory from "./components/admin/Category";
 import Updatecategory from "./components/admin/Updatecategory";
 import Listcategory from "./components/admin/Category";
 import Addcate from "./components/admin/addCategory";
-import BarChart from "./components/chart/BarChartComponent";
+import BarChartComponent from "./components/chart/BarChartComponent";
 import NhanVien from "./components/nhanVien/nhan_vien";
 import TroChuyen from "./components/trochuyen/tro_chuyen";
-import ProductDetail from "./components/admin/ProductDetail";
-import UpdateProduct from "./components/admin/update";
 import ProductDetails from "./components/admin/ProductDetail";
 import DonHang from "./components/donHang/donhang";
-import BarChartComponent from "./components/chart/BarChartComponent";
+import VoucherManager from "./components/voucher/Voucher";
+import AddVoucher from "./components/voucher/addVoucher";
+import EditVoucher from "./components/voucher/editVoucher";
 
 function App() {
-  const labels = ['January', 'February', 'March', 'April', 'May', 'June'];
-  const data = [12, 19, 3, 5, 2, 3];
-
   return (
     <BrowserRouter>
       <Routes>
@@ -40,8 +37,9 @@ function App() {
           {/* Chi tiết sản phẩm */}
           <Route path="dashboard/product/details/:id" element={<ProductDetails />} />
 
+          {/* Quản lý sản phẩm */}
           <Route path="add" element={<Add />} />
-          <Route path="/admin/dashboard/:id" element={<Update />} />
+          <Route path="dashboard/:id" element={<Update />} />
 
           {/* Quản lý danh mục */}
           <Route path="category" element={<Listcategory />} />
@@ -50,10 +48,15 @@ function App() {
 
           {/* Quản lý nhân viên */}
           <Route path="staff" element={<NhanVien />} />
-           {/* Quản lý đơn hàng */}
-           <Route path="donhang" element={<DonHang />} />
+          {/* Quản lý đơn hàng */}
+          <Route path="donhang" element={<DonHang />} />
           {/* Quản lý chăm sóc khách hàng */}
           <Route path="tro_chuyen" element={<TroChuyen />} />
+
+          {/* Quản lý voucher */}
+          <Route path="voucher" element={<VoucherManager />} />
+          <Route path="voucher/addvoucher" element={<AddVoucher />} />
+          <Route path="voucher/editvoucher/:id" element={<EditVoucher />} />
 
           {/* Thống kê */}
           <Route path="thongke" element={<BarChartComponent />} />
