@@ -63,16 +63,16 @@ const Dashboard = () => {
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
               <th className="px-6 py-3">Tên sản phẩm</th>
-              <th className="px-6 py-3">Chủ sở hữu</th>
+              {/* <th className="px-6 py-3">Chủ sở hữu</th> */}
               <th className="px-6 py-3">Trạng thái</th>
               <th className="px-6 py-3">Giá</th>
-              <th className="px-6 py-3">Mô tả</th>
+              {/* <th className="px-6 py-3">Mô tả</th> */}
               <th className="px-6 py-3">Ngày tạo</th>
               <th className="px-6 py-3">Số lượng</th>
-              <th className="px-6 py-3">Giá Nhập</th> {/* Cột Giá Nhập */}
+              {/* <th className="px-6 py-3">Giá Nhập</th> Cột Giá Nhập */}
               <th className="px-6 py-3">Danh mục</th>
               <th className="px-6 py-3">Hình ảnh</th>
-              <th className="px-6 py-3">Thương hiệu</th>
+              {/* <th className="px-6 py-3">Thương hiệu</th> */}
               <th className="px-6 py-3">Hành động</th>
             </tr>
           </thead>
@@ -86,21 +86,21 @@ const Dashboard = () => {
                 <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
                   {product.namePro}
                 </td>
-                <td className="px-6 py-4">
+                {/* <td className="px-6 py-4">
                   {product.owerId ? product.owerId.toString() : "Không có chủ sở hữu"}
-                </td>
+                </td> */}
                 <td className="px-6 py-4">
                   {product.statusPro ? "Còn hàng" : "Hết hàng"}
                 </td>
-                <td className="px-6 py-4">{product.price}$</td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4">{product.price}VND</td>
+                {/* <td className="px-6 py-4">
                   <p className="line-clamp-3">{product.desPro || "Không có mô tả"}</p>
-                </td>
+                </td> */}
                 <td className="px-6 py-4">
                   {product.creatDatePro || "Chưa cập nhật"}
                 </td>
                 <td className="px-6 py-4">{product.quantity}</td>
-                <td className="px-6 py-4">{product. import_price || "Chưa cập nhật"}$</td> {/* Hiển thị Giá Nhập */}
+                {/* <td className="px-6 py-4">{product. import_price || "Chưa cập nhật"}$</td> Hiển thị Giá Nhập */}
                 <td className="px-6 py-4">{product.listPro || "Chưa phân loại"}</td>
                 <td className="px-6 py-4">
                   {product.imgPro ? (
@@ -117,7 +117,7 @@ const Dashboard = () => {
                     <span>Không có hình ảnh</span>
                   )}
                 </td>
-                <td className="px-6 py-4">{product.brand || "Không có thương hiệu"}</td>
+                {/* <td className="px-6 py-4">{product.brand || "Không có thương hiệu"}</td> */}
                 <td className="px-6 py-4">
                   <div className="flex">
                     <button
