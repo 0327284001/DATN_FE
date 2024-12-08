@@ -31,25 +31,25 @@ const VoucherManager: React.FC = () => {
   }, []);
 
   // Xử lý xóa voucher
-  const handleDelete = async (_id: string) => {
+  const handleDelete = async (discount_code: string) => {
     try {
-      await axios.delete(`http://localhost:28017/vouchers/${_id}`);
-      setVouchers(vouchers.filter((voucher) => voucher._id !== _id));
-    } catch (error: any) {
-      console.error("Lỗi khi xóa voucher:", error.response?.data || error.message);
+      await axios.delete(`http://localhost:28017/vouchers/${discount_code}`);
+      setVouchers(vouchers.filter((voucher) => voucher.discount_code !== discount_code));
+    } catch (error) {
+      console.error("Lỗi khi xóa voucher:", error);
     }
   };
 
 
   // Xử lý sửa voucher
-  const handleEdit = (discount_code: string) => {
-    navigate(`/editvoucher/${discount_code}`);
+  const handleEdit = (id: string) => {
+    navigate(`/editvoucher/${id}`);
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.navbar}>
-        <NavLink to="/addvoucher">
+        <NavLink  to="/admin/addVoucher">
           <button className="text-white bg-indigo-600 hover:bg-indigo-700 font-semibold rounded-lg text-base px-4 py-2 shadow-lg transition duration-300 ease-in-out">
             Thêm Voucher
           </button>

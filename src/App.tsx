@@ -17,8 +17,8 @@ import TroChuyen from "./components/trochuyen/tro_chuyen";
 import ProductDetails from "./components/admin/ProductDetail";
 import DonHang from "./components/donHang/donhang";
 import VoucherManager from "./components/voucher/Voucher";
-import AddVoucher from "./components/voucher/addVoucher";
 import EditVoucher from "./components/voucher/editVoucher";
+import AddVoucher from "./components/voucher/addVoucher";
 
 function App() {
   return (
@@ -55,7 +55,7 @@ function App() {
 
           {/* Quản lý voucher */}
           <Route path="voucher" element={<VoucherManager />} />
-          <Route path="voucher/addvoucher" element={<AddVoucher />} />
+          <Route path="addVoucher" element={<AddVoucher />} />
           <Route path="voucher/editvoucher/:id" element={<EditVoucher />} />
 
           {/* Thống kê */}

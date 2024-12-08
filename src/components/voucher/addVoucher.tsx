@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // Nếu bạn cần sử dụng axios để gửi yêu cầu API
+import { CSSProperties } from "react";
+
+import axios from "axios";
 
 const AddVoucher: React.FC = () => {
   const [priceReduced, setPriceReduced] = useState<string>("");
   const [discountCode, setDiscountCode] = useState<string>("");
   const [quantityVoucher, setQuantityVoucher] = useState<number | "">("");
+  const [voucherType, setVoucherType] = useState<string>(""); // Thêm loại voucher
   const [errors, setErrors] = useState({
     priceReduced: "",
     discountCode: "",
     quantityVoucher: "",
+    voucherType: "",
   });
 
   const navigate = useNavigate();
@@ -19,6 +23,7 @@ const AddVoucher: React.FC = () => {
       priceReduced: "",
       discountCode: "",
       quantityVoucher: "",
+      voucherType: "",
     };
 
     if (!priceReduced) {
@@ -39,6 +44,10 @@ const AddVoucher: React.FC = () => {
       newErrors.quantityVoucher = "Số lượng phải là số nguyên lớn hơn 0!";
     }
 
+    if (!voucherType) {
+      newErrors.voucherType = "Vui lòng chọn loại voucher!";
+    }
+
     setErrors(newErrors);
     return !Object.values(newErrors).some((error) => error !== "");
   };
@@ -51,29 +60,28 @@ const AddVoucher: React.FC = () => {
       price_reduced: parseFloat(priceReduced),
       discount_code: discountCode,
       quantity_voucher: quantityVoucher,
+      voucher_type: voucherType, // Thêm loại voucher
     };
 
-    // Gửi dữ liệu tới API (giả sử bạn đã cấu hình axios)
     try {
       await axios.post("http://localhost:28017/vouchers", newVoucher);
       alert("Thêm voucher thành công!");
-      navigate("/voucher");
+      navigate("/admin/voucher");
     } catch (error) {
       console.error("Lỗi khi thêm voucher:", error);
       alert("Đã xảy ra lỗi khi thêm voucher!");
     }
 
-    // Reset form và điều hướng
     setPriceReduced("");
     setDiscountCode("");
     setQuantityVoucher("");
+    setVoucherType("");
   };
 
   return (
     <div style={styles.container}>
       <h2 style={styles.heading}>Thêm Voucher</h2>
 
-      {/* Hiển thị thông báo lỗi nếu có */}
       {Object.values(errors).some((error) => error) && (
         <div style={styles.globalError}>
           Vui lòng kiểm tra lại các trường bên dưới!
@@ -120,6 +128,20 @@ const AddVoucher: React.FC = () => {
           {errors.quantityVoucher && <span style={styles.error}>{errors.quantityVoucher}</span>}
         </div>
 
+        {/* Loại Voucher */}
+        <div style={styles.formGroup}>
+          <select
+            value={voucherType}
+            onChange={(e) => setVoucherType(e.target.value)}
+            style={styles.input}
+          >
+            <option value="">-- Chọn Loại Voucher --</option>
+            <option value="shipping">Giảm Giá Vận Chuyển</option>
+            <option value="product">Giảm Giá Sản Phẩm</option>
+          </select>
+          {errors.voucherType && <span style={styles.error}>{errors.voucherType}</span>}
+        </div>
+
         <div style={styles.buttonsContainer}>
           <button
             type="submit"
@@ -143,7 +165,7 @@ const AddVoucher: React.FC = () => {
             }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#c82333")}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#dc3545")}
-            onClick={() => navigate("/voucher")}
+            onClick={() => navigate("/admin/voucher")}
           >
             Hủy
           </button>
@@ -182,6 +204,7 @@ const styles = {
     fontSize: "14px",
     borderRadius: "5px",
     border: "1px solid #ccc",
+    appearance: "none" as CSSProperties["appearance"], // Ép kiểu
   },
   error: {
     marginTop: "5px",
