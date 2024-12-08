@@ -32,6 +32,7 @@ const DonHang: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentTab, setCurrentTab] = useState<string>("Tất cả");
+  const [currentSubTab, setCurrentSubTab] = useState<string>("Đã xong");
   const [searchTerm, setSearchTerm] = useState<string>("");
   useEffect(() => {
     axios
@@ -49,12 +50,16 @@ const DonHang: React.FC = () => {
     const order = orders.find((order) => order._id === id);
     const customerName = order?.name_order || "Khách hàng";
 
+    // Cập nhật trạng thái đơn hàng
     setOrders((prevOrders) =>
       prevOrders.map((order) =>
         order._id === id ? { ...order, orderStatus: newStatus } : order
       )
     );
-
+    if (newStatus === "Đã giao") {
+      setCurrentTab("Đã giao");
+      setCurrentSubTab("Đã xong");
+    }
     axios
       .put(`http://localhost:28017/orders/${id}`, { orderStatus: newStatus })
       .then(() => {
@@ -67,10 +72,21 @@ const DonHang: React.FC = () => {
   };
 
   const tabs = ["Tất cả", "Chờ xác nhận", "Chờ lấy hàng", "Chờ giao hàng", "Đã giao", "Đã hủy"];
+  const subTabs = ["Đã xong", "Đã hoàn"];
   const filteredOrders =
-    currentTab === "Tất cả"
-      ? orders.filter((order) => order.orderStatus !== "Đã hủy")
-      : orders.filter((order) => order.orderStatus === currentTab);
+    currentTab === "Đã giao"
+      ? currentSubTab === "Đã xong"
+        ? orders.filter((order) => order.orderStatus === "Đã giao" && order.content !== "Hoàn trả")
+        : orders.filter((order) => order.orderStatus === "Đã giao" && order.content === "Hoàn trả")
+      : currentTab === "Tất cả"
+        ? orders.filter((order) => order.orderStatus !== "Đã hủy")
+        : orders.filter((order) => order.orderStatus === currentTab);
+
+
+  // const subFilteredOrders =
+  //   currentTab === "Đã giao"
+  //     ? filteredOrders.filter((order) => order.orderStatus === subTab)
+  //     : filteredOrders;
 
   const searchedOrders = filteredOrders.filter((order) =>
     order.phone_order.toLowerCase().includes(searchTerm.toLowerCase())
@@ -113,6 +129,23 @@ const DonHang: React.FC = () => {
           </button>
         ))}
       </div>
+      {currentTab === "Đã giao" && (
+        <div className="sub-tabs">
+          <button
+            className={`sub-tab-button ${currentSubTab === "Đã xong" ? "active" : ""}`}
+            onClick={() => setCurrentSubTab("Đã xong")}
+          >
+            Đã xong
+          </button>
+          <button
+            className={`sub-tab-button ${currentSubTab === "Đã hoàn" ? "active" : ""}`}
+            onClick={() => setCurrentSubTab("Đã hoàn")}
+          >
+            Đã hoàn
+          </button>
+        </div>
+      )}
+
       <div className="search-container">
         <input
           type="text"
@@ -208,8 +241,8 @@ const DonHang: React.FC = () => {
       )}
 
       {isModalOpen && selectedOrder && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay">
+          <div className="modal-content">
             <h2>Thông tin đơn hàng</h2>
             <div className="order-summary">
               <p><strong>Tên khách hàng:</strong> {selectedOrder.name_order}</p>
@@ -238,9 +271,12 @@ const DonHang: React.FC = () => {
             </div>
             <button onClick={closeModal}>Đóng</button>
           </div>
-
         </div>
       )}
+
+
+
+
 
     </div>
 
