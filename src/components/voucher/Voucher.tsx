@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 
 
 interface Voucher {
+  _id: string;
   price_reduced: number;
   discount_code: string;
   quantity_voucher: number;
@@ -30,14 +31,15 @@ const VoucherManager: React.FC = () => {
   }, []);
 
   // Xử lý xóa voucher
-  const handleDelete = async (discount_code: string) => {
+  const handleDelete = async (_id: string) => {
     try {
-      await axios.delete(`http://localhost:28017/vouchers/${discount_code}`);
-      setVouchers(vouchers.filter((voucher) => voucher.discount_code !== discount_code));
-    } catch (error) {
-      console.error("Lỗi khi xóa voucher:", error);
+      await axios.delete(`http://localhost:28017/vouchers/${_id}`);
+      setVouchers(vouchers.filter((voucher) => voucher._id !== _id));
+    } catch (error: any) {
+      console.error("Lỗi khi xóa voucher:", error.response?.data || error.message);
     }
   };
+
 
   // Xử lý sửa voucher
   const handleEdit = (discount_code: string) => {
@@ -61,8 +63,8 @@ const VoucherManager: React.FC = () => {
           {vouchers.length === 0 ? (
             <p style={styles.noData}>Chưa có voucher nào</p>
           ) : (
-            vouchers.map((voucher, index) => (
-              <li key={index} style={styles.listItem}>
+            vouchers.map((voucher) => (
+              <li key={voucher._id} style={styles.listItem}>
                 <div><strong>Mã Giảm Giá:</strong> {voucher.discount_code}</div>
                 <div><strong>Giảm Giá:</strong> {voucher.price_reduced} VNĐ</div>
                 <div><strong>Thể Loại Giảm:</strong> {voucher.quantity_voucher}</div>
@@ -78,13 +80,12 @@ const VoucherManager: React.FC = () => {
                     Edit
                   </button>
                   <button
-                    style={hoveredDelete ? { ...styles.deleteButton, ...styles.deleteButtonHover } : styles.deleteButton}
-                    onClick={() => handleDelete(voucher.discount_code)}
-                    onMouseEnter={() => setHoveredDelete(true)}
-                    onMouseLeave={() => setHoveredDelete(false)}
+                    style={styles.deleteButton}
+                    onClick={() => handleDelete(voucher._id)}
                   >
                     Delete
                   </button>
+
                 </div>
               </li>
             ))
