@@ -22,6 +22,7 @@ const VoucherManager: React.FC = () => {
     const fetchVouchers = async () => {
       try {
         const response = await axios.get("http://localhost:28017/vouchers");
+        console.log("Dữ liệu nhận từ API:", response.data);
         setVouchers(response.data);
       } catch (error) {
         console.error("Lỗi khi lấy voucher:", error);
@@ -31,15 +32,30 @@ const VoucherManager: React.FC = () => {
   }, []);
 
   // Xử lý xóa voucher
-  const handleDelete = async (discount_code: string) => {
+  // const handleDelete = async (discount_code: string) => {
+  //   try {
+  //     await axios.delete(`http://localhost:28017/vouchers/${discount_code}`);
+  //     setVouchers(vouchers.filter((voucher) => voucher.discount_code !== discount_code));
+  //   } catch (error) {
+  //     console.error("Lỗi khi xóa voucher:", error);
+  //   }
+  // };
+
+  const handleDelete = async (_id: string) => {
+    const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa voucher này?");
+    if (!confirmDelete) return; // Nếu người dùng hủy, thoát khỏi hàm
+  
     try {
-      await axios.delete(`http://localhost:28017/vouchers/${discount_code}`);
-      setVouchers(vouchers.filter((voucher) => voucher.discount_code !== discount_code));
+      await axios.delete(`http://localhost:28017/vouchers/${_id}`);
+      setVouchers(vouchers.filter((voucher) => voucher._id !== _id)); // Cập nhật danh sách
+      alert("Voucher đã được xóa thành công!");
     } catch (error) {
       console.error("Lỗi khi xóa voucher:", error);
+      alert("Đã xảy ra lỗi khi xóa voucher.");
     }
   };
-
+  
+  
 
   // Xử lý sửa voucher
   const handleEdit = (id: string) => {
@@ -49,7 +65,7 @@ const VoucherManager: React.FC = () => {
   return (
     <div style={styles.container}>
       <div style={styles.navbar}>
-        <NavLink  to="/admin/addVoucher">
+        <NavLink to="/admin/addVoucher">
           <button className="text-white bg-indigo-600 hover:bg-indigo-700 font-semibold rounded-lg text-base px-4 py-2 shadow-lg transition duration-300 ease-in-out">
             Thêm Voucher
           </button>
@@ -81,10 +97,11 @@ const VoucherManager: React.FC = () => {
                   </button>
                   <button
                     style={styles.deleteButton}
-                    onClick={() => handleDelete(voucher._id)}
+                    onClick={() => handleDelete(voucher._id)} // Sử dụng _id thay vì discount_code
                   >
                     Delete
                   </button>
+
 
                 </div>
               </li>
