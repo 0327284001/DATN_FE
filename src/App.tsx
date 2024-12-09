@@ -56,7 +56,7 @@ function App() {
           {/* Quản lý voucher */}
           <Route path="voucher" element={<VoucherManager />} />
           <Route path="addVoucher" element={<AddVoucher />} />
-          <Route path="voucher/editvoucher/:id" element={<EditVoucher />} />
+          <Route path="editvoucher/:id" element={<EditVoucher />} />
 
           {/* Thống kê */}
           <Route path="thongke" element={<BarChartComponent />} />

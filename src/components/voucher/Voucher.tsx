@@ -31,15 +31,7 @@ const VoucherManager: React.FC = () => {
     fetchVouchers();
   }, []);
 
-  // Xử lý xóa voucher
-  // const handleDelete = async (discount_code: string) => {
-  //   try {
-  //     await axios.delete(`http://localhost:28017/vouchers/${discount_code}`);
-  //     setVouchers(vouchers.filter((voucher) => voucher.discount_code !== discount_code));
-  //   } catch (error) {
-  //     console.error("Lỗi khi xóa voucher:", error);
-  //   }
-  // };
+
 
   const handleDelete = async (_id: string) => {
     const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa voucher này?");
@@ -59,7 +51,7 @@ const VoucherManager: React.FC = () => {
 
   // Xử lý sửa voucher
   const handleEdit = (id: string) => {
-    navigate(`/editvoucher/${id}`);
+    navigate(`/admin/editvoucher/${id}`);
   };
 
   return (
@@ -89,7 +81,7 @@ const VoucherManager: React.FC = () => {
                 <div style={styles.actionButtons}>
                   <button
                     style={hoveredEdit ? { ...styles.editButton, ...styles.editButtonHover } : styles.editButton}
-                    onClick={() => handleEdit(voucher.discount_code)}
+                    onClick={() => handleEdit(voucher._id)}
                     onMouseEnter={() => setHoveredEdit(true)}
                     onMouseLeave={() => setHoveredEdit(false)}
                   >

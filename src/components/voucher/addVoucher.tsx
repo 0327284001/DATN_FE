@@ -1,237 +1,189 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { CSSProperties } from "react";
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { StackNavigationProp } from '@react-navigation/stack'; // Import StackNavigationProp
+import { useNavigate } from 'react-router-dom';
 
-import axios from "axios";
+// Định nghĩa RootStackParamList
 
-const AddVoucher: React.FC = () => {
-  const [priceReduced, setPriceReduced] = useState<string>("");
-  const [discountCode, setDiscountCode] = useState<string>("");
-  const [quantityVoucher, setQuantityVoucher] = useState<number | "">("");
-  const [voucherType, setVoucherType] = useState<string>(""); // Thêm loại voucher
-  const [errors, setErrors] = useState({
-    priceReduced: "",
-    discountCode: "",
-    quantityVoucher: "",
-    voucherType: "",
-  });
 
-  const navigate = useNavigate();
 
-  const validate = () => {
-    const newErrors = {
-      priceReduced: "",
-      discountCode: "",
-      quantityVoucher: "",
-      voucherType: "",
-    };
 
-    if (!priceReduced) {
-      newErrors.priceReduced = "Vui lòng nhập giảm giá!";
-    } else if (parseFloat(priceReduced) <= 0) {
-      newErrors.priceReduced = "Giảm giá phải lớn hơn 0!";
+const AddVoucher = () => {
+  const [priceReduced, setPriceReduced] = useState('');
+  const [discountCode, setDiscountCode] = useState('');
+  const [quantityVoucher, setQuantityVoucher] = useState('');
+
+  const [priceError, setPriceError] = useState('');
+  const [discountCodeError, setDiscountCodeError] = useState('');
+  const [quantityVoucherError, setQuantityVoucherError] = useState('');
+
+  const navigate = useNavigate(); 
+
+  const handleSubmit = async () => {
+    setPriceError('');
+    setDiscountCodeError('');
+    setQuantityVoucherError('');
+    
+    let isValid = true;
+
+    if (!priceReduced || isNaN(Number(priceReduced)) || Number(priceReduced) <= 0) {
+      setPriceError('Giá giảm phải là số dương.');
+      isValid = false;
     }
 
-    if (!discountCode) {
-      newErrors.discountCode = "Vui lòng nhập mã giảm giá!";
-    } else if (!/^[a-zA-Z0-9]+$/.test(discountCode)) {
-      newErrors.discountCode = "Mã giảm giá chỉ được chứa ký tự chữ và số!";
+    if (!discountCode.trim()) {
+      setDiscountCodeError('Mã giảm giá không được để trống.');
+      isValid = false;
     }
 
     if (!quantityVoucher) {
-      newErrors.quantityVoucher = "Vui lòng nhập số lượng voucher!";
-    } else if (quantityVoucher <= 0 || !Number.isInteger(quantityVoucher)) {
-      newErrors.quantityVoucher = "Số lượng phải là số nguyên lớn hơn 0!";
+      setQuantityVoucherError('Vui lòng chọn loại voucher.');
+      isValid = false;
     }
 
-    if (!voucherType) {
-      newErrors.voucherType = "Vui lòng chọn loại voucher!";
-    }
+    if (!isValid) return;
 
-    setErrors(newErrors);
-    return !Object.values(newErrors).some((error) => error !== "");
+    // Dữ liệu gửi tới API
+    const newVoucher = {
+      price_reduced: Number(priceReduced),
+      discount_code: discountCode.trim(),
+      quantity_voucher: quantityVoucher,
+    };
+    
+    try {
+      const response = await fetch('http://localhost:28017/vouchers/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newVoucher),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert('Thêm voucher thành công');
+        clearForm();
+        navigate("/admin/voucher");
+      } else {
+        throw new Error(data.message || 'Có lỗi xảy ra khi thêm voucher');
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        Alert.alert('Lỗi', error.message || 'Có lỗi xảy ra');
+      } else {
+        Alert.alert('Lỗi', 'Có lỗi xảy ra');
+      }
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate()) return;
-
-    const newVoucher = {
-      price_reduced: parseFloat(priceReduced),
-      discount_code: discountCode,
-      quantity_voucher: quantityVoucher,
-      voucher_type: voucherType, // Thêm loại voucher
-    };
-
-    try {
-      await axios.post("http://localhost:28017/vouchers", newVoucher);
-      alert("Thêm voucher thành công!");
-      navigate("/admin/voucher");
-    } catch (error) {
-      console.error("Lỗi khi thêm voucher:", error);
-      alert("Đã xảy ra lỗi khi thêm voucher!");
-    }
-
-    setPriceReduced("");
-    setDiscountCode("");
-    setQuantityVoucher("");
-    setVoucherType("");
+  const clearForm = () => {
+    setPriceReduced('');
+    setDiscountCode('');
+    setQuantityVoucher('');
+    navigate("/admin/voucher");
   };
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.heading}>Thêm Voucher</h2>
+    <View style={styles.container}>
+      <Text style={styles.header}>Thêm Voucher</Text>
 
-      {Object.values(errors).some((error) => error) && (
-        <div style={styles.globalError}>
-          Vui lòng kiểm tra lại các trường bên dưới!
-        </div>
-      )}
+      <Text style={styles.label}>Giá giảm (VNĐ):</Text>
+      <TextInput
+        style={[styles.input, priceError ? styles.inputError : null]}
+        keyboardType="numeric"
+        value={priceReduced}
+        onChangeText={setPriceReduced}
+        placeholder="Nhập giá giảm"
+      />
+      {priceError ? <Text style={styles.errorText}>{priceError}</Text> : null}
 
-      <form onSubmit={handleSubmit} style={styles.form}>
-        {/* Giảm Giá */}
-        <div style={styles.formGroup}>
-          <input
-            type="number"
-            placeholder="Giảm Giá (VNĐ)"
-            value={priceReduced}
-            onChange={(e) => setPriceReduced(e.target.value)}
-            style={styles.input}
-          />
-          {errors.priceReduced && <span style={styles.error}>{errors.priceReduced}</span>}
-        </div>
+      <Text style={styles.label}>Mã giảm giá:</Text>
+      <TextInput
+        style={[styles.input, discountCodeError ? styles.inputError : null]}
+        value={discountCode}
+        onChangeText={setDiscountCode}
+        placeholder="Nhập mã giảm giá"
+      />
+      {discountCodeError ? <Text style={styles.errorText}>{discountCodeError}</Text> : null}
 
-        {/* Mã Giảm Giá */}
-        <div style={styles.formGroup}>
-          <input
-            type="text"
-            placeholder="Mã Giảm Giá"
-            value={discountCode}
-            onChange={(e) => setDiscountCode(e.target.value)}
-            style={styles.input}
-          />
-          {errors.discountCode && <span style={styles.error}>{errors.discountCode}</span>}
-        </div>
+      <Text style={styles.label}>Loại voucher:</Text>
+      <Picker
+        selectedValue={quantityVoucher}
+        style={[styles.picker, quantityVoucherError ? styles.inputError : null]}
+        onValueChange={(itemValue: string) => setQuantityVoucher(itemValue)}
+      >
+        <Picker.Item label="Chọn loại voucher" value="" />
+        <Picker.Item label="Giảm giá vận chuyển" value="Giảm giá vận chuyển" />
+        <Picker.Item label="Giảm giá sản phẩm" value="Giảm giá sản phẩm" />
+      </Picker>
+      {quantityVoucherError ? <Text style={styles.errorText}>{quantityVoucherError}</Text> : null}
 
-        {/* Số Lượng Voucher */}
-        <div style={styles.formGroup}>
-          <input
-            type="number"
-            placeholder="Số Lượng Voucher"
-            value={quantityVoucher}
-            onChange={(e) => {
-              const value = e.target.valueAsNumber;
-              setQuantityVoucher(value > 0 ? value : "");
-            }}
-            style={styles.input}
-          />
-          {errors.quantityVoucher && <span style={styles.error}>{errors.quantityVoucher}</span>}
-        </div>
-
-        {/* Loại Voucher */}
-        <div style={styles.formGroup}>
-          <select
-            value={voucherType}
-            onChange={(e) => setVoucherType(e.target.value)}
-            style={styles.input}
-          >
-            <option value="">-- Chọn Loại Voucher --</option>
-            <option value="shipping">Giảm Giá Vận Chuyển</option>
-            <option value="product">Giảm Giá Sản Phẩm</option>
-          </select>
-          {errors.voucherType && <span style={styles.error}>{errors.voucherType}</span>}
-        </div>
-
-        <div style={styles.buttonsContainer}>
-          <button
-            type="submit"
-            style={{
-              ...styles.button,
-              backgroundColor: "#28a745",
-              marginRight: "10px",
-              transition: "background-color 0.3s",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#218838")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#28a745")}
-          >
-            Lưu Voucher
-          </button>
-          <button
-            type="button"
-            style={{
-              ...styles.button,
-              backgroundColor: "#dc3545",
-              transition: "background-color 0.3s",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#c82333")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#dc3545")}
-            onClick={() => navigate("/admin/voucher")}
-          >
-            Hủy
-          </button>
-        </div>
-      </form>
-    </div>
+      <View style={styles.buttonContainer}>
+        <Button title="Thêm" onPress={handleSubmit} color="#28a745" />
+        <Button title="Hủy" onPress={clearForm} color="#dc3545" />
+      </View>
+    </View>
   );
 };
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
-    maxWidth: "500px",
-    margin: "0 auto",
-    padding: "20px",
-    border: "1px solid #ddd",
-    borderRadius: "10px",
-    backgroundColor: "#f9f9f9",
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#f8f9fa',
   },
-  heading: {
-    textAlign: "center" as const,
-    marginBottom: "20px",
-    color: "#333",
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#343a40',
   },
-  form: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "10px",
-  },
-  formGroup: {
-    display: "flex",
-    flexDirection: "column" as const,
-    position: "relative" as const,
+  label: {
+    fontSize: 16,
+    marginBottom: 5,
+    color: '#495057',
   },
   input: {
-    padding: "10px",
-    fontSize: "14px",
-    borderRadius: "5px",
-    border: "1px solid #ccc",
-    appearance: "none" as CSSProperties["appearance"], // Ép kiểu
+    height: 40,
+    borderColor: '#ced4da',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 15,
+    paddingHorizontal: 10,
+    backgroundColor: '#fff',
   },
-  error: {
-    marginTop: "5px",
-    color: "#dc3545",
-    fontSize: "12px",
+  inputError: {
+    borderColor: '#dc3545', // Màu đỏ khi có lỗi
   },
-  globalError: {
-    padding: "10px",
-    marginBottom: "10px",
-    color: "#721c24",
-    backgroundColor: "#f8d7da",
-    border: "1px solid #f5c6cb",
-    borderRadius: "5px",
+  picker: {
+    height: 50,
+    borderColor: '#ced4da',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 15,
+    backgroundColor: '#fff',
   },
-  buttonsContainer: {
-    display: "flex",
-    justifyContent: "space-between",
+  errorText: {
+    color: '#dc3545', // Màu đỏ cho thông báo lỗi
+    marginBottom: 10,
   },
-  button: {
-    padding: "10px",
-    fontSize: "14px",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-    marginTop: "10px",
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
   },
-};
+});
+
+/// npm install @react-native-picker/picker
+
+//npm install @react-navigation/native @react-navigation/stack react-native-screens react-native-safe-area-context
 
 export default AddVoucher;
+
+
+
+
