@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Icategory } from '../../interface/category';
-import { Popconfirm } from 'antd';
+import { Popconfirm, Pagination } from 'antd'; // Import Pagination component
 import { delCategory, getAllCategories } from '../../service/category';
 import LoadingComponent from '../Loading';
-import { Pagination } from 'antd'; // Import Pagination component
 
 type Props = {};
 
 const Listcategory = (props: Props) => {
   const [categories, setCategory] = useState<Icategory[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>(""); // Từ khóa tìm kiếm
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1); // Trang hiện tại
@@ -21,7 +21,6 @@ const Listcategory = (props: Props) => {
         setLoading(true);
         const data = await getAllCategories();
         setCategory(data);
-        console.log(data, 'data');
       } catch (error) {
         console.log(error);
       } finally {
@@ -36,7 +35,6 @@ const Listcategory = (props: Props) => {
       await delCategory(id);
       const updatedCategories = categories.filter((category) => category._id !== id);
       setCategory(updatedCategories);
-      console.log(`Category with id ${id} deleted successfully`);
     } catch (error) {
       console.log('Error deleting category:', error);
     }
@@ -46,18 +44,17 @@ const Listcategory = (props: Props) => {
     navigate(`updatecategory/${id}`);
   };
 
+  // Lọc danh mục theo từ khóa
+  const filteredCategories = categories.filter((category) =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   // Tính toán các sản phẩm trong trang hiện tại
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = categories.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredCategories.slice(indexOfFirstItem, indexOfLastItem);
 
   // Thêm nút phân trang
-  const pageNumbers = [];
-  for (let i = 1; i <= Math.ceil(categories.length / itemsPerPage); i++) {
-    pageNumbers.push(i);
-  }
-
-  // Hàm xử lý thay đổi trang
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -66,6 +63,13 @@ const Listcategory = (props: Props) => {
     <>
       {loading && <LoadingComponent />}
       <div className="flex justify-between mb-6">
+        <input
+          type="text"
+          placeholder="Tìm kiếm danh mục..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        />
         <NavLink to={'/admin/addcategory'}>
           <button className="text-white bg-indigo-600 hover:bg-indigo-700 font-semibold rounded-lg text-base px-4 py-2 shadow-lg transition duration-300 ease-in-out">
             Thêm mới danh mục
@@ -84,7 +88,10 @@ const Listcategory = (props: Props) => {
           </thead>
           <tbody>
             {currentItems.map((category: Icategory, index: number) => (
-              <tr className="bg-gray-50 hover:bg-gray-100 transition duration-300 ease-in-out" key={category._id}>
+              <tr
+                className="bg-gray-50 hover:bg-gray-100 transition duration-300 ease-in-out"
+                key={category._id}
+              >
                 <td className="px-6 py-4">{indexOfFirstItem + index + 1}</td>
                 <td className="px-6 py-4 text-gray-700">{category.name}</td>
                 <td className="px-6 py-4 flex justify-center items-center gap-4">
@@ -117,7 +124,7 @@ const Listcategory = (props: Props) => {
         <Pagination
           current={currentPage}
           pageSize={itemsPerPage}
-          total={categories.length}
+          total={filteredCategories.length} // Tổng số danh mục đã lọc
           onChange={handlePageChange}
         />
       </div>

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { NavLink, useNavigate } from "react-router-dom";
 
-
 interface Voucher {
   _id: string;
   price_reduced: number;
@@ -10,11 +9,11 @@ interface Voucher {
   quantity_voucher: number;
 }
 
-
 const VoucherManager: React.FC = () => {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [hoveredEdit, setHoveredEdit] = useState(false);
   const [hoveredDelete, setHoveredDelete] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(""); // State để lưu trữ giá trị tìm kiếm
   const navigate = useNavigate();
 
   // Lấy dữ liệu từ API
@@ -31,28 +30,28 @@ const VoucherManager: React.FC = () => {
     fetchVouchers();
   }, []);
 
-
-
   const handleDelete = async (_id: string) => {
     const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa voucher này?");
-    if (!confirmDelete) return; // Nếu người dùng hủy, thoát khỏi hàm
-  
+    if (!confirmDelete) return;
+
     try {
       await axios.delete(`http://localhost:28017/vouchers/${_id}`);
-      setVouchers(vouchers.filter((voucher) => voucher._id !== _id)); // Cập nhật danh sách
+      setVouchers(vouchers.filter((voucher) => voucher._id !== _id));
       alert("Voucher đã được xóa thành công!");
     } catch (error) {
       console.error("Lỗi khi xóa voucher:", error);
       alert("Đã xảy ra lỗi khi xóa voucher.");
     }
   };
-  
-  
 
-  // Xử lý sửa voucher
   const handleEdit = (id: string) => {
     navigate(`/admin/editvoucher/${id}`);
   };
+
+  // Lọc voucher dựa trên từ khóa tìm kiếm
+  const filteredVouchers = vouchers.filter((voucher) =>
+    voucher.discount_code.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div style={styles.container}>
@@ -62,25 +61,44 @@ const VoucherManager: React.FC = () => {
             Thêm Voucher
           </button>
         </NavLink>
-
-
       </div>
+
+      {/* Thanh tìm kiếm */}
+      <div style={styles.searchBar}>
+        <input
+          type="text"
+          placeholder="Nhập mã voucher cần tìm..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={styles.searchInput}
+        />
+      </div>
+
       <div style={styles.innerContainer}>
         <h2 style={styles.heading}>Danh Sách Voucher</h2>
         <ul style={styles.list}>
-          {vouchers.length === 0 ? (
-            <p style={styles.noData}>Chưa có voucher nào</p>
+          {filteredVouchers.length === 0 ? (
+            <p style={styles.noData}>Không tìm thấy voucher nào</p>
           ) : (
-            vouchers.map((voucher) => (
+            filteredVouchers.map((voucher) => (
               <li key={voucher._id} style={styles.listItem}>
-                <div><strong>Mã Giảm Giá:</strong> {voucher.discount_code}</div>
-                <div><strong>Giảm Giá:</strong> {voucher.price_reduced} VNĐ</div>
-                <div><strong>Thể Loại Giảm:</strong> {voucher.quantity_voucher}</div>
+                <div>
+                  <strong>Mã Giảm Giá:</strong> {voucher.discount_code}
+                </div>
+                <div>
+                  <strong>Giảm Giá:</strong> {voucher.price_reduced} VNĐ
+                </div>
+                <div>
+                  <strong>Thể Loại Giảm:</strong> {voucher.quantity_voucher}
+                </div>
 
-                {/* Các nút Sửa và Xóa */}
                 <div style={styles.actionButtons}>
                   <button
-                    style={hoveredEdit ? { ...styles.editButton, ...styles.editButtonHover } : styles.editButton}
+                    style={
+                      hoveredEdit
+                        ? { ...styles.editButton, ...styles.editButtonHover }
+                        : styles.editButton
+                    }
                     onClick={() => handleEdit(voucher._id)}
                     onMouseEnter={() => setHoveredEdit(true)}
                     onMouseLeave={() => setHoveredEdit(false)}
@@ -89,12 +107,10 @@ const VoucherManager: React.FC = () => {
                   </button>
                   <button
                     style={styles.deleteButton}
-                    onClick={() => handleDelete(voucher._id)} // Sử dụng _id thay vì discount_code
+                    onClick={() => handleDelete(voucher._id)}
                   >
                     Delete
                   </button>
-
-
                 </div>
               </li>
             ))
@@ -172,10 +188,10 @@ const styles = {
     borderRadius: "5px",
     cursor: "pointer",
     fontSize: "16px",
-    transition: "background-color 0.3s ease", // Thêm hiệu ứng chuyển màu nền khi hover
+    transition: "background-color 0.3s ease",
   },
   editButtonHover: {
-    backgroundColor: "#218838", // Màu khi hover
+    backgroundColor: "#218838",
   },
   deleteButton: {
     padding: "10px 20px",
@@ -185,17 +201,30 @@ const styles = {
     borderRadius: "5px",
     cursor: "pointer",
     fontSize: "16px",
-    transition: "background-color 0.3s ease", // Thêm hiệu ứng chuyển màu nền khi hover
+    transition: "background-color 0.3s ease",
   },
   deleteButtonHover: {
-    backgroundColor: "#c82333", // Màu khi hover
+    backgroundColor: "#c82333",
   },
   noData: {
     textAlign: "center" as const,
     color: "#888",
     fontSize: "16px",
   },
+  searchBar: {
+    marginBottom: "20px",
+    textAlign: "center" as const,
+  },
+  searchInput: {
+    width: "80%",
+    padding: "10px",
+    fontSize: "16px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+  },
 };
+
+
 
 
 export default VoucherManager;
