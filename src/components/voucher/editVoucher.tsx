@@ -20,9 +20,7 @@ const EditVoucher = () => {
     const fetchVoucher = async () => {
       try {
         const response = await fetch(`http://localhost:28017/vouchers/${id}`);
-        console.log(id);
         const data = await response.json();
-        console.log(data);  // Log dữ liệu trả về từ API
         if (response.ok) {
           setPriceReduced(data.price_reduced.toString());
           setDiscountCode(data.discount_code);
@@ -66,7 +64,6 @@ const EditVoucher = () => {
 
     if (!isValid) return;
 
-    // Dữ liệu gửi tới API để cập nhật voucher
     const updatedVoucher = {
       price_reduced: Number(priceReduced),
       discount_code: discountCode.trim(),
@@ -86,7 +83,7 @@ const EditVoucher = () => {
 
       if (response.ok) {
         Alert.alert('Cập nhật voucher thành công');
-        navigate("/admin/voucher");  // Quay lại danh sách voucher
+        navigate("/admin/voucher");
       } else {
         throw new Error(data.message || 'Có lỗi xảy ra khi cập nhật voucher');
       }
@@ -103,47 +100,58 @@ const EditVoucher = () => {
     setPriceReduced('');
     setDiscountCode('');
     setQuantityVoucher('');
-    navigate("/admin/voucher");  // Quay lại danh sách voucher
+    navigate("/admin/voucher");
   };
+
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Chỉnh Sửa Voucher</Text>
+      <Text style={styles.header}>Sửa Voucher</Text>
 
-      <Text style={styles.label}>Giá giảm (VNĐ):</Text>
-      <TextInput
-        style={[styles.input, priceError ? styles.inputError : null]}
-        keyboardType="numeric"
-        value={priceReduced}
-        onChangeText={setPriceReduced}
-        placeholder="Nhập giá giảm"
-      />
-      {priceError ? <Text style={styles.errorText}>{priceError}</Text> : null}
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Giá giảm (VNĐ):</Text>
+        <TextInput
+          style={[styles.input, priceError ? styles.inputError : null]}
+          keyboardType="numeric"
+          value={priceReduced}
+          onChangeText={setPriceReduced}
+          placeholder="Nhập giá giảm"
+        />
+        {priceError ? <Text style={styles.errorText}>{priceError}</Text> : null}
+      </View>
 
-      <Text style={styles.label}>Mã giảm giá:</Text>
-      <TextInput
-        style={[styles.input, discountCodeError ? styles.inputError : null]}
-        value={discountCode}
-        onChangeText={setDiscountCode}
-        placeholder="Nhập mã giảm giá"
-      />
-      {discountCodeError ? <Text style={styles.errorText}>{discountCodeError}</Text> : null}
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Mã giảm giá:</Text>
+        <TextInput
+          style={[styles.input, discountCodeError ? styles.inputError : null]}
+          value={discountCode}
+          onChangeText={setDiscountCode}
+          placeholder="Nhập mã giảm giá"
+        />
+        {discountCodeError ? <Text style={styles.errorText}>{discountCodeError}</Text> : null}
+      </View>
 
-      <Text style={styles.label}>Loại voucher:</Text>
-      <Picker
-        selectedValue={quantityVoucher}
-        style={[styles.picker, quantityVoucherError ? styles.inputError : null]}
-        onValueChange={(itemValue: string) => setQuantityVoucher(itemValue)}
-      >
-        <Picker.Item label="Chọn loại voucher" value="" />
-        <Picker.Item label="Giảm giá vận chuyển" value="Giảm giá vận chuyển" />
-        <Picker.Item label="Giảm giá sản phẩm" value="Giảm giá sản phẩm" />
-      </Picker>
-      {quantityVoucherError ? <Text style={styles.errorText}>{quantityVoucherError}</Text> : null}
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Loại voucher:</Text>
+        <Picker
+          selectedValue={quantityVoucher}
+          style={[styles.picker, quantityVoucherError ? styles.inputError : null]}
+          onValueChange={(itemValue: string) => setQuantityVoucher(itemValue)}
+        >
+          <Picker.Item label="Chọn loại voucher" value="" />
+          <Picker.Item label="Giảm giá vận chuyển" value="Giảm giá vận chuyển" />
+          <Picker.Item label="Giảm giá sản phẩm" value="Giảm giá sản phẩm" />
+        </Picker>
+        {quantityVoucherError ? <Text style={styles.errorText}>{quantityVoucherError}</Text> : null}
+      </View>
 
       <View style={styles.buttonContainer}>
-        <Button title="Lưu" onPress={handleSubmit} color="#28a745" />
-        <Button title="Hủy" onPress={clearForm} color="#dc3545" />
+        <View style={styles.button}>
+          <Button title="Cập nhật" onPress={handleSubmit} color="#28a745" />
+        </View>
+        <View style={styles.button}>
+          <Button title="Hủy" onPress={clearForm} color="#dc3545" />
+        </View>
       </View>
     </View>
   );
@@ -154,13 +162,17 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#f8f9fa',
+    justifyContent: 'center',
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 30,
     textAlign: 'center',
     color: '#343a40',
+  },
+  inputContainer: {
+    marginBottom: 20,
   },
   label: {
     fontSize: 16,
@@ -172,7 +184,6 @@ const styles = StyleSheet.create({
     borderColor: '#ced4da',
     borderWidth: 1,
     borderRadius: 5,
-    marginBottom: 15,
     paddingHorizontal: 10,
     backgroundColor: '#fff',
   },
@@ -184,17 +195,19 @@ const styles = StyleSheet.create({
     borderColor: '#ced4da',
     borderWidth: 1,
     borderRadius: 5,
-    marginBottom: 15,
     backgroundColor: '#fff',
   },
   errorText: {
     color: '#dc3545',
-    marginBottom: 10,
+    marginTop: 5,
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
+    justifyContent: 'center',
+    gap: 20,
+  },
+  button: {
+    width: '40%',
   },
 });
 
