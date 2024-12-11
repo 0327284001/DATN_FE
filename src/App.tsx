@@ -19,6 +19,9 @@ import DonHang from "./components/donHang/donhang";
 import VoucherManager from "./components/voucher/Voucher";
 import EditVoucher from "./components/voucher/editVoucher";
 import AddVoucher from "./components/voucher/addVoucher";
+import FeedbackApp from "./components/feedback/FeedBack";
+import { FeedbackKH } from "./components/feedback/FeedbackKH";
+import FeedbackMenu from "./components/feedback/FeedBack";
 
 function App() {
   return (
@@ -57,6 +60,11 @@ function App() {
           <Route path="voucher" element={<VoucherManager />} />
           <Route path="addVoucher" element={<AddVoucher />} />
           <Route path="editvoucher/:id" element={<EditVoucher />} />
+
+          {/* Quản lý feedback */}
+          <Route path="feedback" element={<FeedbackMenu/>} />
+          <Route path="feedbackApp" element={<FeedbackApp />} />
+          <Route path="feedbackKH" element={<FeedbackKH />} />
 
           {/* Thống kê */}
           <Route path="thongke" element={<BarChartComponent />} />

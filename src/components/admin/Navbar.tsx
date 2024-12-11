@@ -45,9 +45,8 @@ const Navbar = ({ handleLogout }: Props) => {
         <li>
           <NavLink
             to="/admin/dashboard"
-            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${
-              active === '/admin/dashboard' ? 'bg-gray-700' : ''
-            }`}
+            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${active === '/admin/dashboard' ? 'bg-gray-700' : ''
+              }`}
           >
             <DashboardIcon />
             <span>Dashboard</span>
@@ -56,9 +55,8 @@ const Navbar = ({ handleLogout }: Props) => {
         <li>
           <NavLink
             to="/admin/thongke"
-            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${
-              active === '/admin/thongke' ? 'bg-gray-700' : ''
-            }`}
+            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${active === '/admin/thongke' ? 'bg-gray-700' : ''
+              }`}
           >
             <DashboardIcon />
             <span>Statistical</span>
@@ -67,9 +65,8 @@ const Navbar = ({ handleLogout }: Props) => {
         <li>
           <NavLink
             to="/admin/category"
-            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${
-              active === '/admin/category' ? 'bg-gray-700' : ''
-            }`}
+            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${active === '/admin/category' ? 'bg-gray-700' : ''
+              }`}
           >
             <CategoryIcon />
             <span>Category</span>
@@ -78,9 +75,8 @@ const Navbar = ({ handleLogout }: Props) => {
         <li>
           <NavLink
             to="/admin/add"
-            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${
-              active === '/admin/add' ? 'bg-gray-700' : ''
-            }`}
+            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${active === '/admin/add' ? 'bg-gray-700' : ''
+              }`}
           >
             <AddIcon />
             <span>Product</span>
@@ -89,9 +85,8 @@ const Navbar = ({ handleLogout }: Props) => {
         <li>
           <NavLink
             to="/admin/donhang"
-            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${
-              active === '/admin/donhang' ? 'bg-gray-700' : ''
-            }`}
+            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${active === '/admin/donhang' ? 'bg-gray-700' : ''
+              }`}
           >
             <AddIcon />
             <span> Order</span>
@@ -112,9 +107,8 @@ const Navbar = ({ handleLogout }: Props) => {
         <li>
           <NavLink
             to="/admin/tro_chuyen"
-            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${
-              active === '/admin/tro_chuyen' ? 'bg-gray-700' : ''
-            }`}
+            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${active === '/admin/tro_chuyen' ? 'bg-gray-700' : ''
+              }`}
           >
             <AddIcon />
             <span>Customer care</span>
@@ -124,14 +118,25 @@ const Navbar = ({ handleLogout }: Props) => {
         <li>
           <NavLink
             to="/admin/voucher"
-            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${
-              active === '/admin/voucher' ? 'bg-gray-700' : ''
-            }`}
+            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${active === '/admin/voucher' ? 'bg-gray-700' : ''
+              }`}
           >
             <AddIcon />
             <span>Voucher</span>
           </NavLink>
         </li>
+
+        <li>
+          <NavLink
+            to="/admin/feedback"
+            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${active === '/admin/feedback' ? 'bg-gray-700' : ''
+              }`}
+          >
+            <AddIcon />
+            <span>FeedBack</span>
+          </NavLink>
+        </li>
+
         <li>
           <button
             onClick={logout}
