@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './TroChuyen.css';
 
 interface Chat {
-  senderId: string;
-  receiverId: string;
+  userId: string;
+  cusId: string;
   message: string;
   chatType: 'Văn bản' | 'Hình ảnh' | 'Video';
   timestamp: string;
@@ -11,143 +12,120 @@ interface Chat {
 }
 
 const TroChuyen: React.FC = () => {
+  const [cusList, setCusList] = useState<string[]>([]); // Danh sách cusId
+  const [selectedCusId, setSelectedCusId] = useState<string | null>(null); // cusId được chọn
   const [messages, setMessages] = useState<Chat[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
-  const [senderId] = useState<string>('user1');  // ID của người gửi (giả định)
-  const [receiverId] = useState<string>('user2');  // ID người nhận (giả định)
+  const [userId] = useState<string>('user1'); // ID của người gửi (giả định)
 
-  // Lấy danh sách tin nhắn khi component load
+  // Lấy danh sách khách hàng (cusId) khi component load
   useEffect(() => {
+    const fetchCusList = async () => {
+      try {
+        // const response = await axios.get('http://localhost:28017/messages'); 
+        // console.log('Danh sách khách hàng:', response.data);
+        // setCusList(response.data);
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách khách hàng:", error);
+      }
+    };
+
+    fetchCusList();
+  }, []);
+
+  // Lấy danh sách tin nhắn theo cusId được chọn
+  useEffect(() => {
+    if (!selectedCusId) return;
+
     const fetchMessages = async () => {
       try {
-        const response = await axios.get('/chats'); // Đảm bảo API đúng
+        const response = await axios.get(`/messages/${selectedCusId}`); // Dùng :cusId thay vì query string
         setMessages(response.data);
       } catch (error) {
         console.error("Lỗi khi tải tin nhắn:", error);
       }
     };
 
+
     fetchMessages();
-  }, []);
+  }, [selectedCusId]);
 
   // Gửi tin nhắn
   const sendMessage = async () => {
-    if (!newMessage) return;
+    if (!newMessage || !selectedCusId) return;
 
     try {
       const messageData = {
-        senderId,
-        receiverId,
+        userId,
+        cusId: selectedCusId,
         message: newMessage,
-        chatType: 'Văn bản',  // Loại tin nhắn có thể thay đổi
+        chatType: 'Văn bản',
         chatStatus: 'Đã gửi',
       };
 
-      const response = await axios.post('/chats', messageData); // API gửi tin nhắn
-      setMessages([...messages, response.data]);  // Thêm tin nhắn vào danh sách
-      setNewMessage('');  // Xóa trường nhập sau khi gửi
+      // const response = await axios.post('/chats', messageData);
+      // setMessages([...messages, response.data]); 
+      // setNewMessage(''); 
     } catch (error) {
       console.error("Lỗi khi gửi tin nhắn:", error);
     }
   };
 
   return (
-    <div style={styles.chatContainer}>
-      <div style={styles.messages}>
-        {messages.map((msg, index) => (
+    <div className="container">
+
+      <div className="cusList">
+        {cusList.map((cus) => (
           <div
-            key={index}
-            style={{
-              ...styles.message,
-              ...(msg.senderId === senderId ? styles.sent : styles.received),
-            }}
+            key={cus}
+            className={`cusItem ${cus === selectedCusId ? 'selected' : ''}`}
+            onClick={() => setSelectedCusId(cus)}
           >
-            <p>{msg.message}</p>
-            <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
+            {cus}
           </div>
         ))}
       </div>
 
-      <div style={styles.inputContainer}>
-        <textarea
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Nhập tin nhắn"
-          style={styles.textarea as React.CSSProperties} // Ép kiểu đây
-        ></textarea>
-        <button onClick={sendMessage} style={styles.button}>
-          Gửi
-        </button>
+      {/* Khu vực chat */}
+      <div className="chatContainer">
+        {selectedCusId ? (
+          <>
+            <div className="messages">
+              {messages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`message ${msg.userId === userId ? 'sent' : 'received'}`}
+                >
+                  {/* Render chỉ thông điệp */}
+                  <p>{msg.message}</p>
+                  {/* Hiển thị thời gian tin nhắn */}
+                  <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
+                </div>
+              ))}
+            </div>
+
+
+            <div className="inputContainer">
+              <textarea
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Nhập tin nhắn"
+                className="textarea"
+              ></textarea>
+              <button onClick={sendMessage} className="button">
+                Gửi
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="placeholder">Chọn một khách hàng để bắt đầu trò chuyện</div>
+        )}
       </div>
     </div>
   );
+
 };
 
-// CSS-in-JS styles
-const styles: { [key: string]: React.CSSProperties } = {
-  chatContainer: {
-    width: '100%',
-    maxWidth: '600px',
-    margin: '0 auto',
-    padding: '20px',
-    backgroundColor: '#f8f9fa',
-    borderRadius: '10px',
-    boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-    height: '80vh',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  },
-  messages: {
-    flexGrow: 1,
-    overflowY: 'auto',
-    marginBottom: '15px',
-  },
-  message: {
-    margin: '10px 0',
-    padding: '10px',
-    borderRadius: '15px',
-    maxWidth: '80%',
-    position: 'relative',
-  },
-  sent: {
-    backgroundColor: '#d1f7d1',
-    alignSelf: 'flex-end',
-    textAlign: 'right',
-  },
-  received: {
-    backgroundColor: '#f1f1f1',
-    alignSelf: 'flex-start',
-    textAlign: 'left',
-  },
-  textarea: {
-    width: '100%',
-    maxWidth: '100%',
-    height: '50px',
-    padding: '10px',
-    fontSize: '14px',
-    border: '1px solid #ccc',
-    borderRadius: '10px',
-    resize: 'none',
-    boxSizing: 'border-box', // Đây là nguyên nhân gây lỗi ban đầu
-    marginBottom: '10px',
-  },
-  inputContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    padding: '10px',
-  },
-  button: {
-    padding: '10px 15px',
-    backgroundColor: '#007bff',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    fontSize: '16px',
-    transition: 'background-color 0.3s',
-  },
-};
+
 
 export default TroChuyen;
