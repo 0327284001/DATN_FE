@@ -20,8 +20,8 @@ import VoucherManager from "./components/voucher/Voucher";
 import EditVoucher from "./components/voucher/editVoucher";
 import AddVoucher from "./components/voucher/addVoucher";
 import FeedbackApp from "./components/feedback/FeedBack";
-import { FeedbackKH } from "./components/feedback/FeedbackKH";
 import FeedbackMenu from "./components/feedback/FeedBack";
+import FeedbackKH from "./components/feedback/FeedbackKH";
 
 function App() {
   return (
