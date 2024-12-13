@@ -76,7 +76,7 @@ const FeedbackKH: React.FC = () => {
         </Text>
         <View style={styles.actions}>
           <Button
-            title="Xóa"
+            title="Delete"
             onPress={() => handleDelete(item.id)}
             color="#FF5252"
           />
