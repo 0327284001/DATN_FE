@@ -22,6 +22,7 @@ import FeedbackMenu from "./components/feedback/FeedBack";
 import FeedbackKH from "./components/feedback/FeedbackKH";
 import FeedbackApp from "./components/feedback/FeedBackApp";
 import Chat from "./components/trochuyen/Chat";
+import News from "./components/tintuc/News";
 
 function App() {
   return (
@@ -65,6 +66,12 @@ function App() {
           <Route path="feedback" element={<FeedbackMenu/>} />
           <Route path="feedbackApp" element={<FeedbackApp />} />
           <Route path="feedbackKH" element={<FeedbackKH />} />
+
+          {/* Quản lý tin tức */}
+          <Route path="new" element={<News/>} />
+          {/* <Route path="feedbackApp" element={<FeedbackApp />} />
+          <Route path="feedbackKH" element={<FeedbackKH />} /> */}
+
 
           {/* Thống kê */}
           <Route path="thongke" element={<BarChartComponent />} />
