@@ -13,16 +13,15 @@ import Listcategory from "./components/admin/Category";
 import Addcate from "./components/admin/addCategory";
 import BarChartComponent from "./components/chart/BarChartComponent";
 import NhanVien from "./components/nhanVien/nhan_vien";
-import TroChuyen from "./components/trochuyen/tro_chuyen";
 import ProductDetails from "./components/admin/ProductDetail";
 import DonHang from "./components/donHang/donhang";
 import VoucherManager from "./components/voucher/Voucher";
 import EditVoucher from "./components/voucher/editVoucher";
 import AddVoucher from "./components/voucher/addVoucher";
-
 import FeedbackMenu from "./components/feedback/FeedBack";
 import FeedbackKH from "./components/feedback/FeedbackKH";
 import FeedbackApp from "./components/feedback/FeedBackApp";
+import Chat from "./components/trochuyen/Chat";
 
 function App() {
   return (
@@ -55,7 +54,7 @@ function App() {
           {/* Quản lý đơn hàng */}
           <Route path="donhang" element={<DonHang />} />
           {/* Quản lý chăm sóc khách hàng */}
-          <Route path="tro_chuyen" element={<TroChuyen />} />
+          <Route path="tro_chuyen" element={<Chat />} />
 
           {/* Quản lý voucher */}
           <Route path="voucher" element={<VoucherManager />} />
