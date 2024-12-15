@@ -22,7 +22,12 @@ import FeedbackMenu from "./components/feedback/FeedBack";
 import FeedbackKH from "./components/feedback/FeedbackKH";
 import FeedbackApp from "./components/feedback/FeedBackApp";
 import Chat from "./components/trochuyen/Chat";
-import News from "./components/tintuc/News";
+import NewArtStory from "./components/tintuc/News";
+import EditArtStory from "./components/tintuc/EditArtStory";
+import AddArtStory from "./components/tintuc/AddArtStory";
+import ArtStoryDetail from "./components/tintuc/ArtStoryDetail";
+
+
 
 function App() {
   return (
@@ -63,14 +68,15 @@ function App() {
           <Route path="editvoucher/:id" element={<EditVoucher />} />
 
           {/* Quản lý feedback */}
-          <Route path="feedback" element={<FeedbackMenu/>} />
+          <Route path="feedback" element={<FeedbackMenu />} />
           <Route path="feedbackApp" element={<FeedbackApp />} />
           <Route path="feedbackKH" element={<FeedbackKH />} />
 
           {/* Quản lý tin tức */}
-          <Route path="new" element={<News/>} />
-          {/* <Route path="feedbackApp" element={<FeedbackApp />} />
-          <Route path="feedbackKH" element={<FeedbackKH />} /> */}
+          <Route path="news" element={<NewArtStory />} />
+          <Route path="AddArtStory" element={<AddArtStory />} />
+          <Route path="EditArtStory/:id" element={<EditArtStory />} />
+          <Route path="ArtStoryDetail/:id" element={<ArtStoryDetail />} />
 
 
           {/* Thống kê */}

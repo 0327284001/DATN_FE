@@ -1,188 +1,130 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Table, Button, message } from 'antd';
+import { useNavigate } from 'react-router-dom'; // Hook để điều hướng
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
 
 interface ArtStory {
   _id?: string;
   title: string;
   author?: string;
+  date?: string;
   description?: string;
   content?: string;
-  caption: string[];
-  imageUrl: string[];
+  caption?: string[];
+  imageUrl?: string[];
 }
 
 const NewArtStory: React.FC = () => {
-  const [artStory, setArtStory] = useState<ArtStory>({
-    title: '',
-    author: '',
-    description: '',
-    content: '',
-    caption: [],
-    imageUrl: []
-  });
-  const [isEditing, setIsEditing] = useState(false);
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const [artStories, setArtStories] = useState<ArtStory[]>([]);
+  const navigate = useNavigate(); // Sử dụng hook điều hướng
 
   useEffect(() => {
-    if (id) {
-      setIsEditing(true);
-      axios.get(`http://localhost:5000/artstories/${id}`)
-        .then(response => {
-          setArtStory(response.data);
-        })
-        .catch(error => {
-          console.error('Error fetching the art story:', error);
-        });
-    }
-  }, [id]);
+    fetchArtStories();
+  }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: string) => {
-    setArtStory(prevState => ({
-      ...prevState,
-      [field]: e.target.value
-    }));
-  };
-
-  const handleArrayChange = (e: React.ChangeEvent<HTMLInputElement>, field: string, index: number) => {
-    const updatedArray = (artStory[field as keyof ArtStory] || []) as string[];
-    updatedArray[index] = e.target.value;
-    setArtStory(prevState => ({
-      ...prevState,
-      [field]: updatedArray
-    }));
-  };
-
-  const handleAddArrayItem = (field: string) => {
-    setArtStory(prevState => ({
-      ...prevState,
-      // Đảm bảo rằng field là mảng string, nếu không sẽ lấy mảng rỗng
-      [field]: [...(prevState[field as keyof ArtStory] as string[] || []), '']
-    }));
-  };
-  
-  const handleDeleteArrayItem = (field: string, index: number) => {
-    const updatedArray = (artStory[field as keyof ArtStory] || []) as string[];
-    updatedArray.splice(index, 1);
-    setArtStory(prevState => ({
-      ...prevState,
-      [field]: updatedArray
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isEditing && id) {
-      axios.put(`http://localhost:5000/artstories/${id}`, artStory)
-        .then(response => {
-          navigate('/');
-        })
-        .catch(error => {
-          console.error('Error updating art story:', error);
-        });
-    } else {
-      axios.post('http://localhost:5000/artstories', artStory)
-        .then(response => {
-          navigate('/');
-        })
-        .catch(error => {
-          console.error('Error creating art story:', error);
-        });
+  const fetchArtStories = async () => {
+    try {
+      const response = await axios.get('http://localhost:28017/artstories');
+      setArtStories(response.data);
+    } catch (error) {
+      message.error('Lỗi khi tải dữ liệu!');
     }
   };
 
-  const handleDelete = () => {
-    if (id) {
-      axios.delete(`http://localhost:5000/artstories/${id}`)
-        .then(() => {
-          navigate('/');
-        })
-        .catch(error => {
-          console.error('Error deleting art story:', error);
-        });
+  const handleDelete = async (id: string) => {
+    const loadingMessage = message.loading('Đang xóa...', 0); // Hiển thị thông báo loading
+    try {
+      await axios.delete(`http://localhost:28017/artstories/${id}`);
+      loadingMessage(); // Dừng loading
+      message.success('Xóa thành công!');
+      fetchArtStories(); // Tải lại dữ liệu sau khi xóa
+
+      // Điều hướng về trang danh sách sau khi xóa thành công
+      navigate('/admin/news'); // Đảm bảo trang này là trang bạn muốn quay lại
+    } catch (error) {
+      loadingMessage(); // Dừng loading
+      message.error('Lỗi khi xóa dữ liệu!');
     }
+  };
+
+  const columns = [
+    {
+      title: 'Tiêu đề',
+      dataIndex: 'title',
+      key: 'title',
+    },
+    {
+      title: 'Tác giả',
+      dataIndex: 'author',
+      key: 'author',
+      render: (author: string) => (author ? author : 'Chưa có'),
+    },
+    {
+      title: 'Ngày tạo',
+      dataIndex: 'date',
+      key: 'date',
+      render: (date: string) => new Date(date).toLocaleDateString(),
+    },
+    {
+      title: 'Mô tả',
+      dataIndex: 'description',
+      key: 'description',
+      render: (description: string) => (description ? description.substring(0, 30) + '...' : 'Không có mô tả'),
+    },
+    {
+      title: 'Chú thích',
+      dataIndex: 'caption',
+      key: 'caption',
+      render: (caption: string[]) => (caption && caption.length > 0 ? caption[0] : 'Không có chú thích'),
+    },
+    {
+      title: 'Hình ảnh',
+      dataIndex: 'imageUrl',
+      key: 'imageUrl',
+      render: (imageUrl: string[]) => (imageUrl && imageUrl.length > 0 ? <img src={imageUrl[0]} alt="Art" style={{ width: '50px', height: '50px', objectFit: 'cover' }} /> : 'Không có hình ảnh'),
+    },
+    {
+      title: 'Hành động',
+      key: 'actions',
+      render: (_: any, record: ArtStory) => (
+        <>
+          <Button 
+            onClick={(e) => { 
+              e.stopPropagation(); // Ngừng sự kiện truyền xuống handleRowClick
+              navigate(`/admin/EditArtStory/${record._id}`); 
+            }} 
+            style={{ marginRight: 8 }}
+          >
+            Sửa
+          </Button>
+          <Button onClick={() => handleDelete(record._id!)} danger>
+            Xóa
+          </Button>
+        </>
+      ),
+    },
+  ];
+
+  const handleRowClick = (record: ArtStory) => {
+    navigate(`/admin/ArtStoryDetail/${record._id}`);
   };
 
   return (
-    <div>
-      <h1>{isEditing ? 'Edit Art Story' : 'Create New Art Story'}</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Title:</label>
-          <input
-            type="text"
-            value={artStory.title}
-            onChange={(e) => handleChange(e, 'title')}
-            required
-          />
-        </div>
-
-        <div>
-          <label>Author:</label>
-          <input
-            type="text"
-            value={artStory.author || ''}
-            onChange={(e) => handleChange(e, 'author')}
-          />
-        </div>
-
-        <div>
-          <label>Description:</label>
-          <textarea
-            value={artStory.description || ''}
-            onChange={(e) => handleChange(e, 'description')}
-          />
-        </div>
-
-        <div>
-          <label>Content:</label>
-          <textarea
-            value={artStory.content || ''}
-            onChange={(e) => handleChange(e, 'content')}
-          />
-        </div>
-
-        <div>
-          <label>Caption:</label>
-          {artStory.caption.map((caption, index) => (
-            <div key={index}>
-              <input
-                type="text"
-                value={caption}
-                onChange={(e) => handleArrayChange(e, 'caption', index)}
-              />
-              <button type="button" onClick={() => handleDeleteArrayItem('caption', index)}>Delete</button>
-            </div>
-          ))}
-          <button type="button" onClick={() => handleAddArrayItem('caption')}>Add Caption</button>
-        </div>
-
-        <div>
-          <label>Image URLs:</label>
-          {artStory.imageUrl.map((url, index) => (
-            <div key={index}>
-              <input
-                type="text"
-                value={url}
-                onChange={(e) => handleArrayChange(e, 'imageUrl', index)}
-              />
-              <button type="button" onClick={() => handleDeleteArrayItem('imageUrl', index)}>Delete</button>
-            </div>
-          ))}
-          <button type="button" onClick={() => handleAddArrayItem('imageUrl')}>Add Image URL</button>
-        </div>
-
-        <div>
-          <button type="submit">{isEditing ? 'Save Changes' : 'Create Art Story'}</button>
-        </div>
-      </form>
-
-      {isEditing && (
-        <div>
-          <button type="button" onClick={handleDelete}>Delete Art Story</button>
-        </div>
-      )}
+    <div style={{ padding: '20px' }}>
+      <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>Quản lý ArtStory</h1>
+      <Button type="primary" onClick={() => navigate('/admin/AddArtStory')} style={{ marginBottom: '20px' }}>
+        Thêm mới
+      </Button>
+      <Table 
+        dataSource={artStories} 
+        columns={columns} 
+        rowKey="_id" 
+        pagination={{ pageSize: 5 }} // Giới hạn số lượng hiển thị trên mỗi trang
+        scroll={{ x: 'max-content' }} // Đảm bảo bảng có thể cuộn ngang nếu cần
+        onRow={(record) => ({
+          onClick: () => handleRowClick(record), // Bắt sự kiện click vào hàng
+        })}
+      />
     </div>
   );
 };
