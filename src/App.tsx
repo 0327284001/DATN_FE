@@ -26,6 +26,7 @@ import NewArtStory from "./components/tintuc/News";
 import EditArtStory from "./components/tintuc/EditArtStory";
 import AddArtStory from "./components/tintuc/AddArtStory";
 import ArtStoryDetail from "./components/tintuc/ArtStoryDetail";
+import Transaction from "./components/admin/Transaction";
 
 
 
@@ -42,7 +43,7 @@ function App() {
         <Route path="/admin" element={<Privaterouter><Admin /></Privaterouter>}>
           {/* Dashboard */}
           <Route path="dashboard" element={<Dashboard />} />
-
+          <Route path="transaction" element={<Transaction/>} />
           {/* Chi tiết sản phẩm */}
           <Route path="dashboard/product/details/:id" element={<ProductDetails />} />
 

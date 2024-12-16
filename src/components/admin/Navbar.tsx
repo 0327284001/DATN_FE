@@ -62,6 +62,18 @@ const Navbar = ({ handleLogout }: Props) => {
             <span>Statistical</span>
           </NavLink>
         </li>
+        
+        <li>
+          <NavLink
+            to="/admin/transaction"
+            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${active === '/admin/transaction' ? 'bg-gray-700' : ''
+              }`}
+          >
+            <DashboardIcon />
+            <span>Transaction</span>
+          </NavLink>
+        </li>
+
         <li>
           <NavLink
             to="/admin/category"
