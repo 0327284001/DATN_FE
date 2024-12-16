@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, message } from 'antd';
 import { useNavigate } from 'react-router-dom'; // Hook để điều hướng
 import axios from 'axios';
+import type { ColumnsType } from 'antd/es/table';
 
 interface ArtStory {
   _id?: string;
@@ -47,11 +48,14 @@ const NewArtStory: React.FC = () => {
     }
   };
 
-  const columns = [
+  const columns: ColumnsType<ArtStory> = [
     {
       title: 'Tiêu đề',
       dataIndex: 'title',
       key: 'title',
+      width: 200,
+      fixed: 'left',
+      ellipsis: true,
     },
     {
       title: 'Tác giả',
@@ -63,13 +67,13 @@ const NewArtStory: React.FC = () => {
       title: 'Ngày tạo',
       dataIndex: 'date',
       key: 'date',
-      render: (date: string) => new Date(date).toLocaleDateString(),
-    },
-    {
-      title: 'Mô tả',
-      dataIndex: 'description',
-      key: 'description',
-      render: (description: string) => (description ? description.substring(0, 30) + '...' : 'Không có mô tả'),
+      render: (date: string) => {
+        const formattedDate = new Date(date);
+        const day = String(formattedDate.getDate()).padStart(2, '0'); 
+        const month = String(formattedDate.getMonth() + 1).padStart(2, '0'); 
+        const year = formattedDate.getFullYear();
+        return `${day}/${month}/${year}`;
+      },
     },
     {
       title: 'Chú thích',
@@ -81,18 +85,27 @@ const NewArtStory: React.FC = () => {
       title: 'Hình ảnh',
       dataIndex: 'imageUrl',
       key: 'imageUrl',
-      render: (imageUrl: string[]) => (imageUrl && imageUrl.length > 0 ? <img src={imageUrl[0]} alt="Art" style={{ width: '50px', height: '50px', objectFit: 'cover' }} /> : 'Không có hình ảnh'),
+      render: (imageUrl: string[]) =>
+        imageUrl && imageUrl.length > 0 ? (
+          <img
+            src={imageUrl[0]}
+            alt="Art"
+            style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+          />
+        ) : (
+          'Không có hình ảnh'
+        ),
     },
     {
       title: 'Hành động',
       key: 'actions',
       render: (_: any, record: ArtStory) => (
         <>
-          <Button 
-            onClick={(e) => { 
-              e.stopPropagation(); // Ngừng sự kiện truyền xuống handleRowClick
-              navigate(`/admin/EditArtStory/${record._id}`); 
-            }} 
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/admin/EditArtStory/${record._id}`);
+            }}
             style={{ marginRight: 8 }}
           >
             Sửa
@@ -105,6 +118,7 @@ const NewArtStory: React.FC = () => {
     },
   ];
 
+
   const handleRowClick = (record: ArtStory) => {
     navigate(`/admin/ArtStoryDetail/${record._id}`);
   };
@@ -115,16 +129,18 @@ const NewArtStory: React.FC = () => {
       <Button type="primary" onClick={() => navigate('/admin/AddArtStory')} style={{ marginBottom: '20px' }}>
         Thêm mới
       </Button>
-      <Table 
-        dataSource={artStories} 
-        columns={columns} 
-        rowKey="_id" 
-        pagination={{ pageSize: 5 }} // Giới hạn số lượng hiển thị trên mỗi trang
-        scroll={{ x: 'max-content' }} // Đảm bảo bảng có thể cuộn ngang nếu cần
+      <Table
+        dataSource={artStories}
+        columns={columns}
+        rowKey="_id"
+        pagination={{ pageSize: 5 }}
+        scroll={{ x: 1000 }}
         onRow={(record) => ({
-          onClick: () => handleRowClick(record), // Bắt sự kiện click vào hàng
+          onClick: () => handleRowClick(record),
         })}
       />
+
+
     </div>
   );
 };
