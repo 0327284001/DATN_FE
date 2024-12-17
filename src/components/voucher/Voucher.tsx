@@ -9,6 +9,7 @@ interface Voucher {
   price_reduced: number;
   discount_code: string;
   quantity_voucher: number;
+  type_voucher: string; // Dùng 'type_voucher' thay vì 'voucher_type'
 }
 
 const VoucherManager: React.FC = () => {
@@ -24,7 +25,7 @@ const VoucherManager: React.FC = () => {
       try {
         const response = await axios.get("http://localhost:28017/vouchers");
         console.log("Dữ liệu nhận từ API:", response.data);
-        setVouchers(response.data);
+        setVouchers(response.data); // Set voucher data từ API
       } catch (error) {
         console.error("Lỗi khi lấy voucher:", error);
       }
@@ -88,44 +89,61 @@ const VoucherManager: React.FC = () => {
 
       <div style={styles.innerContainer}>
         <h2 style={styles.heading}>Danh Sách Voucher</h2>
-        <ul style={styles.list}>
-          {filteredVouchers.length === 0 ? (
-            <p style={styles.noData}>Không tìm thấy voucher nào</p>
-          ) : (
-            filteredVouchers.map((voucher) => (
-              <li
-                key={voucher._id}
-                style={styles.listItem}
-                onClick={() => openModal(voucher)} // Mở modal khi click vào voucher
-              >
-                <div>
-                  <strong>Mã Giảm Giá:</strong> {voucher.discount_code}
-                </div>
-                <div>
-                  <strong>Giảm Giá:</strong> {voucher.price_reduced} VNĐ
-                </div>
-                <div>
-                  <strong>Thể Loại Giảm:</strong> {voucher.quantity_voucher}
-                </div>
+        <div style={styles.tableContainer}>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th>Mã Giảm Giá</th>
+                <th>Giảm Giá</th>
+                <th>Thể Loại Giảm</th>
+                <th>Số Lượng Voucher</th> {/* Thêm cột số lượng voucher */}
+                <th>Hành Động</th>
+              </tr>
+            </thead>
 
-                <div style={styles.actionButtons}>
-                  <button
-                    style={styles.editButton}
-                    onClick={() => handleEdit(voucher._id)}
+            <tbody>
+              {filteredVouchers.length === 0 ? (
+                <tr>
+                  <td colSpan={5} style={styles.noData}>Không tìm thấy voucher nào</td>
+                </tr>
+              ) : (
+                filteredVouchers.map((voucher) => (
+                  <tr
+                    key={voucher._id}
+                    style={styles.tableRow}
+                    onClick={() => openModal(voucher)} // Mở modal khi click vào voucher
                   >
-                    Edit
-                  </button>
-                  <button
-                    style={styles.deleteButton}
-                    onClick={() => handleDelete(voucher._id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))
-          )}
-        </ul>
+                    <td>{voucher.discount_code}</td>
+                    <td>{voucher.price_reduced} VNĐ</td>
+                    <td>{voucher.type_voucher}</td>
+                    <td>{voucher.quantity_voucher}</td> {/* Hiển thị số lượng voucher */}
+                    <td style={styles.actionButtons}>
+                      <button
+                        style={styles.editButton}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Ngừng lan tỏa sự kiện click
+                          handleEdit(voucher._id);
+                        }}
+                      >
+                        Sửa
+                      </button>
+                      <button
+                        style={styles.deleteButton}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Ngừng lan tỏa sự kiện click
+                          handleDelete(voucher._id);
+                        }}
+                      >
+                        Xóa
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+
+          </table>
+        </div>
       </div>
 
       {/* Modal xem chi tiết voucher */}
@@ -134,7 +152,7 @@ const VoucherManager: React.FC = () => {
           <h2 style={styles.modalHeading}>Chi Tiết Voucher</h2>
           <div><strong>Mã Giảm Giá:</strong> {selectedVoucher.discount_code}</div>
           <div><strong>Giảm Giá:</strong> {selectedVoucher.price_reduced} VNĐ</div>
-          <div><strong>Thể Loại Giảm:</strong> {selectedVoucher.quantity_voucher}</div>
+          <div><strong>Thể Loại Giảm:</strong> {selectedVoucher.type_voucher}</div>
           <div><strong>Voucher ID:</strong> {selectedVoucher._id}</div>
           <button style={styles.closeButton} onClick={closeModal}>Đóng</button> {/* Nút đóng modal */}
         </Modal>
@@ -196,46 +214,51 @@ const styles = {
     color: "#333",
     fontWeight: "bold",
   },
-  list: {
-    listStyle: "none",
-    padding: "0",
-    margin: "0",
+  tableContainer: {
+    overflowX: "auto" as "auto", // Đảm bảo bảng có thể cuộn ngang
   },
-  listItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "10px 15px",
-    marginBottom: "10px",
-    border: "1px solid #ddd",
-    borderRadius: "8px",
+  table: {
+    width: "100%",
+    borderCollapse: "collapse" as "collapse", // Chỉ rõ giá trị hợp lệ
+    textAlign: "left" as "left", // Gán giá trị hợp lệ cho textAlign
+  },
+  th: {
     backgroundColor: "#f8f9fa",
-    fontSize: "14px",
-    lineHeight: "1.5",
-    cursor: "pointer",  // Thêm con trỏ chuột khi hover
+    padding: "10px 15px",
+    fontWeight: "bold",
+    borderBottom: "1px solid #ddd",
+  },
+  tableRow: {
+    transition: "background-color 0.3s ease", // Thêm hiệu ứng khi hover
+  },
+  tableRowHover: {
+    backgroundColor: "#f1f1f1", // Màu nền khi hover
+  },
+  td: {
+    padding: "10px 15px",
+    borderBottom: "1px solid #ddd",
   },
   actionButtons: {
     display: "flex",
-    justifyContent: "flex-end",
     gap: "10px",
   },
   editButton: {
-    padding: "10px 20px",
+    padding: "8px 15px",
     backgroundColor: "#28a745",
     color: "white",
     border: "none",
     borderRadius: "5px",
     cursor: "pointer",
-    fontSize: "16px",
+    fontSize: "14px",
   },
   deleteButton: {
-    padding: "10px 20px",
+    padding: "8px 15px",
     backgroundColor: "#dc3545",
     color: "white",
     border: "none",
     borderRadius: "5px",
     cursor: "pointer",
-    fontSize: "16px",
+    fontSize: "14px",
   },
   modalHeading: {
     fontSize: '22px',  // Kích thước chữ tiêu đề

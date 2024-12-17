@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getProductByID } from '../../service/products';
+import Slider from 'react-slick';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -31,16 +32,32 @@ const ProductDetails = () => {
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>Lỗi: {error}</div>;
 
+  const sliderSettings = {
+    autoplay: true, // Tự động chuyển ảnh
+    autoplaySpeed: 3000, // Thời gian chuyển ảnh (3 giây)
+    dots: false, // Ẩn dấu chấm
+    infinite: true, // Cho phép chuyển tiếp vòng quay
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+  };
+
   return (
     <div className="flex flex-col lg:flex-row gap-6 bg-gray-100 p-6 rounded-lg shadow-lg max-w-4xl mx-auto">
-      {/* Hình ảnh */}
+      {/* Slideshow ảnh */}
       {product?.imgPro && product.imgPro.length > 0 && (
         <div className="lg:w-1/3">
-          <img
-            src={product.imgPro[0]}
-            alt={product.namePro}
-            className="w-full h-auto rounded-lg shadow-md"
-          />
+          <Slider {...sliderSettings}>
+            {product.imgPro.map((img: string, index: number) => (
+              <div key={index}>
+                <img
+                  src={img}
+                  alt={`Product Image ${index + 1}`}
+                  className="w-full h-auto rounded-lg shadow-md"
+                />
+              </div>
+            ))}
+          </Slider>
         </div>
       )}
 
@@ -50,12 +67,10 @@ const ProductDetails = () => {
         <p className="text-gray-700 text-base mb-4">{product.desPro}</p>
         <div className="space-y-2">
           <p className="text-lg font-medium text-gray-800">Giá: {product.price}VND</p>
-          <p className="text-lg font-medium text-red-600 font-bold">Giá nhập: {product.import_price}VND</p> {/* Màu đỏ và đậm cho giá nhập */}
+          <p className="text-lg font-medium text-red-600 font-bold">Giá nhập: {product.import_price}VND</p>
           <p className="text-lg font-medium text-gray-800">Số lượng: {product.quantity}</p>
           <p
-            className={`text-lg font-medium ${
-              product.statusPro ? 'text-green-600' : 'text-red-600'
-            }`}
+            className={`text-lg font-medium ${product.statusPro ? 'text-green-600' : 'text-red-600'}`}
           >
             Trạng thái: {product.statusPro ? 'Còn hàng' : 'Hết hàng'}
           </p>
