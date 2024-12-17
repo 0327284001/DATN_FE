@@ -85,7 +85,8 @@ const Dashboard = () => {
         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
-              <th className="px-6 py-3">Tên sản phẩm</th>
+              <th className="px-6 py-3" style={{ width: "200px" }}>Tên sản phẩm</th>
+
               <th className="px-6 py-3">Trạng thái</th>
               <th className="px-6 py-3">Giá</th>
               <th className="px-6 py-3">Ngày tạo</th>
@@ -102,11 +103,25 @@ const Dashboard = () => {
                 className="odd:bg-white even:bg-gray-50 border-b dark:bg-gray-900 dark:border-gray-700"
                 onClick={() => viewProductDetail(product._id)}
               >
-                <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                <td
+                  className="px-6 py-4 font-medium text-gray-900 dark:text-white"
+                  style={{
+                    width: "200px",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    display: "-webkit-box",
+                    WebkitBoxOrient: "vertical",
+                    WebkitLineClamp: 2,
+                    lineHeight: "1.2em" // Điều chỉnh chiều cao dòng nếu cần
+                  }}
+                >
                   {product.namePro}
                 </td>
+
+
+
                 <td className="px-6 py-4">
-                  {product.statusPro ? "Còn hàng" : "Hết hàng"}
+                  {product.quantity > 0 ? "Còn hàng" : "Hết hàng"} {/* Cập nhật trạng thái */}
                 </td>
                 <td className="px-6 py-4">{product.price}VND</td>
                 <td className="px-6 py-4">
@@ -156,6 +171,7 @@ const Dashboard = () => {
               </tr>
             ))}
           </tbody>
+
         </table>
       </div>
       <div className="mt-4 flex justify-center">

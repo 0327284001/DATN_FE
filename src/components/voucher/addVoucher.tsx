@@ -7,9 +7,11 @@ const AddVoucher = () => {
   const [priceReduced, setPriceReduced] = useState('');
   const [discountCode, setDiscountCode] = useState('');
   const [quantityVoucher, setQuantityVoucher] = useState('');
+  const [typeVoucher, setTypeVoucher] = useState('');  // Thêm state cho type_voucher
   const [priceError, setPriceError] = useState('');
   const [discountCodeError, setDiscountCodeError] = useState('');
   const [quantityVoucherError, setQuantityVoucherError] = useState('');
+  const [typeVoucherError, setTypeVoucherError] = useState('');  // Thêm lỗi cho type_voucher
 
   const navigate = useNavigate(); 
 
@@ -17,6 +19,7 @@ const AddVoucher = () => {
     setPriceError('');
     setDiscountCodeError('');
     setQuantityVoucherError('');
+    setTypeVoucherError(''); // Reset lỗi type_voucher
     
     let isValid = true;
 
@@ -31,7 +34,12 @@ const AddVoucher = () => {
     }
 
     if (!quantityVoucher) {
-      setQuantityVoucherError('Vui lòng chọn loại voucher.');
+      setQuantityVoucherError('Vui lòng chọn số lượng voucher.');
+      isValid = false;
+    }
+
+    if (!typeVoucher) {  // Kiểm tra xem loại voucher đã được chọn chưa
+      setTypeVoucherError('Vui lòng chọn loại voucher.');
       isValid = false;
     }
 
@@ -40,9 +48,10 @@ const AddVoucher = () => {
     const newVoucher = {
       price_reduced: Number(priceReduced),
       discount_code: discountCode.trim(),
-      quantity_voucher: quantityVoucher,
+      quantity_voucher: Number(quantityVoucher),  // Chuyển quantity_voucher sang số
+      type_voucher: typeVoucher,  // Thêm type_voucher vào request
     };
-    
+
     try {
       const response = await fetch('http://localhost:28017/vouchers/add', {
         method: 'POST',
@@ -74,6 +83,7 @@ const AddVoucher = () => {
     setPriceReduced('');
     setDiscountCode('');
     setQuantityVoucher('');
+    setTypeVoucher(''); // Reset type_voucher
     navigate("/admin/voucher");
   };
 
@@ -105,17 +115,29 @@ const AddVoucher = () => {
       </View>
 
       <View style={styles.inputContainer}>
+        <Text style={styles.label}>Số lượng voucher:</Text>
+        <TextInput
+          style={[styles.input, quantityVoucherError ? styles.inputError : null]}
+          keyboardType="numeric"
+          value={quantityVoucher}
+          onChangeText={setQuantityVoucher}
+          placeholder="Nhập số lượng voucher"
+        />
+        {quantityVoucherError ? <Text style={styles.errorText}>{quantityVoucherError}</Text> : null}
+      </View>
+
+      <View style={styles.inputContainer}>
         <Text style={styles.label}>Loại voucher:</Text>
         <Picker
-          selectedValue={quantityVoucher}
-          style={[styles.picker, quantityVoucherError ? styles.inputError : null]}
-          onValueChange={(itemValue: string) => setQuantityVoucher(itemValue)}
+          selectedValue={typeVoucher}
+          style={[styles.picker, typeVoucherError ? styles.inputError : null]}
+          onValueChange={(itemValue: string) => setTypeVoucher(itemValue)}
         >
           <Picker.Item label="Chọn loại voucher" value="" />
           <Picker.Item label="Giảm giá vận chuyển" value="Giảm giá vận chuyển" />
           <Picker.Item label="Giảm giá sản phẩm" value="Giảm giá sản phẩm" />
         </Picker>
-        {quantityVoucherError ? <Text style={styles.errorText}>{quantityVoucherError}</Text> : null}
+        {typeVoucherError ? <Text style={styles.errorText}>{typeVoucherError}</Text> : null}
       </View>
 
       <View style={styles.buttonContainer}>
