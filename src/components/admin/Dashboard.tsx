@@ -73,12 +73,13 @@ const Dashboard = () => {
   return (
     <div className="flex-1 p-4">
       <div className="mb-4">
+        {/* Tìm kiếm tự động lọc theo từ khóa */}
         <Search
           placeholder="Tìm kiếm sản phẩm"
           allowClear
           enterButton="Tìm kiếm"
           size="large"
-          onSearch={handleSearch} // Gọi hàm tìm kiếm khi nhập
+          onChange={(e) => handleSearch(e.target.value)} // Sử dụng onChange để lọc theo từ khóa
         />
       </div>
       <div className="overflow-x-auto shadow-md sm:rounded-lg">
@@ -86,7 +87,6 @@ const Dashboard = () => {
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
               <th className="px-6 py-3" style={{ width: "200px" }}>Tên sản phẩm</th>
-
               <th className="px-6 py-3">Trạng thái</th>
               <th className="px-6 py-3">Giá</th>
               <th className="px-6 py-3">Ngày tạo</th>
@@ -112,13 +112,11 @@ const Dashboard = () => {
                     display: "-webkit-box",
                     WebkitBoxOrient: "vertical",
                     WebkitLineClamp: 2,
-                    lineHeight: "1.2em" // Điều chỉnh chiều cao dòng nếu cần
+                    lineHeight: "1.2em", // Điều chỉnh chiều cao dòng nếu cần
                   }}
                 >
                   {product.namePro}
                 </td>
-
-
 
                 <td className="px-6 py-4">
                   {product.quantity > 0 ? "Còn hàng" : "Hết hàng"} {/* Cập nhật trạng thái */}
@@ -171,7 +169,6 @@ const Dashboard = () => {
               </tr>
             ))}
           </tbody>
-
         </table>
       </div>
       <div className="mt-4 flex justify-center">
