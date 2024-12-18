@@ -105,17 +105,16 @@ const Navbar = ({ handleLogout }: Props) => {
           </NavLink>
         </li>
 
-        {/* <li>
+        <li>
           <NavLink
-            to="/admin/staff"
-            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${
-              active === '/admin/staff' ? 'bg-gray-700' : ''
-            }`}
+            to="/admin/hoanHang"
+            className={`text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all ${active === '/admin/hoanHang' ? 'bg-gray-700' : ''
+              }`}
           >
             <AddIcon />
-            <span>Staff</span>
+            <span> Refunds</span>
           </NavLink>
-        </li> */}
+        </li>
         <li>
           <NavLink
             to="/admin/tro_chuyen"

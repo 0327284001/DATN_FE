@@ -27,6 +27,7 @@ import EditArtStory from "./components/tintuc/EditArtStory";
 import AddArtStory from "./components/tintuc/AddArtStory";
 import ArtStoryDetail from "./components/tintuc/ArtStoryDetail";
 import Transaction from "./components/admin/Transaction";
+import HoanHang from "./components/refuns/HoanHang";
 
 
 
@@ -60,6 +61,7 @@ function App() {
           <Route path="staff" element={<NhanVien />} />
           {/* Quản lý đơn hàng */}
           <Route path="donhang" element={<DonHang />} />
+          <Route path="hoanHang" element={<HoanHang />} />
           {/* Quản lý chăm sóc khách hàng */}
           <Route path="tro_chuyen" element={<Chat />} />
 
