@@ -62,24 +62,30 @@ const Listcategory = (props: Props) => {
   return (
     <>
       {loading && <LoadingComponent />}
-      <div className="flex justify-between mb-6">
-        <input
-          type="text"
-          placeholder="Tìm kiếm danh mục..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        />
+
+      {/* Nút thêm mới danh mục */}
+      <div className="mb-6 flex justify-start">
         <NavLink to={'/admin/addcategory'}>
-          <button className="text-white bg-indigo-600 hover:bg-indigo-700 font-semibold rounded-lg text-base px-4 py-2 shadow-lg transition duration-300 ease-in-out">
+          <button className="text-white bg-indigo-600 hover:bg-indigo-700 font-semibold rounded-lg text-base px-6 py-3 shadow-lg transition duration-300 ease-in-out">
             Thêm mới danh mục
           </button>
         </NavLink>
       </div>
 
-      <div className="overflow-x-auto w-full">
+      {/* Thanh tìm kiếm */}
+      <div className="flex mb-6 justify-center w-full">
+        <input
+          type="text"
+          placeholder="Tìm kiếm danh mục..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-full max-w-lg"
+        />
+      </div>
+
+      <div className="overflow-x-auto w-full bg-white shadow-lg rounded-lg">
         <table className="min-w-full table-auto text-center">
-          <thead className="bg-gray-200 text-gray-800">
+          <thead className="bg-indigo-600 text-white">
             <tr>
               <th className="px-6 py-4 text-sm font-semibold">Stt</th>
               <th className="px-6 py-4 text-sm font-semibold">Tên danh mục</th>
@@ -120,12 +126,14 @@ const Listcategory = (props: Props) => {
       </div>
 
       {/* Phân trang đặt dưới cùng */}
-      <div className=" mt-[40px] w-full flex justify-center">
+      <div className="mt-6 w-full flex justify-center">
         <Pagination
           current={currentPage}
           pageSize={itemsPerPage}
           total={filteredCategories.length} // Tổng số danh mục đã lọc
           onChange={handlePageChange}
+          showSizeChanger={false} // Ẩn chọn số lượng sản phẩm mỗi trang
+          className="pagination-style"
         />
       </div>
     </>
