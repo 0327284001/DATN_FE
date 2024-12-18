@@ -125,7 +125,7 @@ const VoucherManager: React.FC = () => {
                           handleEdit(voucher._id);
                         }}
                       >
-                        Sửa
+                        Edit
                       </button>
                       <button
                         style={styles.deleteButton}
@@ -134,7 +134,7 @@ const VoucherManager: React.FC = () => {
                           handleDelete(voucher._id);
                         }}
                       >
-                        Xóa
+                        Delete
                       </button>
                     </td>
                   </tr>
