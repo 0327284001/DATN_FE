@@ -75,6 +75,7 @@ const Edit: React.FC = () => {
 
         await axios.put(`http://localhost:28017/artstories/${id}`, values);
         message.success('Cập nhật thành công!');
+        navigate('/admin/news'); // Sau khi cập nhật thành công, điều hướng về trang danh sách
       }
     } catch (error) {
       message.error('Lỗi khi lưu dữ liệu!');
