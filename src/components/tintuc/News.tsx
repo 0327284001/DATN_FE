@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, message } from 'antd';
+import { Table, Button, message, Space } from 'antd';
 import { useNavigate } from 'react-router-dom'; // Hook để điều hướng
 import axios from 'axios';
 import type { ColumnsType } from 'antd/es/table';
@@ -100,7 +100,7 @@ const NewArtStory: React.FC = () => {
       title: 'Hành động',
       key: 'actions',
       render: (_: any, record: ArtStory) => (
-        <>
+        <Space>
           <Button
             onClick={(e) => {
               e.stopPropagation();
@@ -108,16 +108,15 @@ const NewArtStory: React.FC = () => {
             }}
             style={{ marginRight: 8 }}
           >
-            Sửa
+            Edit
           </Button>
           <Button onClick={() => handleDelete(record._id!)} danger>
-            Xóa
+            Delete
           </Button>
-        </>
+        </Space>
       ),
     },
   ];
-
 
   const handleRowClick = (record: ArtStory) => {
     navigate(`/admin/ArtStoryDetail/${record._id}`);
@@ -133,14 +132,17 @@ const NewArtStory: React.FC = () => {
         dataSource={artStories}
         columns={columns}
         rowKey="_id"
-        pagination={{ pageSize: 5 }}
+        pagination={{
+          pageSize: 5,
+          style: {
+            textAlign: 'center', // Canh giữa phần phân trang
+          },
+        }}
         scroll={{ x: 1000 }}
         onRow={(record) => ({
           onClick: () => handleRowClick(record),
         })}
       />
-
-
     </div>
   );
 };
