@@ -329,9 +329,18 @@ const ActionButton = styled.button`
   background-color: #28a745;
   color: white;
   border: none;
-  padding: 5px 10px;
+  padding: 8px 30px;  /* Chiều ngang dài hơn */
   border-radius: 5px;
   cursor: pointer;
+  font-size: 14px;  /* Giảm cỡ chữ */
+  white-space: nowrap; /* Ngăn cắt chữ xuống dòng */
+  text-align: center;  /* Đảm bảo chữ căn giữa */
+  width: auto;
+  height: 40px;  /* Chiều dọc ngắn lại */
+  
+  &:hover {
+    background-color: #218838;
+  }
 `;
 
 const Modal = styled.div`
