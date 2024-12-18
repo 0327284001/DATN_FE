@@ -4,6 +4,7 @@ import { addProduct } from "../../service/products"; // Service để thêm sả
 import { getAllCategories } from "../../service/category"; // Service lấy danh mục sản phẩm
 import { Icategory } from "../../interface/category"; // Interface cho danh mục
 import { upload } from "../../service/upload"; // Service upload hình ảnh
+import { useNavigate } from "react-router-dom"; // Thêm import useNavigate
 
 const AddProduct = () => {
   const [form] = Form.useForm();
@@ -11,6 +12,7 @@ const AddProduct = () => {
   const [categories, setCategories] = useState<Icategory[]>([]); // Danh sách các danh mục
   const [imageFiles, setImageFiles] = useState<any[]>([]); // Lưu các tệp hình ảnh
   const [owerId, setOwerId] = useState<string>(""); // Sử dụng trường nhập liệu cho owerId
+  const navigate = useNavigate(); // Khởi tạo navigate
 
   const info = () => {
     messageApi.open({
@@ -69,6 +71,9 @@ const AddProduct = () => {
       const newProduct = await addProduct(productData);
       info();
       form.resetFields();
+
+      // Chuyển hướng đến trang Dashboard sau khi thêm sản phẩm thành công
+      navigate("/admin/dashboard"); // Đảm bảo đường dẫn "/dashboard" là đường dẫn hợp lệ trong ứng dụng của bạn
     } catch (error) {
       messageApi.open({
         type: "error",
@@ -130,26 +135,12 @@ const AddProduct = () => {
             </Col>
           </Row>
 
-          {/* Đặt Giá Nhập xuống dưới Số Lượng */}
           <Row gutter={24}>
             <Col xs={24} sm={12}>
               <Form.Item
                 name="import_price"
                 label="Giá Nhập"
-                rules={[
-                  { required: true, message: "Vui lòng nhập giá nhập sản phẩm!" },
-                  {
-                    validator: (_, value) => {
-                      if (value === undefined || value === "") {
-                        return Promise.reject("Vui lòng nhập giá nhập!");
-                      }
-                      if (Number(value) < 0) {
-                        return Promise.reject("Giá nhập phải lớn hơn hoặc bằng 0!");
-                      }
-                      return Promise.resolve();
-                    },
-                  },
-                ]}>
+                rules={[{ required: true, message: "Vui lòng nhập giá nhập sản phẩm!" }]}>
                 <Input type="number" placeholder="Vui lòng nhập giá nhập" />
               </Form.Item>
             </Col>
