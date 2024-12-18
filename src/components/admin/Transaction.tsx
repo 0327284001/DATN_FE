@@ -28,10 +28,13 @@ const Transaction: React.FC = () => {
   }, []);
 
   const filteredTransactions = transactions.filter((transaction) => {
-    const transactionDate = new Date(transaction.date).toISOString().split("T")[0];
+    const transactionDate = new Date(transaction.date);
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate + "T23:59:59") : null;
+  
     return (
-      (!startDate || transactionDate >= startDate) &&
-      (!endDate || transactionDate <= endDate)
+      (!start || transactionDate >= start) &&
+      (!end || transactionDate <= end)
     );
   });
  const totalAmount = filteredTransactions.reduce((sum, transaction) => {
