@@ -89,7 +89,7 @@ const Dashboard = () => {
               <th className="px-6 py-3" style={{ width: "200px" }}>Tên sản phẩm</th>
               <th className="px-6 py-3">Trạng thái</th>
               <th className="px-6 py-3">Giá</th>
-              <th className="px-6 py-3">Ngày tạo</th>
+              {/* <th className="px-6 py-3">Ngày tạo</th> */}
               <th className="px-6 py-3">Số lượng</th>
               <th className="px-6 py-3">Danh mục</th>
               <th className="px-6 py-3">Hình ảnh</th>
@@ -122,9 +122,11 @@ const Dashboard = () => {
                   {product.quantity > 0 ? "Còn hàng" : "Hết hàng"} {/* Cập nhật trạng thái */}
                 </td>
                 <td className="px-6 py-4">{product.price}VND</td>
-                <td className="px-6 py-4">
-                  {product.creatDatePro || "Chưa cập nhật"}
-                </td>
+                {/* <td className="px-6 py-4">
+                  {product.creatDatePro && product.creatDatePro !== "null" && product.creatDatePro !== "undefined"
+                    ? new Date(product.creatDatePro).toLocaleDateString()
+                    : "Chưa cập nhật"}
+                </td> */}
                 <td className="px-6 py-4">{product.quantity}</td>
                 <td className="px-6 py-4">{product.listPro || "Chưa phân loại"}</td>
                 <td className="px-6 py-4">
