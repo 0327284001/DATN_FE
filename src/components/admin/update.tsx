@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getProductByID, updateProduct } from "../../service/products";
 import { getAllCategories } from "../../service/category";
 import { Icategory } from "../../interface/category";
+import moment from "moment"; // Thêm thư viện để xử lý ngày tháng
 
 const UpdateProduct = () => {
   const { id } = useParams<{ id: string }>();
@@ -44,6 +45,7 @@ const UpdateProduct = () => {
             statusPro: product.statusPro ? "Còn hàng" : "Hết hàng",
             brand: product.brand,
             import_price: product.import_price,
+            dateUpdated: moment(product.dateUpdated).format("YYYY-MM-DD"), // Định dạng ngày tháng
           });
         } catch (error) {
           console.error("Lỗi khi lấy dữ liệu sản phẩm:", error);
@@ -61,6 +63,7 @@ const UpdateProduct = () => {
     const updatedProduct = {
       ...values,
       statusPro: statusPro === "Còn hàng",
+      dateUpdated: moment().format("YYYY-MM-DD HH:mm:ss"), // Cập nhật ngày giờ hiện tại
     };
 
     try {
@@ -88,7 +91,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="namePro"
                 label="Tên sản phẩm"
-                rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm!" }]}>
+                rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm!" }]} >
                 <Input placeholder="Nhập tên sản phẩm" />
               </Form.Item>
             </Col>
@@ -96,7 +99,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="owerId"
                 label="Chủ sở hữu"
-                rules={[{ required: true, message: "Vui lòng nhập chủ sở hữu!" }]}>
+                rules={[{ required: true, message: "Vui lòng nhập chủ sở hữu!" }]} >
                 <Input placeholder="Nhập chủ sở hữu sản phẩm" />
               </Form.Item>
             </Col>
@@ -107,7 +110,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="price"
                 label="Giá sản phẩm"
-                rules={[{ required: true, message: "Vui lòng nhập giá sản phẩm!" }]}>
+                rules={[{ required: true, message: "Vui lòng nhập giá sản phẩm!" }]} >
                 <Input type="number" placeholder="Nhập giá sản phẩm" />
               </Form.Item>
             </Col>
@@ -115,7 +118,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="quantity"
                 label="Số lượng"
-                rules={[{ required: true, message: "Vui lòng nhập số lượng sản phẩm!" }]}>
+                rules={[{ required: true, message: "Vui lòng nhập số lượng sản phẩm!" }]} >
                 <Input type="number" placeholder="Nhập số lượng" />
               </Form.Item>
             </Col>
@@ -123,7 +126,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="import_price"
                 label="Giá Nhập"
-                rules={[{ required: true, message: "Vui lòng nhập giá nhập sản phẩm!" }]}>
+                rules={[{ required: true, message: "Vui lòng nhập giá nhập sản phẩm!" }]} >
                 <Input type="number" placeholder="Vui lòng nhập giá nhập" />
               </Form.Item>
             </Col>
@@ -134,7 +137,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="desPro"
                 label="Mô tả sản phẩm"
-                rules={[{ required: false }]}>
+                rules={[{ required: false }]} >
                 <Input.TextArea placeholder="Nhập mô tả sản phẩm" maxLength={255} />
               </Form.Item>
             </Col>
@@ -142,7 +145,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="statusPro"
                 label="Trạng thái"
-                valuePropName="checked">
+                valuePropName="checked" >
                 <Switch checkedChildren="Còn hàng" unCheckedChildren="Hết hàng" />
               </Form.Item>
             </Col>
@@ -153,7 +156,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="cateId"
                 label="Danh mục"
-                rules={[{ required: true, message: "Vui lòng chọn danh mục sản phẩm!" }]}>
+                rules={[{ required: true, message: "Vui lòng chọn danh mục sản phẩm!" }]} >
                 <Select placeholder="Chọn danh mục sản phẩm">
                   {categories.map((category) => (
                     <Select.Option key={category._id} value={category._id}>
@@ -167,7 +170,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="brand"
                 label="Thương hiệu"
-                rules={[{ required: false }]}>
+                rules={[{ required: false }]} >
                 <Input placeholder="Nhập thương hiệu sản phẩm" />
               </Form.Item>
             </Col>
@@ -178,7 +181,7 @@ const UpdateProduct = () => {
               <Form.Item
                 name="imgPro"
                 label="Hình ảnh sản phẩm"
-                rules={[{ required: false }]}>
+                rules={[{ required: false }]} >
                 <Upload
                   beforeUpload={(file) => {
                     setImageFiles((prev) => [...prev, file]);
@@ -189,6 +192,17 @@ const UpdateProduct = () => {
                   accept="image/*">
                   <Button>Chọn hình ảnh</Button>
                 </Upload>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="dateUpdated"
+                label="Ngày cập nhật"
+                rules={[{ required: false }]} >
+                <Input value={moment().format("YYYY-MM-DD")} disabled />
               </Form.Item>
             </Col>
           </Row>
