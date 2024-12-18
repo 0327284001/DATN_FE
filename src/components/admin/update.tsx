@@ -1,10 +1,10 @@
-import { Form, Input, Button, message, Select, Switch, Row, Col, Card, Upload } from "antd";
+import { Form, Input, Button, message, Select, Switch, Row, Col, Card, Upload, DatePicker } from "antd";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProductByID, updateProduct } from "../../service/products";
 import { getAllCategories } from "../../service/category";
 import { Icategory } from "../../interface/category";
-import moment from "moment"; // Thêm thư viện để xử lý ngày tháng
+import moment from "moment"; // Đảm bảo rằng thư viện moment được import
 
 const UpdateProduct = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,7 +45,7 @@ const UpdateProduct = () => {
             statusPro: product.statusPro ? "Còn hàng" : "Hết hàng",
             brand: product.brand,
             import_price: product.import_price,
-            dateUpdated: moment(product.dateUpdated).format("YYYY-MM-DD"), // Định dạng ngày tháng
+            dateUpdated: moment(product.dateUpdated), // Đảm bảo rằng ngày được truyền dưới dạng moment để sử dụng với DatePicker
           });
         } catch (error) {
           console.error("Lỗi khi lấy dữ liệu sản phẩm:", error);
@@ -58,12 +58,12 @@ const UpdateProduct = () => {
   }, [form, id]);
 
   const onFinish = async (values: any) => {
-    const { namePro, price, quantity, desPro, cateId, brand, statusPro, import_price } = values;
+    const { namePro, price, quantity, desPro, cateId, brand, statusPro, import_price, dateUpdated } = values;
 
     const updatedProduct = {
       ...values,
       statusPro: statusPro === "Còn hàng",
-      dateUpdated: moment().format("YYYY-MM-DD HH:mm:ss"), // Cập nhật ngày giờ hiện tại
+      dateUpdated: dateUpdated ? moment(dateUpdated).format("YYYY-MM-DD HH:mm:ss") : moment().format("YYYY-MM-DD HH:mm:ss"), // Cập nhật ngày giờ hiện tại nếu không có ngày chọn
     };
 
     try {
@@ -202,7 +202,11 @@ const UpdateProduct = () => {
                 name="dateUpdated"
                 label="Ngày cập nhật"
                 rules={[{ required: false }]} >
-                <Input value={moment().format("YYYY-MM-DD")} disabled />
+                <DatePicker
+                  format="YYYY-MM-DD"
+                  value={form.getFieldValue('dateUpdated') ? moment(form.getFieldValue('dateUpdated')) : moment()}
+                  onChange={(date) => form.setFieldsValue({ dateUpdated: date })}
+                />
               </Form.Item>
             </Col>
           </Row>
