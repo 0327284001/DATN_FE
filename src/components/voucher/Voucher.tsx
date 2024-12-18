@@ -230,12 +230,13 @@ const styles = {
   },
   tableRow: {
     transition: "background-color 0.3s ease", // Thêm hiệu ứng khi hover
+    height: '50px',  // Điều chỉnh chiều cao mỗi hàng để thoáng hơn
   },
   tableRowHover: {
     backgroundColor: "#f1f1f1", // Màu nền khi hover
   },
   td: {
-    padding: "10px 15px",
+    padding: "15px 15px",  // Tăng khoảng cách giữa các cột
     borderBottom: "1px solid #ddd",
   },
   actionButtons: {
