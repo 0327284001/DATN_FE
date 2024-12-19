@@ -5,11 +5,15 @@ import styled from "styled-components";
 // Định nghĩa kiểu dữ liệu cho Refund và Order
 interface Refund {
   _id: string;
-  cusId: string;
+  orderId: {
+    _id: string;  // Đảm bảo có _id
+    name_order: string; // Tên khách hàng từ Order
+  };
   orderRefundDate: string;
   refundStatus: string;
   content: string;
 }
+
 
 interface Order {
   _id: string;
@@ -54,9 +58,20 @@ const HoanHang: React.FC = () => {
   }, []);
 
   // Hàm để lấy chi tiết đơn hàng từ API
-  const handleViewDetails = (refundId: string) => {
+  // const handleViewDetails = (refundId: string) => {
+  //   axios
+  //     .get(`http://localhost:28017/orders/${refundId}`)
+  //     .then((response) => {
+  //       setOrderDetails(response.data); // Lưu thông tin đơn hàng vào state
+  //       setIsModalOpen(true); // Mở modal
+  //     })
+  //     .catch((error) => console.error(error));
+  // };
+
+  // Hàm để lấy chi tiết đơn hàng từ API
+  const handleViewDetails = (orderId: string) => {
     axios
-      .get(`http://localhost:28017/orders/${refundId}`)
+      .get(`http://localhost:28017/orders/${orderId}`) // Sử dụng orderId thay vì refundId
       .then((response) => {
         setOrderDetails(response.data); // Lưu thông tin đơn hàng vào state
         setIsModalOpen(true); // Mở modal
@@ -64,24 +79,52 @@ const HoanHang: React.FC = () => {
       .catch((error) => console.error(error));
   };
 
+
   // Hàm xử lý thay đổi trạng thái của hoàn hàng
+  // const handleStatusChange = (id: string, newStatus: string) => {
+  //   const refund = refunds.find((refund) => refund._id === id);
+  //   const customerName = refund?.cusId || "Khách hàng";
+
+  //   setRefunds((prevRefunds) =>
+  //     prevRefunds.map((refund) =>
+  //       refund._id === id ? { ...refund, refundStatus: newStatus } : refund
+  //     )
+  //   );
+
+  //   axios
+  //     .put(`http://localhost:28017/refunds/${id}`, { refundStatus: newStatus })
+  //     .then((response) => {
+  //       alert(`Trạng thái hoàn hàng của ${customerName} đã được cập nhật.`);
+  //     })
+  //     .catch((error) => console.error(error));
+  // };
   const handleStatusChange = (id: string, newStatus: string) => {
     const refund = refunds.find((refund) => refund._id === id);
-    const customerName = refund?.cusId || "Khách hàng";
-
+    const customerName = refund?.orderId?.name_order || "Khách hàng"; // Lấy tên khách hàng từ orderId
+  
+    // Cập nhật trạng thái hoàn hàng trong state
     setRefunds((prevRefunds) =>
       prevRefunds.map((refund) =>
         refund._id === id ? { ...refund, refundStatus: newStatus } : refund
       )
     );
-
+  
+    // Cập nhật content trong bảng orders nếu trạng thái là "Đã xác nhận" hoặc "Đã nhận hàng hoàn"
+    const contentOrder = newStatus === "Đã xác nhận" || newStatus === "Đã nhận hàng hoàn" ? "Hoàn hàng" : "";
+  
+    // Gửi yêu cầu PUT cập nhật trạng thái và content trong bảng orders
     axios
       .put(`http://localhost:28017/refunds/${id}`, { refundStatus: newStatus })
-      .then((response) => {
+      .then(() => {
+        // Cập nhật content trong bảng orders
+        return axios.put(`http://localhost:28017/orders/${refund?.orderId._id}`, { contentOrder });
+      })
+      .then(() => {
         alert(`Trạng thái hoàn hàng của ${customerName} đã được cập nhật.`);
       })
       .catch((error) => console.error(error));
   };
+  
 
   // Hàm lấy màu sắc trạng thái
   const getStatusColor = (status: string) => {
@@ -147,7 +190,7 @@ const HoanHang: React.FC = () => {
           <tbody>
             {refunds
               .filter((refund) =>
-                refund.cusId.toLowerCase().includes(searchTerm.toLowerCase())
+                (refund.orderId?.name_order || "").toLowerCase().includes(searchTerm.toLowerCase())
               )
               .filter((refund) => {
                 if (currentTab === "Tất cả") return true;
@@ -155,7 +198,7 @@ const HoanHang: React.FC = () => {
               })
               .map((refund) => (
                 <tr key={refund._id}>
-                  <TableData>{refund.cusId}</TableData>
+                  <TableData>{refund.orderId?.name_order || "Không xác định"}</TableData> {/* Kiểm tra null */}
                   <TableData>{new Date(refund.orderRefundDate).toLocaleDateString()}</TableData>
                   <TableData>
                     <StatusContainer>
@@ -187,31 +230,83 @@ const HoanHang: React.FC = () => {
                   </TableData>
                   <TableData>{refund.content}</TableData>
                   <TableData>
-                    <ActionButton onClick={() => handleViewDetails(refund._id)}>
+                    <ActionButton onClick={() => handleViewDetails(refund.orderId._id)}> {/* Sử dụng orderId ở đây */}
                       Xem chi tiết
                     </ActionButton>
                   </TableData>
+
                 </tr>
               ))}
           </tbody>
+
         </RefundTable>
       )}
 
-      {isModalOpen && orderDetails && (
-        <Modal>
-          <ModalContent>
-            <ModalTitle>Chi tiết đơn hàng</ModalTitle>
-            {/* Chỉnh sửa hiển thị thông tin chi tiết đơn hàng */}
-            <ModalText><strong>Mã đơn hàng:</strong> {orderDetails._id}</ModalText>
-            <ModalText><strong>Ngày đặt hàng:</strong> {new Date(orderDetails.orderDate).toLocaleDateString()}</ModalText>
-            <ModalText><strong>Số tiền:</strong> {orderDetails.revenue_all} VNĐ</ModalText>
-            <ModalText>
-              <strong>Sản phẩm:</strong> {orderDetails.prodDetails.map((prod) => prod.prodId.namePro).join(", ")}
-            </ModalText>
-            <CloseButton onClick={() => setIsModalOpen(false)}>Đóng</CloseButton>
-          </ModalContent>
-        </Modal>
-      )}
+{isModalOpen && orderDetails && (
+  <Modal>
+    <ModalContent>
+      <ModalTitle>Chi tiết đơn hàng</ModalTitle>
+
+      {/* Thông tin khách hàng */}
+      <SectionTitle>Thông tin khách hàng</SectionTitle>
+      <InfoRow>
+        <Label>Tên khách hàng:</Label>
+        <Value>{orderDetails.name_order}</Value>
+      </InfoRow>
+      <InfoRow>
+        <Label>Số điện thoại:</Label>
+        <Value>{orderDetails.phone_order}</Value>
+      </InfoRow>
+      <InfoRow>
+        <Label>Địa chỉ:</Label>
+        <Value>{orderDetails.address_order}</Value>
+      </InfoRow>
+      <InfoRow>
+        <Label>Phương thức thanh toán:</Label>
+        <Value>{orderDetails.payment_method}</Value>
+      </InfoRow>
+
+      {/* Thông tin đơn hàng */}
+      <SectionTitle>Thông tin đơn hàng</SectionTitle>
+      <InfoRow>
+        <Label>Ngày đặt hàng:</Label>
+        <Value>{new Date(orderDetails.orderDate).toLocaleDateString()}</Value>
+      </InfoRow>
+      <InfoRow>
+        <Label>Tổng doanh thu:</Label>
+        <Value>{orderDetails.revenue_all.toLocaleString()} VNĐ</Value>
+      </InfoRow>
+
+      {/* Chi tiết sản phẩm */}
+      <SectionTitle>Danh sách sản phẩm</SectionTitle>
+      <ProductTable>
+        <thead>
+          <tr>
+            <TableHeader>Sản phẩm</TableHeader>
+            <TableHeader>Giá</TableHeader>
+            <TableHeader>Số lượng</TableHeader>
+            <TableHeader>Đặc tả</TableHeader>
+          </tr>
+        </thead>
+        <tbody>
+          {orderDetails.prodDetails.map((prod, index) => (
+            <tr key={index}>
+              <TableData>{prod.prodId.namePro}</TableData>
+              <TableData>{prod.revenue.toLocaleString()} VNĐ</TableData>
+              <TableData>{prod.quantity}</TableData>
+              <TableData>{prod.prodSpecification || "Không có"}</TableData>
+            </tr>
+          ))}
+        </tbody>
+      </ProductTable>
+
+      <CloseButton onClick={() => setIsModalOpen(false)}>Đóng</CloseButton>
+    </ModalContent>
+  </Modal>
+)}
+
+
+
     </Container>
   );
 };
@@ -276,18 +371,6 @@ const RefundTable = styled.table`
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  border: 1px solid #ccc;
-`;
-
-const TableHeader = styled.th`
-  padding: 12px;
-  background-color: #007bff;
-  color: white;
-  font-weight: bold;
-`;
-
-const TableData = styled.td`
-  padding: 12px;
   border: 1px solid #ccc;
 `;
 
@@ -361,6 +444,8 @@ const ModalContent = styled.div`
   border-radius: 8px;
   max-width: 600px;
   width: 100%;
+  max-height: 80vh; /* Giới hạn chiều cao tối đa */
+  overflow-y: auto; /* Cuộn khi nội dung dài */
 `;
 
 const ModalTitle = styled.h2`
@@ -373,6 +458,65 @@ const ModalText = styled.p`
   margin-bottom: 10px;
 `;
 
+const NoRefunds = styled.p`
+  text-align: center;
+  font-size: 18px;
+  color: #999;
+`;
+
+// Section Title
+const SectionTitle = styled.h3`
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 5px;
+`;
+
+// Info Row
+const InfoRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 8px 0;
+`;
+
+// Label
+const Label = styled.span`
+  font-weight: bold;
+  color: #555;
+  flex: 1;
+`;
+
+// Value
+const Value = styled.span`
+  font-size: 16px;
+  color: #333;
+  flex: 2;
+  word-wrap: break-word; /* Ngăn không cho từ quá dài */
+`;
+
+// Product Table
+const ProductTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  margin-top: 20px;
+  border: 1px solid #ccc;
+`;
+
+const TableHeader = styled.th`
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+`;
+
+const TableData = styled.td`
+  padding: 12px;
+  border: 1px solid #ccc;
+`;
+
 const CloseButton = styled.button`
   background-color: #dc3545;
   color: white;
@@ -383,12 +527,6 @@ const CloseButton = styled.button`
   width: 100%;
   font-size: 18px;
   margin-top: 15px;
-`;
-
-const NoRefunds = styled.p`
-  text-align: center;
-  font-size: 18px;
-  color: #999;
 `;
 
 export default HoanHang;

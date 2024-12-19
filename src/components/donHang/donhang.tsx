@@ -34,6 +34,7 @@ const DonHang: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<string>("Tất cả");
   const [currentSubTab, setCurrentSubTab] = useState<string>("Đã xong");
   const [searchTerm, setSearchTerm] = useState<string>("");
+
   useEffect(() => {
     axios
       .get("http://localhost:28017/orders")
@@ -58,7 +59,7 @@ const DonHang: React.FC = () => {
     );
     if (newStatus === "Đã giao") {
       setCurrentTab("Đã giao");
-      setCurrentSubTab("Đã xong");
+      setCurrentSubTab("Hoàn hàng");
     }
     axios
       .put(`http://localhost:28017/orders/${id}`, { orderStatus: newStatus })
@@ -72,39 +73,21 @@ const DonHang: React.FC = () => {
   };
 
   const tabs = ["Tất cả", "Chờ xác nhận", "Chờ lấy hàng", "Chờ giao hàng", "Đã giao", "Đã hủy"];
-  const subTabs = ["Đã xong", "Đã hoàn"];
+  const subTabs = ["Đã xong", "Hoàn hàng"]; // Đổi "Hoàn trả" thành "Hoàn hàng"
   const filteredOrders =
-    currentTab === "Đã giao"
-      ? currentSubTab === "Đã xong"
-        ? orders.filter((order) => order.orderStatus === "Đã giao" && order.content !== "Hoàn trả")
-        : orders.filter((order) => order.orderStatus === "Đã giao" && order.content === "Hoàn trả")
-      : currentTab === "Tất cả"
-        ? orders.filter((order) => order.orderStatus !== "Đã hủy")
-        : orders.filter((order) => order.orderStatus === currentTab);
+  currentTab === "Đã giao"
+    ? currentSubTab === "Đã xong"
+      ? orders.filter((order) => order.orderStatus === "Đã giao" && order.content !== "Hoàn hàng")
+      : orders.filter((order) => order.orderStatus === "Đã giao" && order.content === "Hoàn hàng")
+    : currentTab === "Tất cả"
+    ? orders.filter((order) => order.orderStatus !== "Đã hủy")
+    : orders.filter((order) => order.orderStatus === currentTab);
 
-
-  // const subFilteredOrders =
-  //   currentTab === "Đã giao"
-  //     ? filteredOrders.filter((order) => order.orderStatus === subTab)
-  //     : filteredOrders;
 
   const searchedOrders = filteredOrders.filter((order) =>
     order.phone_order.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  // const getStatusColor = (status: string) => {
-  //   switch (status) {
-  //     case "Chờ xác nhận":
-  //       return "red";
-  //     case "Chờ lấy hàng":
-  //       return "orange";
-  //     case "Chờ giao hàng":
-  //       return "blue";
-  //     case "Đã giao":
-  //       return "green";
-  //     default:
-  //       return "black";
-  //   }
-  // };
+
   const handleNameClick = (order: Order) => {
     setSelectedOrder(order);
     setIsModalOpen(true);
@@ -114,6 +97,7 @@ const DonHang: React.FC = () => {
     setSelectedOrder(null);
     setIsModalOpen(false);
   };
+
   return (
     <div className="don-hang-container">
       <h1 className="title">Danh sách đơn hàng</h1>
@@ -138,10 +122,10 @@ const DonHang: React.FC = () => {
             Đã xong
           </button>
           <button
-            className={`sub-tab-button ${currentSubTab === "Đã hoàn" ? "active" : ""}`}
-            onClick={() => setCurrentSubTab("Đã hoàn")}
+            className={`sub-tab-button ${currentSubTab === "Hoàn hàng" ? "active" : ""}`}
+            onClick={() => setCurrentSubTab("Hoàn hàng")}
           >
-            Đã hoàn
+            Hoàn hàng
           </button>
         </div>
       )}
@@ -174,13 +158,8 @@ const DonHang: React.FC = () => {
           <tbody>
             {searchedOrders.map((order) => (
               <tr key={order._id}>
-
                 <td>{order.name_order}</td>
-
-
                 <td>{order.phone_order}</td>
-
-
                 <td>
                   {new Date(order.orderDate).toLocaleDateString("vi-VN", {
                     year: "numeric",
@@ -188,47 +167,26 @@ const DonHang: React.FC = () => {
                     day: "2-digit",
                   })}
                 </td>
-
-
                 <td>{order.address_order}</td>
-
-
                 <td>{order.revenue_all.toLocaleString()} VND</td>
-
-
                 <td>{order.payment_method}</td>
-
-
                 <td>
                   {currentTab === "Đã hủy" ? (
                     <span style={{ color: "red", fontWeight: "bold" }}>Đã hủy</span>
                   ) : (
-                    <select
-                      value={order.orderStatus}
-                      onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                    >
-                      <option value="Chờ xác nhận" style={{ color: "red" }}>
-                        Chờ xác nhận
-                      </option>
-                      <option value="Chờ lấy hàng" style={{ color: "orange" }}>
-                        Chờ lấy hàng
-                      </option>
-                      <option value="Chờ giao hàng" style={{ color: "blue" }}>
-                        Chờ giao hàng
-                      </option>
-                      <option value="Đã giao" style={{ color: "green" }}>
-                        Đã giao
-                      </option>
-                    </select>
+                    <select value={order.orderStatus} onChange={(e) => handleStatusChange(order._id, e.target.value)}>
+                    <option value="Chờ xác nhận" style={{ color: "red" }}>Chờ xác nhận</option>
+                    <option value="Chờ lấy hàng" style={{ color: "orange" }}>Chờ lấy hàng</option>
+                    <option value="Chờ giao hàng" style={{ color: "blue" }}>Chờ giao hàng</option>
+                    <option value="Đã giao" style={{ color: "green" }}>Đã giao</option>
+                    {/* <option value="Hoàn hàng" style={{ color: "purple" }}>Hoàn hàng</option> */}
+                  </select>
+                  
+                  
                   )}
                 </td>
-
-
                 <td>
-                  <button
-                    onClick={() => handleNameClick(order)}
-                    className="details-button"
-                  >
+                  <button onClick={() => handleNameClick(order)} className="details-button">
                     Chi tiết
                   </button>
                 </td>
@@ -236,8 +194,6 @@ const DonHang: React.FC = () => {
             ))}
           </tbody>
         </table>
-
-
       )}
 
       {isModalOpen && selectedOrder && (
@@ -257,6 +213,8 @@ const DonHang: React.FC = () => {
               </p>
               <p><strong>Phương thức thanh toán:</strong> {selectedOrder.payment_method}</p>
               <p><strong>Tổng tiền:</strong> {selectedOrder.revenue_all.toLocaleString()} VND</p>
+              <p><strong>Nội dung:</strong> {selectedOrder.content}</p>
+
             </div>
             <h3>Danh sách sản phẩm</h3>
             <div className="product-list">
@@ -273,11 +231,7 @@ const DonHang: React.FC = () => {
           </div>
         </div>
       )}
-
-
-
     </div>
-
   );
 };
 
