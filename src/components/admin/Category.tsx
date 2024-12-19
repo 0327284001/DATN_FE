@@ -107,7 +107,7 @@ const Listcategory = (props: Props) => {
                   >
                     Edit
                   </button>
-                  <Popconfirm
+                  {/* <Popconfirm
                     title="Xóa danh mục"
                     description="Bạn có chắc chắn muốn xóa danh mục này?"
                     onConfirm={() => handleDeleteCategory(category._id)}
@@ -117,7 +117,7 @@ const Listcategory = (props: Props) => {
                     <button className="text-white bg-red-600 hover:bg-red-700 font-semibold rounded-lg px-4 py-2 transition duration-200 ease-in-out">
                       Delete
                     </button>
-                  </Popconfirm>
+                  </Popconfirm> */}
                 </td>
               </tr>
             ))}

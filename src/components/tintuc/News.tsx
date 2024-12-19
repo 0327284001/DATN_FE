@@ -110,9 +110,9 @@ const NewArtStory: React.FC = () => {
           >
             Edit
           </Button>
-          <Button onClick={() => handleDelete(record._id!)} danger>
+          {/* <Button onClick={() => handleDelete(record._id!)} danger>
             Delete
-          </Button>
+          </Button> */}
         </Space>
       ),
     },
