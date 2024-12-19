@@ -152,7 +152,7 @@ const Dashboard = () => {
                     >
                       Edit
                     </button>
-                    <Popconfirm
+                    {/* <Popconfirm
                       title="Xóa sản phẩm"
                       description="Bạn có chắc chắn muốn xóa sản phẩm này không?"
                       onConfirm={(e) => delProduct(product._id, e)}
@@ -165,7 +165,7 @@ const Dashboard = () => {
                       >
                         Delete
                       </button>
-                    </Popconfirm>
+                    </Popconfirm> */}
                   </div>
                 </td>
               </tr>

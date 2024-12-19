@@ -49,7 +49,7 @@ const Navbar = ({ handleLogout }: Props) => {
               }`}
           >
             <DashboardIcon />
-            <span>Dashboard</span>
+            <span>Danh sách sản phẩm</span>
           </NavLink>
         </li>
         <li>
@@ -59,7 +59,7 @@ const Navbar = ({ handleLogout }: Props) => {
               }`}
           >
             <DashboardIcon />
-            <span>Statistical</span>
+            <span>Thống kê</span>
           </NavLink>
         </li>
         
@@ -70,7 +70,7 @@ const Navbar = ({ handleLogout }: Props) => {
               }`}
           >
             <DashboardIcon />
-            <span>Transaction</span>
+            <span>Giao dịch</span>
           </NavLink>
         </li>
 
@@ -81,7 +81,7 @@ const Navbar = ({ handleLogout }: Props) => {
               }`}
           >
             <CategoryIcon />
-            <span>Category</span>
+            <span>Loại sản phẩm</span>
           </NavLink>
         </li>
         <li>
@@ -91,7 +91,7 @@ const Navbar = ({ handleLogout }: Props) => {
               }`}
           >
             <AddIcon />
-            <span>Product</span>
+            <span>Thêm sản phẩm</span>
           </NavLink>
         </li>
         <li>
@@ -101,7 +101,7 @@ const Navbar = ({ handleLogout }: Props) => {
               }`}
           >
             <AddIcon />
-            <span> Order</span>
+            <span> Đơn hàng</span>
           </NavLink>
         </li>
 
@@ -112,7 +112,7 @@ const Navbar = ({ handleLogout }: Props) => {
               }`}
           >
             <AddIcon />
-            <span> Refunds</span>
+            <span> Hoàn hàng</span>
           </NavLink>
         </li>
         <li>
@@ -122,7 +122,7 @@ const Navbar = ({ handleLogout }: Props) => {
               }`}
           >
             <AddIcon />
-            <span>Customer care</span>
+            <span>Chăm sóc khách hàng</span>
           </NavLink>
         </li>
 
@@ -133,7 +133,7 @@ const Navbar = ({ handleLogout }: Props) => {
               }`}
           >
             <AddIcon />
-            <span>Voucher</span>
+            <span>Mã giảm giá</span>
           </NavLink>
         </li>
 
@@ -144,7 +144,7 @@ const Navbar = ({ handleLogout }: Props) => {
               }`}
           >
             <AddIcon />
-            <span>FeedBack</span>
+            <span>Đánh giá</span>
           </NavLink>
         </li>
 
@@ -155,7 +155,7 @@ const Navbar = ({ handleLogout }: Props) => {
               }`}
           >
             <AddIcon />
-            <span>News</span>
+            <span>Tin tức</span>
           </NavLink>
         </li>
 
@@ -166,7 +166,7 @@ const Navbar = ({ handleLogout }: Props) => {
             className="text-white text-sm flex items-center hover:bg-gray-700 rounded px-4 py-3 transition-all"
           >
             <LogoutIcon />
-            <span>Logout</span>
+            <span>Đăng xuất</span>
           </button>
         </li>
       </ul>

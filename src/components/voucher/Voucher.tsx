@@ -127,7 +127,7 @@ const VoucherManager: React.FC = () => {
                       >
                         Edit
                       </button>
-                      <button
+                      {/* <button
                         style={styles.deleteButton}
                         onClick={(e) => {
                           e.stopPropagation(); // Ngừng lan tỏa sự kiện click
@@ -135,7 +135,7 @@ const VoucherManager: React.FC = () => {
                         }}
                       >
                         Delete
-                      </button>
+                      </button> */}
                     </td>
                   </tr>
                 ))
