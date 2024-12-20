@@ -16,6 +16,7 @@ export interface Iproduct extends Document {
   cateId: mongoose.Schema.Types.ObjectId;  // ID danh mục liên kết
   brand?: string;                          // Thương hiệu sản phẩm
   import_price: number;                    // Giá nhập sản phẩm (bắt buộc)
+  isHidden?: boolean;                      // Trạng thái ẩn/hiện của sản phẩm
 }
 
 // Đối với kiểu IProductLite, chỉ lấy những trường cần thiết

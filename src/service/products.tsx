@@ -29,6 +29,15 @@ export const getProductByID = async(id?:string) =>{
   }
 }
 
+export const hideProduct = async (id: string) => {
+  try {
+    const { data } = await axiosservice.put(`/product/hide/${id}`, { isHidden: true });
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const addProduct = async(product:IProductLite) => {
     try {
         const { data } = await axiosservice.post('product/add', product)

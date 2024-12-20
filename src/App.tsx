@@ -28,6 +28,7 @@ import AddArtStory from "./components/tintuc/AddArtStory";
 import ArtStoryDetail from "./components/tintuc/ArtStoryDetail";
 import Transaction from "./components/admin/Transaction";
 import HoanHang from "./components/refuns/HoanHang";
+import HideProductList from "./components/admin/HideProductList";
 
 
 
@@ -47,6 +48,7 @@ function App() {
           <Route path="transaction" element={<Transaction/>} />
           {/* Chi tiết sản phẩm */}
           <Route path="dashboard/product/details/:id" element={<ProductDetails />} />
+          <Route path="dashboard/hidden-products" element={<HideProductList />} />
 
           {/* Quản lý sản phẩm */}
           <Route path="add" element={<Add />} />

@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { DeleteProduct, getAllProducts } from "../../service/products";
+import { DeleteProduct, getAllProducts, hideProduct } from "../../service/products";
 import { Iproduct } from "../../interface/products";
-import { Popconfirm, Pagination, Input } from "antd"; // Thêm Input từ Ant Design
+import { Popconfirm, Pagination, Input, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 
-const { Search } = Input; // Input tìm kiếm từ Ant Design
+const { Search } = Input;
 
 const Dashboard = () => {
   const [products, setProducts] = useState<Iproduct[]>([]);
-  const [searchTerm, setSearchTerm] = useState(""); // State từ khóa tìm kiếm
-  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-  const productsPerPage = 7; // Số sản phẩm mỗi trang
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 7;
 
   const navigate = useNavigate();
 
@@ -28,7 +28,7 @@ const Dashboard = () => {
 
   const delProduct = async (id: string, e?: React.MouseEvent<HTMLElement>) => {
     if (e) {
-      e.stopPropagation(); // Ngừng sự kiện chuyển hướng khi xóa
+      e.stopPropagation();
     }
     try {
       await DeleteProduct(id);
@@ -36,6 +36,25 @@ const Dashboard = () => {
       setProducts(newProducts);
     } catch (error) {
       console.error("Lỗi khi xóa sản phẩm:", error);
+    }
+  };
+
+  const hideProductHandler = async (id: string, e?: React.MouseEvent<HTMLElement>) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    try {
+      await hideProduct(id);
+      const updatedProducts = products.map((product) => {
+        if (product._id === id) {
+          // Sử dụng cách này để đảm bảo rằng chỉ thêm isHidden mà không làm thay đổi các thuộc tính khác
+          return { ...product, isHidden: true } as Iproduct; // Ép kiểu về Iproduct
+        }
+        return product;
+      });
+      setProducts(updatedProducts);
+    } catch (error) {
+      console.error("Lỗi khi ẩn sản phẩm:", error);
     }
   };
 
@@ -50,15 +69,13 @@ const Dashboard = () => {
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
-    setCurrentPage(1); // Reset trang về 1 sau khi tìm kiếm
+    setCurrentPage(1);
   };
 
-  // Lọc sản phẩm theo từ khóa
   const filteredProducts = products.filter((product) =>
-    product.namePro.toLowerCase().includes(searchTerm.toLowerCase())
+    product.namePro.toLowerCase().includes(searchTerm.toLowerCase()) && !product.isHidden
   );
 
-  // Tính toán các sản phẩm hiển thị trên trang hiện tại
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = filteredProducts.slice(
@@ -70,16 +87,30 @@ const Dashboard = () => {
     setCurrentPage(page);
   };
 
+  // Chức năng điều hướng đến danh sách sản phẩm ẩn
+  const goToHiddenProducts = () => {
+    navigate("/admin/dashboard/hidden-products");
+  };
+
   return (
     <div className="flex-1 p-4">
-      <div className="mb-4">
-        {/* Tìm kiếm tự động lọc theo từ khóa */}
+      <div className="mb-4 flex justify-between items-center">
+        {/* Nút Danh sách ẩn */}
+        <Button
+          type="primary"
+          onClick={goToHiddenProducts}
+          className="mr-4"
+        >
+          Danh sách ẩn
+        </Button>
+        
+        {/* Tìm kiếm */}
         <Search
           placeholder="Tìm kiếm sản phẩm"
           allowClear
           enterButton="Tìm kiếm"
           size="large"
-          onChange={(e) => handleSearch(e.target.value)} // Sử dụng onChange để lọc theo từ khóa
+          onChange={(e) => handleSearch(e.target.value)}
         />
       </div>
       <div className="overflow-x-auto shadow-md sm:rounded-lg">
@@ -89,7 +120,6 @@ const Dashboard = () => {
               <th className="px-6 py-3" style={{ width: "200px" }}>Tên sản phẩm</th>
               <th className="px-6 py-3">Trạng thái</th>
               <th className="px-6 py-3">Giá</th>
-              {/* <th className="px-6 py-3">Ngày tạo</th> */}
               <th className="px-6 py-3">Số lượng</th>
               <th className="px-6 py-3">Danh mục</th>
               <th className="px-6 py-3">Hình ảnh</th>
@@ -112,21 +142,15 @@ const Dashboard = () => {
                     display: "-webkit-box",
                     WebkitBoxOrient: "vertical",
                     WebkitLineClamp: 2,
-                    lineHeight: "1.2em", // Điều chỉnh chiều cao dòng nếu cần
                   }}
                 >
                   {product.namePro}
                 </td>
 
                 <td className="px-6 py-4">
-                  {product.quantity > 0 ? "Còn hàng" : "Hết hàng"} {/* Cập nhật trạng thái */}
+                  {product.quantity > 0 ? "Còn hàng" : "Hết hàng"}
                 </td>
                 <td className="px-6 py-4">{product.price}VND</td>
-                {/* <td className="px-6 py-4">
-                  {product.creatDatePro && product.creatDatePro !== "null" && product.creatDatePro !== "undefined"
-                    ? new Date(product.creatDatePro).toLocaleDateString()
-                    : "Chưa cập nhật"}
-                </td> */}
                 <td className="px-6 py-4">{product.quantity}</td>
                 <td className="px-6 py-4">{product.listPro || "Chưa phân loại"}</td>
                 <td className="px-6 py-4">
@@ -152,20 +176,12 @@ const Dashboard = () => {
                     >
                       Edit
                     </button>
-                    {/* <Popconfirm
-                      title="Xóa sản phẩm"
-                      description="Bạn có chắc chắn muốn xóa sản phẩm này không?"
-                      onConfirm={(e) => delProduct(product._id, e)}
-                      okText="Có"
-                      cancelText="Không"
+                    <button
+                      onClick={(e) => hideProductHandler(product._id, e)}
+                      className="text-white bg-yellow-600 hover:bg-yellow-800 font-medium rounded-lg px-4 py-2 me-2"
                     >
-                      <button
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-white bg-red-600 hover:bg-red-800 font-medium rounded-lg px-4 py-2"
-                      >
-                        Delete
-                      </button>
-                    </Popconfirm> */}
+                      Ẩn
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -177,7 +193,7 @@ const Dashboard = () => {
         <Pagination
           current={currentPage}
           pageSize={productsPerPage}
-          total={filteredProducts.length} // Tính tổng số sản phẩm sau khi lọc
+          total={filteredProducts.length}
           onChange={handlePageChange}
         />
       </div>
