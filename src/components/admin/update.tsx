@@ -23,6 +23,7 @@ const UpdateProduct = () => {
           ...data,
           creatDatePro: data.creatDatePro ? data.creatDatePro.substring(0, 10) : "",
         });
+        setImageFiles(data.imgPro?.map((url: string) => ({ url })) || []);
       } catch (error) {
         console.log("Lỗi khi lấy sản phẩm:", error);
       }
@@ -46,7 +47,11 @@ const UpdateProduct = () => {
   const handleUpdate = async (values: any) => {
     const { namePro, price, quantity, desPro, cateId, brand, statusPro, listPro, creatDatePro, import_price } = values;
 
-    const imageUrls = imageFiles.map((file: any) => file.url);
+    // Kiểm tra ảnh: Dùng ảnh mới nếu có, hoặc giữ ảnh cũ nếu không chỉnh sửa
+    const imageUrls =
+      imageFiles.length > 0
+        ? imageFiles.map((file: any) => file.url || file.thumbUrl) // URL ảnh mới
+        : product?.imgPro; // Ảnh cũ
 
     const productData = {
       ...values,

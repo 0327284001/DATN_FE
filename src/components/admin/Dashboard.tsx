@@ -47,17 +47,19 @@ const Dashboard = () => {
       await hideProduct(id);
       const updatedProducts = products.map((product) => {
         if (product._id === id) {
-          // Sử dụng cách này để đảm bảo rằng chỉ thêm isHidden mà không làm thay đổi các thuộc tính khác
-          return { ...product, isHidden: true } as Iproduct; // Ép kiểu về Iproduct
+          return { ...product, isHidden: true } as Iproduct; // Cập nhật trạng thái ẩn
         }
         return product;
       });
       setProducts(updatedProducts);
+  
+      // Sau khi ẩn thành công, điều hướng sang màn hình danh sách sản phẩm ẩn
+      navigate("/admin/dashboard/hidden-products");
     } catch (error) {
       console.error("Lỗi khi ẩn sản phẩm:", error);
     }
   };
-
+  
   const updateProduct = (id: string, e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     navigate(`/admin/dashboard/${id}`);
@@ -96,14 +98,14 @@ const Dashboard = () => {
     <div className="flex-1 p-4">
       <div className="mb-4 flex justify-between items-center">
         {/* Nút Danh sách ẩn */}
-        {/* <Button
+        <Button
           type="primary"
           onClick={goToHiddenProducts}
           className="mr-4"
         >
           Danh sách ẩn
         </Button>
-         */}
+        
         {/* Tìm kiếm */}
         <Search
           placeholder="Tìm kiếm sản phẩm"

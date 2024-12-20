@@ -29,12 +29,6 @@ const Register = (props: Props) => {
 
 
 
-
-
-
-
-
-    
   return (
     <>
      <div className="font-[sans-serif] text-[#333]">
@@ -173,10 +167,10 @@ const Register = (props: Props) => {
               Sign up
             </button>
           </div>
-          <p className="my-8 text-sm text-gray-400 text-center">
+          {/* <p className="my-8 text-sm text-gray-400 text-center">
             or continue with
-          </p>
-          <div className="space-x-8 flex justify-center">
+          </p> */}
+          {/* <div className="space-x-8 flex justify-center">
             <button type="button" className="border-none outline-none">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -242,7 +236,7 @@ const Register = (props: Props) => {
                 />
               </svg>
             </button>
-          </div>
+          </div> */}
         </form>
       </div>
       <div className="md:h-full max-md:mt-10 bg-[#000842] rounded-xl lg:p-12 p-8">
