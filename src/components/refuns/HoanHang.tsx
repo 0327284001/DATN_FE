@@ -98,6 +98,32 @@ const HoanHang: React.FC = () => {
   //     })
   //     .catch((error) => console.error(error));
   // };
+  // const handleStatusChange = (id: string, newStatus: string) => {
+  //   const refund = refunds.find((refund) => refund._id === id);
+  //   const customerName = refund?.orderId?.name_order || "Khách hàng"; // Lấy tên khách hàng từ orderId
+
+  //   // Cập nhật trạng thái hoàn hàng trong state
+  //   setRefunds((prevRefunds) =>
+  //     prevRefunds.map((refund) =>
+  //       refund._id === id ? { ...refund, refundStatus: newStatus } : refund
+  //     )
+  //   );
+
+  //   // Cập nhật content trong bảng orders nếu trạng thái là "Đã xác nhận" hoặc "Đã nhận hàng hoàn"
+  //   const contentOrder = newStatus === "Đã xác nhận" || newStatus === "Đã nhận hàng hoàn" ? "Hoàn hàng" : "";
+
+  //   // Gửi yêu cầu PUT cập nhật trạng thái và content trong bảng orders
+  //   axios
+  //     .put(`http://localhost:28017/refunds/${id}`, { refundStatus: newStatus })
+  //     .then(() => {
+  //       // Cập nhật content trong bảng orders
+  //       return axios.put(`http://localhost:28017/orders/${refund?.orderId._id}`, { contentOrder });
+  //     })
+  //     .then(() => {
+  //       alert(`Trạng thái hoàn hàng của ${customerName} đã được cập nhật.`);
+  //     })
+  //     .catch((error) => console.error(error));
+  // };
   const handleStatusChange = (id: string, newStatus: string) => {
     const refund = refunds.find((refund) => refund._id === id);
     const customerName = refund?.orderId?.name_order || "Khách hàng"; // Lấy tên khách hàng từ orderId
@@ -109,22 +135,38 @@ const HoanHang: React.FC = () => {
       )
     );
   
-    // Cập nhật content trong bảng orders nếu trạng thái là "Đã xác nhận" hoặc "Đã nhận hàng hoàn"
-    const contentOrder = newStatus === "Đã xác nhận" || newStatus === "Đã nhận hàng hoàn" ? "Hoàn hàng" : "";
-  
-    // Gửi yêu cầu PUT cập nhật trạng thái và content trong bảng orders
-    axios
-      .put(`http://localhost:28017/refunds/${id}`, { refundStatus: newStatus })
-      .then(() => {
-        // Cập nhật content trong bảng orders
-        return axios.put(`http://localhost:28017/orders/${refund?.orderId._id}`, { contentOrder });
-      })
-      .then(() => {
-        alert(`Trạng thái hoàn hàng của ${customerName} đã được cập nhật.`);
-      })
-      .catch((error) => console.error(error));
+    // Kiểm tra nếu refundStatus không phải "Chờ xác nhận", mới thay đổi orderStatus
+    if (newStatus === "Đã xác nhận") {
+      // Cập nhật orderStatus thành "Hoàn hàng"
+      axios
+        .put(`http://localhost:28017/refunds/${id}`, { refundStatus: newStatus })
+        .then(() => {
+          if (refund?.orderId?._id) {
+            return axios.put(
+              `http://localhost:28017/orders/${refund.orderId._id}`,
+              { orderStatus: "Hoàn hàng" }
+            );
+          }
+        })
+        .then(() => {
+          alert(`Trạng thái hoàn hàng của ${customerName} và đơn hàng đã được cập nhật.`);
+        })
+        .catch((error) => console.error(error));
+    } else if (newStatus === "Chờ xác nhận") {
+      // Nếu refundStatus là "Chờ xác nhận", không thay đổi orderStatus
+      axios
+        .put(`http://localhost:28017/refunds/${id}`, { refundStatus: newStatus })
+        .then(() => {
+          alert(`Trạng thái hoàn hàng của ${customerName} đã được cập nhật.`);
+        })
+        .catch((error) => console.error(error));
+    }
   };
   
+  
+  
+  
+
 
   // Hàm lấy màu sắc trạng thái
   const getStatusColor = (status: string) => {
@@ -142,7 +184,7 @@ const HoanHang: React.FC = () => {
     }
   };
 
-  const tabOptions = ["Tất cả", "Chờ xác nhận", "Hủy hoàn hàng", "Đã xác nhận", "Đã nhận hàng hoàn"];
+  const tabOptions = ["Tất cả", "Chờ xác nhận",  "Đã xác nhận", "Đã nhận hàng hoàn", "Hủy hoàn hàng"];
 
   return (
     <Container>
@@ -213,17 +255,24 @@ const HoanHang: React.FC = () => {
 
                       {openDropdown === refund._id && (
                         <Dropdown>
-                          {["Chờ xác nhận", "Hủy hoàn hàng", "Đã xác nhận", "Đã nhận hàng hoàn"].map((status) => (
+                          {["Chờ xác nhận", "Đã xác nhận", "Đã nhận hàng hoàn", "Hủy hoàn hàng"].map((status) => (
                             <DropdownItem
                               key={status}
                               onClick={() => {
-                                handleStatusChange(refund._id, status);
-                                setOpenDropdown(null);
+                                if (status !== refund.refundStatus) { // Không cho chọn lại trạng thái hiện tại
+                                  handleStatusChange(refund._id, status);
+                                  setOpenDropdown(null);
+                                }
+                              }}
+                              style={{
+                                cursor: status === refund.refundStatus ? "not-allowed" : "pointer",
+                                color: status === refund.refundStatus ? "#ccc" : "#000",
                               }}
                             >
                               {status}
                             </DropdownItem>
                           ))}
+
                         </Dropdown>
                       )}
                     </StatusContainer>
@@ -242,68 +291,68 @@ const HoanHang: React.FC = () => {
         </RefundTable>
       )}
 
-{isModalOpen && orderDetails && (
-  <Modal>
-    <ModalContent>
-      <ModalTitle>Chi tiết đơn hàng</ModalTitle>
+      {isModalOpen && orderDetails && (
+        <Modal>
+          <ModalContent>
+            <ModalTitle>Chi tiết đơn hàng</ModalTitle>
 
-      {/* Thông tin khách hàng */}
-      <SectionTitle>Thông tin khách hàng</SectionTitle>
-      <InfoRow>
-        <Label>Tên khách hàng:</Label>
-        <Value>{orderDetails.name_order}</Value>
-      </InfoRow>
-      <InfoRow>
-        <Label>Số điện thoại:</Label>
-        <Value>{orderDetails.phone_order}</Value>
-      </InfoRow>
-      <InfoRow>
-        <Label>Địa chỉ:</Label>
-        <Value>{orderDetails.address_order}</Value>
-      </InfoRow>
-      <InfoRow>
-        <Label>Phương thức thanh toán:</Label>
-        <Value>{orderDetails.payment_method}</Value>
-      </InfoRow>
+            {/* Thông tin khách hàng */}
+            <SectionTitle>Thông tin khách hàng</SectionTitle>
+            <InfoRow>
+              <Label>Tên khách hàng:</Label>
+              <Value>{orderDetails.name_order}</Value>
+            </InfoRow>
+            <InfoRow>
+              <Label>Số điện thoại:</Label>
+              <Value>{orderDetails.phone_order}</Value>
+            </InfoRow>
+            <InfoRow>
+              <Label>Địa chỉ:</Label>
+              <Value>{orderDetails.address_order}</Value>
+            </InfoRow>
+            <InfoRow>
+              <Label>Phương thức thanh toán:</Label>
+              <Value>{orderDetails.payment_method}</Value>
+            </InfoRow>
 
-      {/* Thông tin đơn hàng */}
-      <SectionTitle>Thông tin đơn hàng</SectionTitle>
-      <InfoRow>
-        <Label>Ngày đặt hàng:</Label>
-        <Value>{new Date(orderDetails.orderDate).toLocaleDateString()}</Value>
-      </InfoRow>
-      <InfoRow>
-        <Label>Tổng doanh thu:</Label>
-        <Value>{orderDetails.revenue_all.toLocaleString()} VNĐ</Value>
-      </InfoRow>
+            {/* Thông tin đơn hàng */}
+            <SectionTitle>Thông tin đơn hàng</SectionTitle>
+            <InfoRow>
+              <Label>Ngày đặt hàng:</Label>
+              <Value>{new Date(orderDetails.orderDate).toLocaleDateString()}</Value>
+            </InfoRow>
+            <InfoRow>
+              <Label>Tổng doanh thu:</Label>
+              <Value>{orderDetails.revenue_all.toLocaleString()} VNĐ</Value>
+            </InfoRow>
 
-      {/* Chi tiết sản phẩm */}
-      <SectionTitle>Danh sách sản phẩm</SectionTitle>
-      <ProductTable>
-        <thead>
-          <tr>
-            <TableHeader>Sản phẩm</TableHeader>
-            <TableHeader>Giá</TableHeader>
-            <TableHeader>Số lượng</TableHeader>
-            <TableHeader>Đặc tả</TableHeader>
-          </tr>
-        </thead>
-        <tbody>
-          {orderDetails.prodDetails.map((prod, index) => (
-            <tr key={index}>
-              <TableData>{prod.prodId.namePro}</TableData>
-              <TableData>{prod.revenue.toLocaleString()} VNĐ</TableData>
-              <TableData>{prod.quantity}</TableData>
-              <TableData>{prod.prodSpecification || "Không có"}</TableData>
-            </tr>
-          ))}
-        </tbody>
-      </ProductTable>
+            {/* Chi tiết sản phẩm */}
+            <SectionTitle>Danh sách sản phẩm</SectionTitle>
+            <ProductTable>
+              <thead>
+                <tr>
+                  <TableHeader>Sản phẩm</TableHeader>
+                  <TableHeader>Giá</TableHeader>
+                  <TableHeader>Số lượng</TableHeader>
+                  <TableHeader>Đặc tả</TableHeader>
+                </tr>
+              </thead>
+              <tbody>
+                {orderDetails.prodDetails.map((prod, index) => (
+                  <tr key={index}>
+                    <TableData>{prod.prodId.namePro}</TableData>
+                    <TableData>{prod.revenue.toLocaleString()} VNĐ</TableData>
+                    <TableData>{prod.quantity}</TableData>
+                    <TableData>{prod.prodSpecification || "Không có"}</TableData>
+                  </tr>
+                ))}
+              </tbody>
+            </ProductTable>
 
-      <CloseButton onClick={() => setIsModalOpen(false)}>Đóng</CloseButton>
-    </ModalContent>
-  </Modal>
-)}
+            <CloseButton onClick={() => setIsModalOpen(false)}>Đóng</CloseButton>
+          </ModalContent>
+        </Modal>
+      )}
 
 
 
