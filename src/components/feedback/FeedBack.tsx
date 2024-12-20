@@ -21,13 +21,13 @@ const FeedbackMenu: React.FC = () => {
         style={styles.button}
         onPress={handleKH} // Sử dụng handleAPP để điều hướng
       >
-        <Text style={styles.buttonText}>Phản hồi từ khách hàng</Text>
+        <Text style={styles.buttonText}>Đánh giá sản phẩm</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.button}
         onPress={handleAPP} // Sử dụng handleKH để điều hướng
       >
-        <Text style={styles.buttonText}>Phản hồi từ hệ thống</Text>
+        <Text style={styles.buttonText}>Đánh giá ứng dụng</Text>
       </TouchableOpacity>
     </View>
   );
