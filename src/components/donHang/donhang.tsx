@@ -76,12 +76,15 @@ const DonHang: React.FC = () => {
   const subTabs = ["Đã xong", "Hoàn hàng"]; // Đổi "Hoàn trả" thành "Hoàn hàng"
   const filteredOrders =
   currentTab === "Đã giao"
-    ? currentSubTab === "Đã xong"
-      ? orders.filter((order) => order.orderStatus === "Đã giao" && order.content !== "Hoàn hàng")
-      : orders.filter((order) => order.orderStatus === "Đã giao" && order.content === "Hoàn hàng")
+    ? currentSubTab === "Hoàn hàng"
+      ? orders.filter((order) => order.orderStatus === "Hoàn hàng")
+      : orders.filter((order) => order.orderStatus === "Đã giao")
     : currentTab === "Tất cả"
     ? orders.filter((order) => order.orderStatus !== "Đã hủy")
     : orders.filter((order) => order.orderStatus === currentTab);
+
+
+
 
 
   const searchedOrders = filteredOrders.filter((order) =>
@@ -174,17 +177,51 @@ const DonHang: React.FC = () => {
                   {currentTab === "Đã hủy" ? (
                     <span style={{ color: "red", fontWeight: "bold" }}>Đã hủy</span>
                   ) : (
-                    <select value={order.orderStatus} onChange={(e) => handleStatusChange(order._id, e.target.value)}>
-                    <option value="Chờ xác nhận" style={{ color: "red" }}>Chờ xác nhận</option>
-                    <option value="Chờ lấy hàng" style={{ color: "orange" }}>Chờ lấy hàng</option>
-                    <option value="Chờ giao hàng" style={{ color: "blue" }}>Chờ giao hàng</option>
-                    <option value="Đã giao" style={{ color: "green" }}>Đã giao</option>
-                    {/* <option value="Hoàn hàng" style={{ color: "purple" }}>Hoàn hàng</option> */}
-                  </select>
-                  
-                  
+                    <select
+                      value={order.orderStatus}
+                      onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                    >
+                      <option
+                        value="Chờ xác nhận"
+                        disabled={order.orderStatus !== "Chờ xác nhận"}
+                        style={{ color: order.orderStatus === "Chờ xác nhận" ? "red" : "gray" }}
+                      >
+                        Chờ xác nhận
+                      </option>
+                      <option
+                        value="Chờ lấy hàng"
+                        disabled={order.orderStatus !== "Chờ xác nhận" && order.orderStatus !== "Chờ lấy hàng"}
+                        style={{ color: order.orderStatus === "Chờ lấy hàng" ? "orange" : "gray" }}
+                      >
+                        Chờ lấy hàng
+                      </option>
+                      <option
+                        value="Chờ giao hàng"
+                        disabled={order.orderStatus !== "Chờ lấy hàng" && order.orderStatus !== "Chờ giao hàng"}
+                        style={{ color: order.orderStatus === "Chờ giao hàng" ? "blue" : "gray" }}
+                      >
+                        Chờ giao hàng
+                      </option>
+                      <option
+                        value="Đã giao"
+                        disabled={order.orderStatus !== "Chờ giao hàng"}
+                        style={{ color: order.orderStatus === "Đã giao" ? "green" : "gray" }}
+                      >
+                        Đã giao
+                      </option>
+                      <option
+                        value="Hoàn hàng"
+                        disabled={true} // Luôn vô hiệu hóa
+                        style={{ color: order.orderStatus === "Hoàn hàng" ? "purple" : "gray"}}
+                      >
+                        Hoàn hàng
+                      </option>
+                    </select>
                   )}
                 </td>
+
+
+
                 <td>
                   <button onClick={() => handleNameClick(order)} className="details-button">
                     Chi tiết
