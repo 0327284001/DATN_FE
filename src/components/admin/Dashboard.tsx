@@ -96,14 +96,14 @@ const Dashboard = () => {
     <div className="flex-1 p-4">
       <div className="mb-4 flex justify-between items-center">
         {/* Nút Danh sách ẩn */}
-        <Button
+        {/* <Button
           type="primary"
           onClick={goToHiddenProducts}
           className="mr-4"
         >
           Danh sách ẩn
         </Button>
-        
+         */}
         {/* Tìm kiếm */}
         <Search
           placeholder="Tìm kiếm sản phẩm"
