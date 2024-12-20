@@ -128,40 +128,39 @@ const HoanHang: React.FC = () => {
     const refund = refunds.find((refund) => refund._id === id);
     const customerName = refund?.orderId?.name_order || "Khách hàng"; // Lấy tên khách hàng từ orderId
   
-    // Cập nhật trạng thái hoàn hàng trong state
+    if (refund?.refundStatus === "Chờ xác nhận" && newStatus === "Đã nhận hàng hoàn") {
+      // Không cho phép chuyển từ "Chờ xác nhận" sang "Đã nhận hàng hoàn"
+      alert(`Không thể chuyển từ trạng thái "Chờ xác nhận" sang "Đã nhận hàng hoàn".`);
+      return;
+    }
+  
+    if (refund?.refundStatus === "Đã xác nhận" && newStatus === "Chờ xác nhận") {
+      // Không cho phép chuyển từ "Đã xác nhận" về "Chờ xác nhận"
+      alert(`Không thể chuyển từ trạng thái "Đã xác nhận" về "Chờ xác nhận".`);
+      return;
+    }
+  
+    if (refund?.refundStatus === "Đã nhận hàng hoàn") {
+      // Không cho phép thay đổi trạng thái khi đã ở trạng thái "Đã nhận hàng hoàn"
+      alert(`Trạng thái hoàn hàng của ${customerName} đã được kết thúc, không thể thay đổi nữa.`);
+      return;
+    }
+  
+    // Nếu hợp lệ, cập nhật trạng thái
     setRefunds((prevRefunds) =>
       prevRefunds.map((refund) =>
         refund._id === id ? { ...refund, refundStatus: newStatus } : refund
       )
     );
   
-    // Kiểm tra nếu refundStatus không phải "Chờ xác nhận", mới thay đổi orderStatus
-    if (newStatus === "Đã xác nhận") {
-      // Cập nhật orderStatus thành "Hoàn hàng"
-      axios
-        .put(`http://localhost:28017/refunds/${id}`, { refundStatus: newStatus })
-        .then(() => {
-          if (refund?.orderId?._id) {
-            return axios.put(
-              `http://localhost:28017/orders/${refund.orderId._id}`,
-              { orderStatus: "Hoàn hàng" }
-            );
-          }
-        })
-        .then(() => {
-          alert(`Trạng thái hoàn hàng của ${customerName} và đơn hàng đã được cập nhật.`);
-        })
-        .catch((error) => console.error(error));
-    } else if (newStatus === "Chờ xác nhận") {
-      // Nếu refundStatus là "Chờ xác nhận", không thay đổi orderStatus
-      axios
-        .put(`http://localhost:28017/refunds/${id}`, { refundStatus: newStatus })
-        .then(() => {
-          alert(`Trạng thái hoàn hàng của ${customerName} đã được cập nhật.`);
-        })
-        .catch((error) => console.error(error));
-    }
+    axios
+      .put(`http://localhost:28017/refunds/${id}`, { refundStatus: newStatus })
+      .then(() => {
+        alert(`Trạng thái hoàn hàng của ${customerName} đã được cập nhật thành ${newStatus}.`);
+      })
+      .catch((error) => console.error(error));
   };
+  
   
   
   
@@ -225,7 +224,7 @@ const HoanHang: React.FC = () => {
               <TableHeader>Mã khách hàng</TableHeader>
               <TableHeader>Ngày hoàn hàng</TableHeader>
               <TableHeader>Trạng thái</TableHeader>
-              <TableHeader>Chi tiết</TableHeader>
+              <TableHeader>Lí do hoàn hàng</TableHeader>
               <TableHeader>Thao tác</TableHeader>
             </tr>
           </thead>
@@ -257,20 +256,21 @@ const HoanHang: React.FC = () => {
                         <Dropdown>
                           {["Chờ xác nhận", "Đã xác nhận", "Đã nhận hàng hoàn", "Hủy hoàn hàng"].map((status) => (
                             <DropdownItem
-                              key={status}
-                              onClick={() => {
-                                if (status !== refund.refundStatus) { // Không cho chọn lại trạng thái hiện tại
-                                  handleStatusChange(refund._id, status);
-                                  setOpenDropdown(null);
-                                }
-                              }}
-                              style={{
-                                cursor: status === refund.refundStatus ? "not-allowed" : "pointer",
-                                color: status === refund.refundStatus ? "#ccc" : "#000",
-                              }}
-                            >
-                              {status}
-                            </DropdownItem>
+                            key={status}
+                            onClick={() => {
+                              if (status !== refund.refundStatus && status !== "Hủy hoàn hàng") { // Không cho chọn lại trạng thái hiện tại và "Hủy hoàn hàng"
+                                handleStatusChange(refund._id, status);
+                                setOpenDropdown(null);
+                              }
+                            }}
+                            style={{
+                              cursor: status === refund.refundStatus || status === "Hủy hoàn hàng" ? "not-allowed" : "pointer",
+                              color: status === refund.refundStatus || status === "Hủy hoàn hàng" ? "#ccc" : "#000",
+                            }}
+                          >
+                            {status}
+                          </DropdownItem>
+                          
                           ))}
 
                         </Dropdown>
