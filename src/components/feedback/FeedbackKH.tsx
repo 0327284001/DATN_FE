@@ -2,23 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Button, StyleSheet, Modal } from 'react-native';
 import axios from 'axios';
 
-// Interface cho sản phẩm, bao gồm thuộc tính 'price'
+// Interface cho sản phẩm
 interface Product {
-  price: number;
+  // Tên sản phẩm
+  prodId: string;  // ID sản phẩm
 }
 
 // Interface cho Feedback
 interface Feedback {
   id: string;
   cusId: string;
-  prodId: string | Product;
-  stars: number;
-  content: string;
+  prodId: string;  // prodId là ID sản phẩm (chuỗi)
+  start: number;
   dateFeed: string;
 }
 
 const FeedbackKH: React.FC = () => {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [products, setProducts] = useState<Record<string, Product>>({}); // Lưu sản phẩm theo prodId
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
 
@@ -27,6 +28,24 @@ const FeedbackKH: React.FC = () => {
     axios.get('http://localhost:28017/feedbacks')
       .then(response => {
         setFeedbacks(response.data);
+        // Sau khi nhận được phản hồi, gọi API lấy thông tin sản phẩm cho từng prodId
+        // Lấy danh sách các prodId từ phản hồi
+        const productIds = response.data.map((feedback: Feedback) => feedback.prodId);
+
+        // Loại bỏ trùng lặp bằng cách sử dụng filter
+        const uniqueProductIds = productIds.filter((value: string, index: number, self: string[]) => self.indexOf(value) === index);
+
+        // Tiến hành lấy dữ liệu cho từng sản phẩm
+        uniqueProductIds.forEach((prodId: string) => {
+          axios.get(`http://localhost:28017/products/${prodId}`)
+            .then(res => {
+              setProducts(prev => ({ ...prev, [prodId]: res.data }));
+            })
+            .catch(error => {
+              console.error('Error fetching product:', error);
+            });
+        });
+
       })
       .catch(error => {
         console.error('Error fetching feedbacks:', error);
@@ -53,9 +72,11 @@ const FeedbackKH: React.FC = () => {
 
   // Hàm render từng phản hồi trong danh sách
   const renderFeedbackItem = ({ item }: { item: Feedback }) => {
-    const productInfo = typeof item.prodId === 'object' && item.prodId !== null
-      ? (item.prodId as Product).price
-      : item.prodId;
+    // Lấy thông tin sản phẩm từ `products` bằng cách sử dụng `prodId`
+    const product = products[item.prodId]; // Lấy sản phẩm tương ứng với prodId của feedback
+
+    // Hiển thị prodId trực tiếp (thay vì lấy tên sản phẩm)
+    const productId = item.prodId;
 
     return (
       <View style={styles.feedbackItem}>
@@ -63,13 +84,10 @@ const FeedbackKH: React.FC = () => {
           <Text style={styles.label}>Khách hàng:</Text> {item.cusId}
         </Text>
         <Text style={styles.feedbackText}>
-          <Text style={styles.label}>Sản phẩm:</Text> {productInfo}
+          <Text style={styles.label}>Sản phẩm ID:</Text> {productId} {/* Hiển thị prodId */}
         </Text>
         <Text style={styles.feedbackText}>
-          <Text style={styles.label}>Sao:</Text> {item.stars}
-        </Text>
-        <Text style={styles.feedbackText}>
-          <Text style={styles.label}>Nội dung:</Text> {item.content}
+          <Text style={styles.label}>Sao:</Text> {item.start}
         </Text>
         <Text style={styles.feedbackText}>
           <Text style={styles.label}>Ngày:</Text> {new Date(item.dateFeed).toLocaleDateString()}
@@ -91,7 +109,7 @@ const FeedbackKH: React.FC = () => {
       <FlatList
         data={feedbacks}
         renderItem={renderFeedbackItem}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.id}  // Đảm bảo rằng 'id' là chuỗi hoặc một giá trị duy nhất
         contentContainerStyle={styles.listContainer}
       />
       <Modal
